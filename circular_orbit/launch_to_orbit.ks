@@ -4,6 +4,7 @@ function main
     countdown().
     // Do Launch to 1500 - steering up, thrust max
     initial_launch().
+    lock throttle to 0.
     stage.
 }
 
