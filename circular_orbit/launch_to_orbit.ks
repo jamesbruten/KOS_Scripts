@@ -34,6 +34,7 @@ function initial_launch
     print "Climbing to 1.5km".
     stage.
     wait 2.
+    print "Initiating Roll Program".
     lock steering to heading(0, 90, 67.5).
     until alt:radar > 1500
     {
@@ -41,7 +42,7 @@ function initial_launch
         {
             autostage().
         }
-        WAIT 0.1.
+        wait 0.1.
     }
 }
 
