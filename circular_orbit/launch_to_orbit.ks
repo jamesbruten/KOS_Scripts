@@ -4,25 +4,23 @@ function main
     countdown().
     // Do Launch to 1500 - steering up, thrust max
     initial_launch().
-    lock throttle to 0.
-    stage.
 }
 
 function countdown
 {
     // Countdown and ignition of engines
     lock throttle to 1.
-    lock steering to up.
+    lock steering to heading(0, 90, 0).
     local tminus is 5.
     until tminus < 0
     {
         clearscreen.
         print "Initiating Launch Program".
         print "t-minus: " + tminus.
-        if tminus < 3
+        if tminus < 2
         {
             print "Engine Ignition".
-            if tminus = 2 stage.
+            if tminus = 1 stage.
         }
         set tminus to tminus - 1.
         WAIT 1.
@@ -35,6 +33,8 @@ function initial_launch
     print "Liftoff".
     print "Climbing to 1.5km".
     stage.
+    wait 2.
+    lock steering to heading(0, 90, 67.5).
     until alt:radar > 1500
     {
         if check_stage_running() = false
