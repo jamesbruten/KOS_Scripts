@@ -42,6 +42,14 @@ function countdown
         set tminus to tminus - 1.
         WAIT 1.
     }
+    clearscreen.
+    print "Target Apoapsis:    " + target_ap_km.
+    print "Target Periapsis:   " + target_pe_km.
+    print "Target Inclination: " + target_inc.
+    print "".
+    print "Initiating Launch Program".
+    print "t-minus: " + 0.
+    print "Engine Ignition".
 }
 
 function initial_launch
