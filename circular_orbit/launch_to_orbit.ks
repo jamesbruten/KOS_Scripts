@@ -1,11 +1,12 @@
 function main
 {
     set steeringmanager:maxstoppingtime to 0.05. 
-    declare global target_ap_km to 100.
+    declare global target_ap_km to 150.
     declare global target_pe_km to target_ap_km.
+    declare global target_inc to 15.
+
     declare global target_ap to target_ap_km * 1000.
     declare global target_pe to target_ap.
-    declare global target_inc to 90.
 
     // Do Countdown
     countdown().
@@ -114,7 +115,7 @@ function prograde_climb
             set switch_to_orbit to true.
             lock prograde_pitch to 90 - vang(ship:prograde:vector, up:vector).
         }
-        if (fairings_deployed = false and alt:radar > 50000)
+        if (fairings_deployed = false and alt:radar > 65000)
         {
             set fairings_deployed to true.
             deploy_fairing().
@@ -122,13 +123,14 @@ function prograde_climb
         }
         wait 0.01.
     }
-    if (alt:radar < 60000) wait 0.4.
+    if (alt:radar < 60000) wait 0.4.            // these two lines boost apoapsis slightly to negate for atmospheric drag
+    else if (alt:radar < 65000) wait 0.2.
     lock throttle to 0.
     lock steering to prograde.
     print "Engine Shutdown".
     if (fairings_deployed = false)
     {
-        until (alt:radar > 50000) wait 0.1.
+        until (alt:radar > 65000) wait 0.1.
         deploy_fairing().
     }
 }
@@ -178,21 +180,28 @@ function create_mnv
 
 function execute_mnv
 {
-    print "Executing Maneuver".
-
     parameter burn_time.
-    local mnv is nextnode.
-    print "Warping to maneuver - 60".
-    timewarp:warpto(time:seconds + mnv:eta - 60).
 
-    print "Maneuver: Ignition".
+    print "Executing Maneuver".
+    set steeringmanager:maxstoppingtime to 0.4.
+
+    local mnv is nextnode.
+    local burn_start is mnv:time - burn_time/2.
+    local burn_end is mnv:time + burn_time/2.
+
+    print "Warping to maneuver_start - 60".
+    kuniverse:timewarp:warpto(time:seconds + mnv:eta - 60).
+
+    print "Maneuver: Steering".
     lock steering to mnv:burnvector.
-    wait until time:seconds >= mnv:time.
+    wait until time:seconds >= burn_start.
+    print "Maneuver: Ignition".
     lock throttle to 1.
-    wait until time:seconds >= time:seconds + burn_time.
+    wait until time:seconds >= burn_end.
     lock throttle to 0.
     lock steering to prograde.
     print "Maneuver: Shutdown".
+    remove_maneuver(mnv).
 }
 
 function add_maneuver 
@@ -262,7 +271,9 @@ function inst_az
 	local V_orb is sqrt( body:mu / ( ship:altitude + body:radius)).
 	
 	// project desired orbit onto surface heading
-	local az_orb is arcsin ( cos(inc) / cos(ship:latitude)).
+    local arcsin_val is cos(inc) / cos(ship:latitude).
+    set arcsin_val to min(1, arcsin_val).
+	local az_orb is arcsin (arcsin_val).
 	if (inc < 0)
 	{
 		set az_orb to 180 - az_orb.
