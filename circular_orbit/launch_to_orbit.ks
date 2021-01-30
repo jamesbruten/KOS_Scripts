@@ -30,7 +30,7 @@ function main
     // If difference > 1km perform new burn at periapsis
     if (ship:apoapsis < target_ap-1000 or ship:apoapsis > target_ap+1000)
     {
-        local burn_time is create_mnv("p").
+        set burn_time to create_mnv("p").
         execute_mnv(burn_time).
     }
     wait until false.
