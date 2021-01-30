@@ -19,7 +19,8 @@ function main
 
     // fly prograde until apoapsis height reached.
     prograde_climb().
-    wait until alt:radar > 70000.
+    if (alt:radar >= 70000) wait 10.
+    else wait until alt:radar >= 70000.
 
     // Create and Execute Maneuver to raise periapsis
     local burn_time is create_mnv("a").
