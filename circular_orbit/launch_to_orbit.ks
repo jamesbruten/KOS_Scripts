@@ -2,11 +2,11 @@ function main
 {
     set steeringmanager:maxstoppingtime to 0.05. 
     declare global target_ap_km to 100.
-    declare global target_pe_km to target_ap_km.
+    declare global target_pe_km to 73.
     declare global target_inc to 30.
 
     declare global target_ap to target_ap_km * 1000.
-    declare global target_pe to target_ap.
+    declare global target_pe to target_pe_km * 1000.
 
     // Do Countdown
     countdown().
@@ -188,14 +188,14 @@ function execute_mnv
     parameter burn_time.
 
     print "Executing Maneuver".
-    set steeringmanager:maxstoppingtime to 0.4.
+    set steeringmanager:maxstoppingtime to 0.5.
 
     local mnv is nextnode.
     local burn_start is mnv:time - burn_time/2.
     local burn_end is mnv:time + burn_time/2.
 
-    print "Warping to maneuver_start - 60".
-    kuniverse:timewarp:warpto(time:seconds + mnv:eta - 60).
+    print "Warping to maneuver_start - 30".
+    kuniverse:timewarp:warpto(burn_start - 30).
 
     print "Maneuver: Steering".
     lock steering to mnv:burnvector.
