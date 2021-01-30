@@ -15,8 +15,8 @@ function main
     // fly prograde until apoapsis height reached.
     prograde_climb().
     wait until alt:radar > 70000.
-    create_mnv().
-    // execute_mnv().
+    local burn_time is create_mnv().
+    execute_mnv(burn_time).
     wait until false.
 }
 
@@ -163,12 +163,19 @@ function create_mnv
 
 function execute_mnv
 {
+    print "Executing Maneuver".
+
+    parameter burn_time.
     local mnv is nextnode.
     print "Warping to maneuver - 60".
     timewarp:warpto(time:seconds + mnv:eta - 60).
 
     lock steering to mnv:burnvector.
     wait until time:seconds >= mnv:time.
+    lock throttle to 1.
+    wait until time:seconds >= time:seconds + burn_time.
+    lock throttle to 0.
+    lock steering to prograde.
 }
 
 function add_maneuver 
