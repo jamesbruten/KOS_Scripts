@@ -1,9 +1,10 @@
 function main
 {
+    set steeringmanager:maxstoppingtime to 0.05. 
     declare global target_ap_km to 100.
-    declare global target_pe_km to 100.
+    declare global target_pe_km to target_ap_km.
     declare global target_ap to target_ap_km * 1000.
-    declare global target_pe to target_pe_km * 1000.
+    declare global target_pe to target_ap.
     declare global target_inc to 90.
     // Do Countdown
     countdown().
@@ -13,6 +14,9 @@ function main
     to_ten_km().
     // fly prograde until apoapsis height reached.
     prograde_climb().
+    wait until alt:radar > 70000.
+    create_mnv().
+    // execute_mnv().
     wait until false.
 }
 
@@ -103,13 +107,82 @@ function prograde_climb
         }
         wait 0.01.
     }
+    if (alt:radar < 60000) wait 0.4.
     lock throttle to 0.
+    lock steering to prograde.
     print "Engine Shutdown".
     if (fairings_deployed = false)
     {
         until (alt:radar > 50000) wait 0.1.
         deploy_fairing().
     }
+}
+
+function create_mnv
+{
+    print "Calculating Circularisation Burn".
+
+    // First calculate orbital velocity for circular orbit at target altitude
+    // Get time until apoapsis and time at apoapsis
+    // Get predicted velocity at apoapsis
+    // Calculate dv difference between required and predicted
+
+    local orbital_vel is sqrt(ship:body:mu / (ship:body:radius + ship:apoapsis)).
+    local time_to_ap is eta:apoapsis.
+    local time_at_ap is time:seconds + time_to_ap.
+    local vel_at_ap is velocityat(ship, time_at_ap):orbit:mag.
+    local burn_dv is orbital_vel - vel_at_ap.
+
+    // Calculate stage isp
+    // list engines and select engines that have beeen ignited but not flamed out
+    // add on engine isp weighted by engine thrust / ship thrust
+
+    local isp is 0.
+    list engines in ship_engines.
+    for en in ship_engines
+    {
+        if en:ignition and not en:flameout
+        {
+            set isp to isp + en:isp * en:maxthrust / ship:maxthrust.
+        }
+    }
+
+    // calculate fuel flow rate
+    // calculate burn time for required dv
+    // create mnv based on burn start time and burning in only radial
+    // add maneuver to flight plan
+
+    local dfuel is ship:maxthrust / (constant:g0 * isp).
+    local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(burn_dv / (isp*constant:g0)))).
+    local mnv is node(timespan(time_to_ap), 0, 0, burn_dv).
+    add_maneuver(mnv).
+    print "Circularisation Burn:".
+    print mnv.
+    return burn_time.
+}
+
+function execute_mnv
+{
+    local mnv is nextnode.
+    print "Warping to maneuver - 60".
+    timewarp:warpto(time:seconds + mnv:eta - 60).
+
+    lock steering to mnv:burnvector.
+    wait until time:seconds >= mnv:time.
+}
+
+function add_maneuver 
+{
+    // adds maneuver to flight plan
+    parameter mnv.
+    add mnv.
+}
+
+function remove_maneuver
+{
+    // removes maneuver from flight plan
+    parameter mnv.
+    remove mnv.
 }
 
 function check_stage_thrust
@@ -136,7 +209,7 @@ function autostage
     if (ship:availablethrust < 0.1)
     {
         print "Staging: Ignition".
-        WAIT 1.
+        WAIT 2.
         stage.
     }
 }
