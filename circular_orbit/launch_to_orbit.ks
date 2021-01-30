@@ -185,12 +185,14 @@ function execute_mnv
     print "Warping to maneuver - 60".
     timewarp:warpto(time:seconds + mnv:eta - 60).
 
+    print "Maneuver: Ignition".
     lock steering to mnv:burnvector.
     wait until time:seconds >= mnv:time.
     lock throttle to 1.
     wait until time:seconds >= time:seconds + burn_time.
     lock throttle to 0.
     lock steering to prograde.
+    print "Maneuver: Shutdown".
 }
 
 function add_maneuver 
