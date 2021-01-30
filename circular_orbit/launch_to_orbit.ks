@@ -28,7 +28,7 @@ function main
 
     // Check apoapsis against desired height
     // If difference > 1km perform new burn at periapsis
-    if (ship:apoapsis < target_ap-1000 or ship:apoapsis)
+    if (ship:apoapsis < target_ap-1000 or ship:apoapsis > target_ap+1000)
     {
         local burn_time is create_mnv("p").
         execute_mnv(burn_time).
