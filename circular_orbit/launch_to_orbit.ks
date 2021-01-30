@@ -6,17 +6,24 @@ function main
     declare global target_ap to target_ap_km * 1000.
     declare global target_pe to target_ap.
     declare global target_inc to 90.
+
     // Do Countdown
     countdown().
+
     // Do Launch to 1500 - steering up, thrust max
     initial_launch().
+
     // fly on defined pitch heading to 10km
     to_ten_km().
+
     // fly prograde until apoapsis height reached.
     prograde_climb().
     wait until alt:radar > 70000.
+
+    // Create and Execute Circularisation Maneuver
     local burn_time is create_mnv().
     execute_mnv(burn_time).
+
     wait until false.
 }
 
