@@ -71,7 +71,10 @@ function main
         set burn_time to create_mnv("p").
         execute_mnv(burn_time).
         list engines in ship_engines.
-        for en in ship_engines set en:thrustlimit to 100.
+        for en in ship_engines
+        {
+            set en:thrustlimit to 100.
+        }
     }
     else print "No apoapsis adjustment required".
 
@@ -218,7 +221,10 @@ function create_mnv
         set mnv_semi_major to (ship:periapsis + target_ap + 2*body:radius) / 2.
         set time_to_burn to eta:periapsis.
         list engines in ship_engines.
-        for en in ship_engines set en:thrustlimit to 2.
+        for en in ship_engines
+        {
+            set en:thrustlimit to 5.
+        }
     }
 
     local time_at_burn is time:seconds + time_to_burn.
