@@ -1,12 +1,23 @@
 function main
 {
     set steeringmanager:maxstoppingtime to 0.1. 
-    declare global target_ap_km to 110.
-    declare global target_pe_km to 107.
-    declare global target_inc to -93.
+    declare global target_ap_km to 200.
+    declare global target_pe_km to 200.
+    declare global target_inc to 85.
+
+    if (target_ap_km < target_pe_km)
+    {
+        local temp is target_ap_km.
+        set target_ap_km to target_pe_km.
+        set target_pe_km to temp.
+    }
 
     declare global target_ap to target_ap_km * 1000.
     declare global target_pe to target_pe_km * 1000.
+
+    print "Target Apoapsis:    " + target_ap_km.
+    print "Target Periapsis:   " + target_pe_km.
+    print "Target Inclination: " + target_inc.
 
     lock char to terminal:input:getchar().
     print "Hit 'l' to launch".
@@ -30,10 +41,19 @@ function main
     local burn_time is create_mnv("a").
     execute_mnv(burn_time).
 
-    // Deploy Payload
-    print "Deploying Payload".
-    wait 10.
-    autostage().
+    local final_stage_check is true.
+    for en in ship_engines
+    {
+        if not en:ignition set final_stage_check to false.
+    }
+
+    if (final_stage_check = false)
+    {
+        // Deploy Payload
+        wait 10.
+        deploy_payload().
+    }
+
     wait 10.
     deploy_antenna().
     wait 3.
@@ -49,6 +69,10 @@ function main
         execute_mnv(burn_time).
     }
     else print "No apoapsis adjustment required".
+
+    wait 10.
+    deploy_payload().
+
     wait until false.
 }
 
@@ -297,7 +321,7 @@ function deploy_fairing
 
 function deploy_solar_panels
 {
-    print "Deploying Solar Panels".
+    print "Extending Solar Panels".
     for p in ship:parts
     {
         if p:hasmodule("moduledeployablesolarpanel") p:getmodule("moduledeployablesolarpanel"):doevent("extend solar panel").
@@ -306,10 +330,22 @@ function deploy_solar_panels
 
 function deploy_antenna
 {
-    print "Deploying Antenna".
+    print "Extending Antenna".
     for p in ship:parts
     {
-        if (p:title = "communotron hg-55") p:getmodule("moduledeployableantenna"):doevent("extend antenna").
+        if (p:hasmodule("moduledeployableantenna") = true) p:getmodule("moduledeployableantenna"):doevent("extend antenna").
+    }
+}
+
+function deploy_payload
+{
+    for p in ship:parts
+    {
+        if (p:tag = "payload_deploy")
+        {
+            print "Deploying Payload".
+            p:getmodule("moduledecouple"):doevent("decouple").
+        } 
     }
 }
 
