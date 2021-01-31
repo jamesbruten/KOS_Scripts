@@ -240,7 +240,7 @@ function create_mnv
     // add maneuver to flight plan
 
     local dfuel is ship:availablethrust / (constant:g0 * isp).
-    local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(burn_dv / (isp*constant:g0)))).
+    local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(abs(burn_dv) / (isp*constant:g0)))).
     local mnv is node(timespan(time_to_burn), 0, 0, burn_dv).
     add_maneuver(mnv).
     print "Maneuver Burn:".
