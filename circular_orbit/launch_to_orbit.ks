@@ -7,6 +7,7 @@ function main
 
     declare global target_ap to target_ap_km * 1000.
     declare global target_pe to target_pe_km * 1000.
+    declare global target_semimajor to (target_ap + target_pe) / 2.
 
     // Do Countdown
     countdown().
@@ -146,26 +147,32 @@ function prograde_climb
 function create_mnv
 {
     // burn_mode is the node where burn is taking place
+    // For maneuver calc need radius at burn and final orbit semimajor
+    // The semimajor should be calculated based on the actual orbit, not target
+    // ie. if at apoapsis, semimajor = (real_ap + target_pe) / 2
     parameter burn_node.
 
     print "Calculating Maneuver Burn".
 
-    local wanted_rad is 0.
+    local real_rad is 0.
+    local mnv_semi_major is 0.
     local time_to_burn is 0.
     if (burn_node = "a")
     {
-        set wanted_rad to ship:body:radius + target_ap.
+        set real_rad to ship:body:radius + ship:apoapsis.
+        set mnv_semi_major to (real_rad + target_pe) / 2.
         set time_to_burn to eta:apoapsis.
     }
     else if (burn_node = "p")
     {
-        set wanted_rad to ship:body:radius + target_pe.
+        set real_rad to ship:body:radius + ship:periapsis.
+        set mnv_semi_major to (real_rad + target_ap) / 2.
         set time_to_burn to eta:periapsis.
     }
 
     local time_at_burn is time:seconds + time_to_burn.
     local vel_at_burn is velocityat(ship, time_at_burn):orbit:mag.
-    local wanted_vel is sqrt(ship:body:mu * (2/wanted_rad + 1/ship:orbit:semimajoraxis)).
+    local wanted_vel is sqrt(ship:body:mu * (2/real_rad + 1/mnv_semi_major)).
     local burn_dv is wanted_vel - vel_at_burn.
 
     local isp is calc_current_isp.
@@ -175,7 +182,7 @@ function create_mnv
     // create mnv based on burn start time and burning in only radial
     // add maneuver to flight plan
 
-    local dfuel is ship:maxthrust / (constant:g0 * isp).
+    local dfuel is ship:availablethrust / (constant:g0 * isp).
     local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(burn_dv / (isp*constant:g0)))).
     local mnv is node(timespan(time_to_burn), 0, 0, burn_dv).
     add_maneuver(mnv).
@@ -200,6 +207,7 @@ function execute_mnv
 
     print "Maneuver: Steering".
     lock steering to mnv:burnvector.
+    
     wait until time:seconds >= burn_start.
     print "Maneuver: Ignition".
     lock throttle to 1.
@@ -347,7 +355,7 @@ function calc_current_isp
     {
         if en:ignition and not en:flameout
         {
-            set isp to isp + en:isp * en:maxthrust / ship:maxthrust.
+            set isp to isp + en:isp * en:availablethrust / ship:availablethrust. 
         }
     }
     return isp.
