@@ -237,8 +237,9 @@ function create_mnv
     local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(burn_dv / (isp*constant:g0)))).
     local mnv is node(timespan(time_to_burn), 0, 0, burn_dv).
     add_maneuver(mnv).
-    print "Circularisation Burn:".
+    print "Maneuver Burn:".
     print mnv.
+    print "Burn Time: " + burn_time.
     return burn_time.
 }
 
@@ -252,9 +253,6 @@ function execute_mnv
     local mnv is nextnode.
     local burn_start is mnv:time - burn_time/2.
     local burn_end is mnv:time + burn_time/2.
-
-    print "Warping to maneuver_start - 30".
-    kuniverse:timewarp:warpto(burn_start - 30).
 
     print "Maneuver: Steering".
     lock steering to mnv:burnvector.
