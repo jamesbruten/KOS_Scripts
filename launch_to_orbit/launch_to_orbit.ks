@@ -1,5 +1,7 @@
 function main
 {
+    // if using boot_deorbit set main_cpu tag
+    // Call final decoupler payload_deploy
     set steeringmanager:maxstoppingtime to 0.1. 
     declare global target_ap_km to 200.
     declare global target_pe_km to 200.
@@ -42,7 +44,7 @@ function main
     execute_mnv(burn_time).
 
     local final_stage_check is true.
-    for en in ship_engines
+    for en in ship:engines
     {
         if not en:ignition set final_stage_check to false.
     }
@@ -67,6 +69,7 @@ function main
         print "Performing Burn to adjust apoapsis".
         set burn_time to create_mnv("p").
         execute_mnv(burn_time).
+        for en in ship:engines set en:thrustlimit to 100.
     }
     else print "No apoapsis adjustment required".
 
@@ -212,6 +215,7 @@ function create_mnv
         set real_rad to body:radius + ship:periapsis.
         set mnv_semi_major to (ship:periapsis + target_ap + 2*body:radius) / 2.
         set time_to_burn to eta:periapsis.
+        for en in ship:engines set en:thrustlimit to 2.
     }
 
     local time_at_burn is time:seconds + time_to_burn.
