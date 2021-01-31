@@ -12,8 +12,10 @@ until false
 if (ship:periapsis > 25000)
 {
     lock steering to retrograde.
-    wait 300.
-    lock throttle to 0.5.
+    wait 20.
+    lock throttle to 0.1.
+    wait 10.
+    lock throttle to 1.
     wait until ship:periapsis < 15000.
     lock throttle to 0.
     unlock steering.
