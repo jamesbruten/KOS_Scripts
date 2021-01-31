@@ -1,13 +1,16 @@
 function main
 {
-    set steeringmanager:maxstoppingtime to 0.05. 
-    declare global target_ap_km to 100.
-    declare global target_pe_km to 73.
-    declare global target_inc to 30.
+    set steeringmanager:maxstoppingtime to 0.1. 
+    declare global target_ap_km to 110.
+    declare global target_pe_km to 107.
+    declare global target_inc to -93.
 
     declare global target_ap to target_ap_km * 1000.
     declare global target_pe to target_pe_km * 1000.
-    declare global target_semimajor to (target_ap + target_pe) / 2.
+
+    lock char to terminal:input:getchar().
+    print "Hit 'l' to launch".
+    wait until char = "l".
 
     // Do Countdown
     countdown().
@@ -27,13 +30,25 @@ function main
     local burn_time is create_mnv("a").
     execute_mnv(burn_time).
 
+    // Deploy Payload
+    print "Deploying Payload".
+    wait 10.
+    autostage().
+    wait 10.
+    deploy_antenna().
+    wait 3.
+    deploy_solar_panels().
+    wait 20.
+
     // Check apoapsis against desired height
     // If difference > 1km perform new burn at periapsis
     if (ship:apoapsis < target_ap-1000 or ship:apoapsis > target_ap+1000)
     {
+        print "Performing Burn to adjust apoapsis".
         set burn_time to create_mnv("p").
         execute_mnv(burn_time).
     }
+    else print "No apoapsis adjustment required".
     wait until false.
 }
 
@@ -111,6 +126,7 @@ function prograde_climb
     print "Climbing on Prograde Pitch".
     declare local switch_to_orbit to false.
     declare local fairings_deployed to false.
+    declare local lock_inclination to false.
     declare local max_pitch to 45.
     lock prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     lock current_pitch to min(prograde_pitch, max_pitch).
@@ -128,7 +144,11 @@ function prograde_climb
         {
             set fairings_deployed to true.
             deploy_fairing().
-
+        }
+        if (lock_inclination = false and ship:velocity:orbit:mag > 2000)
+        {
+            set lock_inclination to true.
+            lock steering to ship:prograde.
         }
         wait 0.01.
     }
@@ -159,23 +179,23 @@ function create_mnv
     local time_to_burn is 0.
     if (burn_node = "a")
     {
-        set real_rad to ship:body:radius + ship:apoapsis.
-        set mnv_semi_major to (real_rad + target_pe) / 2.
+        set real_rad to body:radius + ship:apoapsis.
+        set mnv_semi_major to (ship:apoapsis + target_pe + 2*body:radius) / 2.
         set time_to_burn to eta:apoapsis.
     }
     else if (burn_node = "p")
     {
-        set real_rad to ship:body:radius + ship:periapsis.
-        set mnv_semi_major to (real_rad + target_ap) / 2.
+        set real_rad to body:radius + ship:periapsis.
+        set mnv_semi_major to (ship:periapsis + target_ap + 2*body:radius) / 2.
         set time_to_burn to eta:periapsis.
     }
 
     local time_at_burn is time:seconds + time_to_burn.
     local vel_at_burn is velocityat(ship, time_at_burn):orbit:mag.
-    local wanted_vel is sqrt(ship:body:mu * (2/real_rad + 1/mnv_semi_major)).
+    local wanted_vel is sqrt(ship:body:mu * (2/real_rad - 1/mnv_semi_major)).
     local burn_dv is wanted_vel - vel_at_burn.
 
-    local isp is calc_current_isp.
+    local isp is calc_current_isp().
 
     // calculate fuel flow rate
     // calculate burn time for required dv
@@ -264,8 +284,6 @@ function autostage
 
 function deploy_fairing
 {
-    // Function to deploy fairings
-
     print "Fairing Jettison".
     for p in ship:parts
     {
@@ -274,6 +292,24 @@ function deploy_fairing
             local decoupler is p:getmodule("moduleproceduralfairing").
             if decoupler:hasevent("deploy") decoupler:doevent("deploy").
         }
+    }
+}
+
+function deploy_solar_panels
+{
+    print "Deploying Solar Panels".
+    for p in ship:parts
+    {
+        if p:hasmodule("moduledeployablesolarpanel") p:getmodule("moduledeployablesolarpanel"):doevent("extend solar panel").
+    }
+}
+
+function deploy_antenna
+{
+    print "Deploying Antenna".
+    for p in ship:parts
+    {
+        if (p:title = "communotron hg-55") p:getmodule("moduledeployableantenna"):doevent("extend antenna").
     }
 }
 
@@ -309,38 +345,8 @@ function inst_az
 	
 	// calculate compass heading
 	local az_corr is arctan2(vel_e, vel_n).
+
     return az_corr.
-}
-
-function create_mnv_circular
-{
-    print "Calculating Circularisation Burn".
-
-    // First calculate orbital velocity for circular orbit at target altitude
-    // Get time until apoapsis and time at apoapsis
-    // Get predicted velocity at apoapsis
-    // Calculate dv difference between required and predicted
-
-    local orbital_vel is sqrt(ship:body:mu / (ship:body:radius + ship:apoapsis)).
-    local time_to_ap is eta:apoapsis.
-    local time_at_ap is time:seconds + time_to_ap.
-    local vel_at_ap is velocityat(ship, time_at_ap):orbit:mag.
-    local burn_dv is orbital_vel - vel_at_ap.
-
-    local isp is calc_current_isp.
-
-    // calculate fuel flow rate
-    // calculate burn time for required dv
-    // create mnv based on burn start time and burning in only radial
-    // add maneuver to flight plan
-
-    local dfuel is ship:maxthrust / (constant:g0 * isp).
-    local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(burn_dv / (isp*constant:g0)))).
-    local mnv is node(timespan(time_to_ap), 0, 0, burn_dv).
-    add_maneuver(mnv).
-    print "Circularisation Burn:".
-    print mnv.
-    return burn_time.
 }
 
 function calc_current_isp
