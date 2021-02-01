@@ -16,7 +16,11 @@ function deploy_solar_panels
     print "Extending Solar Panels".
     for p in ship:parts
     {
-        if p:hasmodule("moduledeployablesolarpanel") p:getmodule("moduledeployablesolarpanel"):doevent("extend solar panel").
+        if p:hasmodule("moduledeployablesolarpanel")
+        {
+            local panel is p:getmodule("moduledeployablesolarpanel").
+            if panel:hasevent("extend solar panel") panel:doevent("extend solar panel").
+        }
     }
 }
 
@@ -25,7 +29,11 @@ function deploy_antenna
     print "Extending Antenna".
     for p in ship:parts
     {
-        if (p:hasmodule("moduledeployableantenna") = true) p:getmodule("moduledeployableantenna"):doevent("extend antenna").
+        if p:hasmodule("moduledeployableantenna")
+        {
+            local dish is p:getmodule("moduledeployableantenna").
+            if dish:hasevent("extend antenna") dish:doevent("extend antenna").
+        }
     }
 }
 

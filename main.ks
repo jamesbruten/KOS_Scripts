@@ -1,17 +1,5 @@
 function main
 {
-    
-
-    // Deploy Payload
-    print "Deploying Payload".
-    wait 10.
-    autostage().
-
-    wait 10.
-    deploy_antenna().
-    wait 3.
-    deploy_solar_panels().
-    wait 20.
 
 
     // Check apoapsis against desired height

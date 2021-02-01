@@ -12,6 +12,8 @@ function adjust_orbit
         set burn_time to create_mnv(burn_node).
         if (burn_time < 2)
         {
+            local mnv is nextnode.
+            remove_maneuver(mnv).
             for en in ship_engines
             {
                 if (en:thrustlimit = 100) set en:thrustlimit to 5.
