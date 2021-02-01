@@ -2,7 +2,8 @@ core:part:getmodule("KOSProcessor"):doevent("Open Terminal").
 runpath("0:/boot/load_scripts.ks").
 
 // if using boot_deorbit set main_cpu tag
-// Call final decoupler payload_deploy
+// Call final decoupler 'payload_deploy'     --- IMPORTANT ---
+
 declare global target_ap_km to 150.
 declare global target_pe_km to 150.
 declare global target_inc to 33.
