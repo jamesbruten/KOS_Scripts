@@ -21,9 +21,9 @@ function main
     print "Target Periapsis:   " + target_pe_km.
     print "Target Inclination: " + target_inc.
 
-    lock char to terminal:input:getchar().
+    lock inp to terminal:input:getchar().
     print "Hit 'l' to launch".
-    wait until char = "l".
+    wait until inp = "l".
 
     // Do Countdown
     countdown().
