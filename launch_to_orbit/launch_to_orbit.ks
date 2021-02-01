@@ -2,7 +2,6 @@ function main
 {
     // if using boot_deorbit set main_cpu tag
     // Call final decoupler payload_deploy
-    set steeringmanager:maxstoppingtime to 0.1. 
     declare global target_ap_km to 200.
     declare global target_pe_km to 200.
     declare global target_inc to -85.
@@ -16,6 +15,7 @@ function main
 
     declare global target_ap to target_ap_km * 1000.
     declare global target_pe to target_pe_km * 1000.
+    set steeringmanager:maxstoppingtime to 0.1.
 
     print "Target Apoapsis:    " + target_ap_km.
     print "Target Periapsis:   " + target_pe_km.
@@ -309,7 +309,7 @@ function autostage
     print "Staging: Decoupler".
     WAIT 1.
     stage.
-    if (ship:availablethrust < 0.1)
+    if (ship:availablethrust < 0.01)
     {
         print "Staging: Ignition".
         WAIT 2.
