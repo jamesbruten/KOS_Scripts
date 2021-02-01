@@ -23,7 +23,11 @@ launch_to_ap().
 adjust_orbit("a").
 
 wait 10.
+deploy_payload().
+wait 10.
 deploy_antenna().
 wait 3.
 deploy_solar_panels().
 wait 20.
+
+wait until false.
