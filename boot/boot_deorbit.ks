@@ -11,6 +11,7 @@ until false
 }
 if (ship:periapsis > 25000)
 {
+    if (ship:apoapsis > 750000) wait until eta:apoapsis < 60.
     lock steering to retrograde.
     wait 20.
     lock throttle to 0.3.

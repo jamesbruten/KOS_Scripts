@@ -2,9 +2,9 @@ function main
 {
     // if using boot_deorbit set main_cpu tag
     // Call final decoupler payload_deploy
-    declare global target_ap_km to 200.
-    declare global target_pe_km to 200.
-    declare global target_inc to -85.
+    declare global target_ap_km to 2863.33.
+    declare global target_pe_km to 2863.33.
+    declare global target_inc to 0.
 
     if (target_ap_km < target_pe_km)
     {
@@ -39,29 +39,28 @@ function main
     if (alt:radar >= 70000) wait 10.
     else wait until alt:radar >= 70000.
 
-    // Create and Execute Maneuver to raise periapsis
-    local burn_time is create_mnv("a").
-    execute_mnv(burn_time).
-
-    local final_stage_check is true.
-    list engines in ship_engines.
-    for en in ship_engines
-    {
-        if not en:ignition set final_stage_check to false.
-    }
-
-    if (final_stage_check = false)
-    {
-        // Deploy Payload
-        wait 10.
-        deploy_payload().
-    }
+    // Deploy Payload
+    print "Deploying Payload".
+    wait 10.
+    autostage().
 
     wait 10.
     deploy_antenna().
     wait 3.
     deploy_solar_panels().
     wait 20.
+
+    // Create and Execute Maneuver to raise periapsis
+    local burn_time is create_mnv("a").
+    execute_mnv(burn_time).
+    wait 10.
+
+    // local final_stage_check is true.
+    // list engines in ship_engines.
+    // for en in ship_engines
+    // {
+    //     if not en:ignition set final_stage_check to false.
+    // }
 
     // Check apoapsis against desired height
     // If difference > 1km perform new burn at periapsis
@@ -77,9 +76,6 @@ function main
         }
     }
     else print "No apoapsis adjustment required".
-
-    wait 10.
-    deploy_payload().
 
     wait until false.
 }
@@ -393,7 +389,45 @@ function inst_az
 	// calculate compass heading
 	local az_corr is arctan2(vel_e, vel_n).
 
+    local prograde_heading is compass_for_vec().
+    local heading_diff is abs(abs(az_corr) - prograde_heading).
+    if (heading_diff > 360) set heading_diff to heading_diff - 360.
+
+
+    // limit heading to no more than 10 degrees from prograde
+    // if (heading_diff > 10 and ship:velocity:orbit:mag > 2000)
+    // {
+    //     if (abs(az_corr) < prograde_heading) return prograde_heading - 10.
+    //     else return prograde_heading + 10.
+    // }
+
     return az_corr.
+}
+
+function compass_for_vec
+{
+    // What direction is east right now, in unit vector terms (we really should provide this in kOS):
+    local east_unit_vec is  vcrs(ship:up:vector, ship:north:vector).
+
+    local ship_vel is ship:velocity:surface.
+    if (ship:velocity:orbit:mag > 1650) set ship_vel to ship:velocity:orbit.
+
+    // east component of vector:
+    local east_vel is vdot(ship_vel, east_unit_vec). 
+
+    // north component of vector:
+    local north_vel is vdot(ship_vel, ship:north:vector).
+
+    // inverse trig to take north and east components and make an angle:
+    local compass is arctan2(east_vel, north_vel).
+
+    // Note, compass is now in the range -180 to +180 (i.e. a heading of 270 is
+    // expressed as -(90) instead.  This is entirely acceptable mathematically,
+    // but if you want a number that looks like the navball compass, from 0 to 359.99,
+    // you can do this to it:
+    if (compass < 0) set compass to compass + 360.
+
+    return compass.
 }
 
 function calc_current_isp
