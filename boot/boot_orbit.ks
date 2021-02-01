@@ -1,5 +1,5 @@
 core:part:getmodule("KOSProcessor"):doevent("Open Terminal").
-runpath("0:/boot/load_scripts.ks").
+runpath("0:load_scripts.ks").
 
 // if using boot_deorbit set main_cpu tag
 // Call final decoupler 'payload_deploy'     --- IMPORTANT ---
