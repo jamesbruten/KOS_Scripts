@@ -9,7 +9,7 @@ function adjust_apsides
     declare local burn_time is 0.
     until false
     {
-        set burn_time to create_mnv(burn_node).
+        set burn_time to create_apside_mnv(burn_node).
         if (burn_time < 2)
         {
             local mnv is nextnode.
@@ -38,7 +38,8 @@ function calc_burn_time
     // calculate fuel flow rate
     // calculate burn time for required dv
 
-    parameter burn_dv.
+    local mnv is nextnode.
+    local burn_dv is mnv:deltav.
     local isp is calc_current_isp().
     local dfuel is ship:availablethrust / (constant:g0 * isp).
     local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(abs(burn_dv) / (isp*constant:g0)))).
@@ -46,7 +47,7 @@ function calc_burn_time
     return burn_time.
 }
 
-function create_mnv
+function create_apside_mnv
 {
     // burn_mode is the node where burn is taking place
     // For maneuver calc need radius at burn and final orbit semimajor
@@ -76,7 +77,6 @@ function create_mnv
     local vel_at_burn is velocityat(ship, time_at_burn):orbit:mag.
     local wanted_vel is sqrt(ship:body:mu * (2/real_rad - 1/mnv_semi_major)).
     local burn_dv is wanted_vel - vel_at_burn.
-    local burn_time is calc_burn_time(burn_dv).
 
     // create mnv based on burn start time and burning in only radial
     // add maneuver to flight plan
@@ -85,6 +85,8 @@ function create_mnv
     add_maneuver(mnv).
     print "Maneuver Burn:".
     print mnv.
+
+    local burn_time is calc_burn_time(burn_dv).
     print "Burn Time: " + burn_time.
     return burn_time.
 }
@@ -127,8 +129,11 @@ function remove_maneuver
     remove mnv.
 }
 
-function improve_converge
+function converge_on_mnv
 {
+    // Sends step size and relevant score function to improve function
+    // Breaks out of loop once score drops - at best possible score
+
     parameter data, score_function.
     for stepSize in list(100, 10, 1, 0.1)
     {
@@ -144,6 +149,11 @@ function improve_converge
 
 function improve
 {
+    // Creates list of possible changes to mnv data
+    // Passes list to score function
+    // Best candidate is one with the lowest score
+    // Returns the best candidate
+
     parameter data, stepSize, score_function.
     local scoreToBeat is score_function(data).
     local bestCandidate is data.
