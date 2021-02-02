@@ -1,6 +1,6 @@
 // functions to create and execute maneuvers
 
-function adjust_orbit
+function adjust_apsides
 {
     // raise/lower opposite of burn_node
     parameter burn_node.
@@ -33,6 +33,19 @@ function adjust_orbit
     wait 5.
 }
 
+function calc_burn_time
+{
+    // calculate fuel flow rate
+    // calculate burn time for required dv
+
+    parameter burn_dv.
+    local isp is calc_current_isp().
+    local dfuel is ship:availablethrust / (constant:g0 * isp).
+    local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(abs(burn_dv) / (isp*constant:g0)))).
+
+    return burn_time.
+}
+
 function create_mnv
 {
     // burn_mode is the node where burn is taking place
@@ -57,27 +70,17 @@ function create_mnv
         set real_rad to body:radius + ship:periapsis.
         set mnv_semi_major to (ship:periapsis + target_ap + 2*body:radius) / 2.
         set time_to_burn to eta:periapsis.
-        list engines in ship_engines.
-        for en in ship_engines
-        {
-            set en:thrustlimit to 5.
-        }
     }
 
     local time_at_burn is time:seconds + time_to_burn.
     local vel_at_burn is velocityat(ship, time_at_burn):orbit:mag.
     local wanted_vel is sqrt(ship:body:mu * (2/real_rad - 1/mnv_semi_major)).
     local burn_dv is wanted_vel - vel_at_burn.
+    local burn_time is calc_burn_time(burn_dv).
 
-    local isp is calc_current_isp().
-
-    // calculate fuel flow rate
-    // calculate burn time for required dv
     // create mnv based on burn start time and burning in only radial
     // add maneuver to flight plan
 
-    local dfuel is ship:availablethrust / (constant:g0 * isp).
-    local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(abs(burn_dv) / (isp*constant:g0)))).
     local mnv is node(timespan(time_to_burn), 0, 0, burn_dv).
     add_maneuver(mnv).
     print "Maneuver Burn:".
@@ -122,4 +125,48 @@ function remove_maneuver
     // removes maneuver from flight plan
     parameter mnv.
     remove mnv.
+}
+
+function improve_converge
+{
+    parameter data, score_function.
+    for stepSize in list(100, 10, 1, 0.1)
+    {
+        until false
+        {
+            local oldScore is score_function(data).
+            set data to improve(data, stepSize, score_function).
+            if oldScore <= score_function(data) break.
+        }
+    }
+    return data.
+}
+
+function improve
+{
+    parameter data, stepSize, score_function.
+    local scoreToBeat is score_function(data).
+    local bestCandidate is data.
+    local candidates is list().
+    local index is 0.
+    until index >= data:length
+    {
+        local incCandidate is data:copy().
+        local decCandidate is data:copy().
+        set incCandidate[index] to incCandidate[index] + stepSize.
+        set decCandidate[index] to decCandidate[index] - stepSize.
+        candidates:add(incCandidate).
+        candidates:add(decCandidate).
+        set index to index + 1.
+    }
+    for candidate in candidates
+    {
+        local candidateScore is score_function(candidate).
+        if candidateScore < scoreToBeat
+        {
+            set scoreToBeat to candidateScore.
+            set bestCandidate to candidate.
+        }
+    }
+    return bestCandidate.
 }

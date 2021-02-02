@@ -22,7 +22,7 @@ set steeringmanager:maxstoppingtime to 0.1.
 
 launch_to_ap().
 
-adjust_orbit("a").
+adjust_apsides("a").
 
 wait 10.
 deploy_payload().
