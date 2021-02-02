@@ -39,7 +39,7 @@ function calc_burn_time
     // calculate burn time for required dv
 
     local mnv is nextnode.
-    local burn_dv is mnv:deltav.
+    local burn_dv is mnv:deltav:mag.
     local isp is calc_current_isp().
     local dfuel is ship:availablethrust / (constant:g0 * isp).
     local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(abs(burn_dv) / (isp*constant:g0)))).
@@ -86,7 +86,7 @@ function create_apside_mnv
     print "Maneuver Burn:".
     print mnv.
 
-    local burn_time is calc_burn_time(burn_dv).
+    local burn_time is calc_burn_time().
     print "Burn Time: " + burn_time.
     return burn_time.
 }

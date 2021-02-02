@@ -10,6 +10,10 @@ function launch_to_ap
     print "Hit 'l' to launch".
     wait until inp = "l".
 
+    pid_throttle_gforce().
+    lock accvec to ship:sensors:acc - ship:sensors:grav.
+    lock gforce to accvec:mag / g.
+
     // Do Countdown
     countdown().
 
@@ -28,7 +32,6 @@ function launch_to_ap
 function countdown
 {
     // Countdown and ignition of engines
-    pid_throttle_gforce().
     local tminus is 5.
     until (tminus < 1)
     {
@@ -36,7 +39,7 @@ function countdown
         print "Target Apoapsis:    " + target_ap_km.
         print "Target Periapsis:   " + target_pe_km.
         print "Target Inclination: " + target_inc.
-        print "".
+        print " ".
         print "Initiating Launch Program".
         print "t-minus: " + tminus.
         if (tminus < 2)
@@ -51,7 +54,7 @@ function countdown
     print "Target Apoapsis:    " + target_ap_km.
     print "Target Periapsis:   " + target_pe_km.
     print "Target Inclination: " + target_inc.
-    print "".
+    print " ".
     print "Initiating Launch Program".
     print "t-minus: " + 0.
     print "Engine Ignition".
@@ -66,7 +69,7 @@ function initial_launch
     stage.
     until (alt:radar > 700)
     {
-        set thrott_pid to thrott_pid + pid:uppdate(time:seconds, gforce).
+        set thrott_pid to min(max(thrott_pid + pid:update(time:seconds, gforce), 0), 1).
         if (check_stage_thrust() = false) autostage().
         wait 0.02.
     }
@@ -85,7 +88,7 @@ function to_ten_km
     lock steering to heading(inst_az(target_inc), current_pitch).
     until (alt:radar > 10000)
     {
-        set thrott_pid to thrott_pid + pid:uppdate(time:seconds, gforce).
+        set thrott_pid to min(max(thrott_pid + pid:update(time:seconds, gforce), 0), 1).
         if (check_stage_thrust() = false) autostage().
         wait 0.02.
     }
@@ -125,8 +128,8 @@ function prograde_climb
             set lock_inclination to true.
             lock steering to ship:prograde.
         }
-        set thrott_pid to thrott_pid + pid:uppdate(time:seconds, gforce).
-        wait 0.02.
+        set thrott_pid to min(max(thrott_pid + pid:update(time:seconds, gforce), 0), 1).
+        wait 0.01.
     }
     if (alt:radar < 60000) wait 0.2.            // these two lines boost apoapsis slightly to negate for atmospheric drag
     else if (alt:radar < 65000) wait 0.1.

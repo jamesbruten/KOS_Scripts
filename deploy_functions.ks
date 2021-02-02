@@ -39,11 +39,12 @@ function deploy_antenna
 
 function deploy_payload
 {
-    // assumes only one stage of engines on payload - activates engines
+    // pass name of payload decoupler - need to set this in VAB and adjust script to call
+    parameter dname.
 
     for p in ship:parts
     {
-        if (p:tag = "payload_deploy")
+        if (p:tag = dname)
         {
             print "Deploying Payload".
             p:getmodule("moduledecouple"):doevent("decouple").
