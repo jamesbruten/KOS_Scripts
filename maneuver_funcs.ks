@@ -192,3 +192,30 @@ function protect_from_past
     }.
     return replacementFunction@.
 }
+
+function ternary_search
+{
+    parameter f, left, right, absolutePrecision.
+    until false
+    {
+        if (abs(right - left) < absolutePrecision) return (left + right) / 2.
+        local leftThird is left + (right - left) / 3.
+        local rightThird is right - (right - left) / 3.
+        if (f(leftThird) < f(rightThird)) set left to leftThird.
+        else set right to rightThird.
+    }
+}
+
+function score_ap_apang
+{
+    parameter data, target_ap, target_ang.
+    local score is 0.
+    local mnv is node(data[0], 0, 0, data[1]).
+    add_maneuver(mnv).
+    local ap_height is mnv:orbit:apoapsis.
+    set score to score + abs(ap_height - target_ap).
+    local arg_ap is mnv:orbit:argumentofperiapsis - mnv:orbit:longitudeofascendingnode + 180.
+    if (arg_ap > 360) set arg_ap to arg_ap - 360.
+    
+    remove_maneuver(mnv).
+}

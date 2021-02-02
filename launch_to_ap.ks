@@ -69,7 +69,8 @@ function initial_launch
     stage.
     until (alt:radar > 700)
     {
-        set thrott_pid to thrott_pid + pid:update(time:seconds, gforce).
+        print gforce.
+        set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.
     }
@@ -88,7 +89,7 @@ function to_ten_km
     lock steering to heading(inst_az(target_inc), current_pitch).
     until (alt:radar > 10000)
     {
-        set thrott_pid to thrott_pid + pid:update(time:seconds, gforce).   
+        set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).  
         if (check_stage_thrust() = false) autostage().
         wait 0.01.
     }
@@ -102,6 +103,7 @@ function prograde_climb
     // Deploys fairings once above 50km
 
     print "Climbing on Prograde Pitch".
+    set pid:setpoint to 2.5.
     declare local switch_to_orbit to false.
     declare local fairings_deployed to false.
     declare local lock_inclination to false.
@@ -127,7 +129,7 @@ function prograde_climb
             set lock_inclination to true.
             lock steering to ship:prograde.
         }
-        set thrott_pid to thrott_pid + pid:update(time:seconds, gforce).
+        set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.
     }

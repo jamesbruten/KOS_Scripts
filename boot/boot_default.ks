@@ -9,8 +9,6 @@ declare global target_ap_km to 130.
 declare global target_pe_km to 130.
 declare global target_inc to 0.
 
-declare global pid_setpoint_gforce to 2.4.
-
 if (target_ap_km < target_pe_km)
 {
     local temp is target_ap_km.
@@ -32,7 +30,7 @@ wait 10.
 deploy_payload("payload2").
 if (ship:apoapsis > 750000) wait until eta:apoapsis < 60.
 lock steering to retrograde.
-wait 20.
+wait 60.
 lock throttle to 0.3.
 wait 10.
 lock throttle to 1.
