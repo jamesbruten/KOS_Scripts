@@ -21,14 +21,14 @@ function launch_to_ap
 
     // fly prograde until apoapsis height reached.
     prograde_climb().
-    if (alt:radar >= 70000) wait 10.
+    if (alt:radar >= 69800) wait 10.
     else wait until alt:radar >= 70000.
 }
 
 function countdown
 {
     // Countdown and ignition of engines
-    lock throttle to 1.
+    pid_throttle_gforce().
     local tminus is 5.
     until (tminus < 1)
     {
@@ -66,6 +66,7 @@ function initial_launch
     stage.
     until (alt:radar > 700)
     {
+        set thrott_pid to thrott_pid + pid:uppdate(time:seconds, gforce).
         if (check_stage_thrust() = false) autostage().
         wait 0.02.
     }
@@ -84,8 +85,9 @@ function to_ten_km
     lock steering to heading(inst_az(target_inc), current_pitch).
     until (alt:radar > 10000)
     {
+        set thrott_pid to thrott_pid + pid:uppdate(time:seconds, gforce).
         if (check_stage_thrust() = false) autostage().
-        wait 0.01.
+        wait 0.02.
     }
 }
 
@@ -123,10 +125,12 @@ function prograde_climb
             set lock_inclination to true.
             lock steering to ship:prograde.
         }
-        wait 0.01.
+        set thrott_pid to thrott_pid + pid:uppdate(time:seconds, gforce).
+        wait 0.02.
     }
-    if (alt:radar < 60000) wait 0.4.            // these two lines boost apoapsis slightly to negate for atmospheric drag
-    else if (alt:radar < 65000) wait 0.2.
+    if (alt:radar < 60000) wait 0.2.            // these two lines boost apoapsis slightly to negate for atmospheric drag
+    else if (alt:radar < 65000) wait 0.1.
+
     lock throttle to 0.
     lock steering to prograde.
     print "Engine Shutdown".

@@ -25,6 +25,7 @@ function autostage
     stage.
     if (ship:availablethrust < 0.01)
     {
+        set throttle_pid to 1.
         print "Staging: Ignition".
         WAIT 2.
         stage.
