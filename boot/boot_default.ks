@@ -9,7 +9,7 @@ declare global target_ap_km to 130.
 declare global target_pe_km to 130.
 declare global target_inc to 0.
 
-declare global pid_setpoint to 2.4.
+declare global pid_setpoint_gforce to 2.4.
 
 if (target_ap_km < target_pe_km)
 {

@@ -69,9 +69,9 @@ function initial_launch
     stage.
     until (alt:radar > 700)
     {
-        set thrott_pid to min(max(thrott_pid + pid:update(time:seconds, gforce), 0), 1).
+        set thrott_pid to thrott_pid + pid:update(time:seconds, gforce).
         if (check_stage_thrust() = false) autostage().
-        wait 0.02.
+        wait 0.01.
     }
 }
 
@@ -88,9 +88,9 @@ function to_ten_km
     lock steering to heading(inst_az(target_inc), current_pitch).
     until (alt:radar > 10000)
     {
-        set thrott_pid to min(max(thrott_pid + pid:update(time:seconds, gforce), 0), 1).
+        set thrott_pid to thrott_pid + pid:update(time:seconds, gforce).   
         if (check_stage_thrust() = false) autostage().
-        wait 0.02.
+        wait 0.01.
     }
 }
 
@@ -112,7 +112,6 @@ function prograde_climb
     until (ship:apoapsis > target_ap)
     {
         // print prograde_pitch.
-        if (check_stage_thrust() = false) autostage().
         if (switch_to_orbit = false and ship:velocity:orbit:mag > 1650)
         {
             set switch_to_orbit to true.
@@ -128,7 +127,8 @@ function prograde_climb
             set lock_inclination to true.
             lock steering to ship:prograde.
         }
-        set thrott_pid to min(max(thrott_pid + pid:update(time:seconds, gforce), 0), 1).
+        set thrott_pid to thrott_pid + pid:update(time:seconds, gforce).
+        if (check_stage_thrust() = false) autostage().
         wait 0.01.
     }
     if (alt:radar < 60000) wait 0.2.            // these two lines boost apoapsis slightly to negate for atmospheric drag
