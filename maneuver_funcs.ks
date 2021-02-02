@@ -180,3 +180,15 @@ function improve
     }
     return bestCandidate.
 }
+
+function protect_from_past
+{
+    parameter originalFunction.
+    local replacementFunction is
+    {
+        parameter data.
+        if (data[0] < time:seconds + 60) return 2^64.
+        else return originalFunction(data).
+    }.
+    return replacementFunction@.
+}
