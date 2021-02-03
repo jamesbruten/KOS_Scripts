@@ -5,10 +5,9 @@ function calculate_mnv
     // change parameters in used_funcs and targets to create desired maneuver node
     // Will then create maneuver based on those scores
     // Score functions below
+    parameter used_funcs, targets.
 
     local params is list(time:seconds+30, 0, 0, 0).
-    local used_funcs is list(score_apoapsis@, score_arg_ap@).
-    local targets is list(wanted_ap, wanted_arg_ap).
     set params to converge_on_mnv(params, used_funcs, targets).
     set mnv to node(params[0], params[1], params[2], params[3]).
     add_maneuver(mnv).
@@ -20,29 +19,10 @@ function adjust_apsides
     parameter burn_node.
 
     list engines in ship_engines.
-    declare local burn_time is 0.
-    until false
-    {
-        set burn_time to create_apside_mnv(burn_node).
-        if (burn_time < 2)
-        {
-            local mnv is nextnode.
-            remove_maneuver(mnv).
-            for en in ship_engines
-            {
-                if (en:thrustlimit = 100) set en:thrustlimit to 5.
-                else set en:thrustlimit to en:thrustlimit / 5.
-            }
-        }
-        else break.
-    }
+
+    local burn_time is create_apside_mnv(burn_node).
 
     execute_mnv(burn_time).
-
-    for en in ship_engines
-    {
-        set en:thrustlimit to 100.
-    }
 
     wait 5.
 }
@@ -107,25 +87,74 @@ function create_apside_mnv
 
 function execute_mnv
 {
-    parameter burn_time.
+    set mnv to nextnode.
 
-    print "Executing Maneuver".
-    set steeringmanager:maxstoppingtime to 0.5.
+    //print out node's basic parameters - ETA and deltaV
+    print "Node in: " + round(mnv:eta) + ", DeltaV: " + round(mnv:deltav:mag).
 
-    local mnv is nextnode.
-    local burn_start is mnv:time - burn_time/2.
-    local burn_end is mnv:time + burn_time/2.
+    //calculate ship's max acceleration
+    set max_acc to ship:maxthrust/ship:mass.
 
-    print "Maneuver: Steering".
-    lock steering to mnv:burnvector.
-    
-    wait until time:seconds >= burn_start.
-    print "Maneuver: Ignition".
-    lock throttle to 1.
-    wait until time:seconds >= burn_end.
-    lock throttle to 0.
-    lock steering to prograde.
+    //now we just need to divide deltav:mag by our ship's max acceleration
+    set burn_duration to mnv:deltav:mag/max_acc.
+    print "Estimated burn duration: " + round(burn_duration) + "s".
+
+    wait until mnv:eta <= (burn_duration/2 + 60).
+
+    set np to lookdirup(mnv:deltav, ship:facing:topvector). //points to node, keeping roll the same.
+    lock steering to np.
+
+    //now we need to wait until the burn vector and ship's facing are aligned
+    wait until abs(np:pitch - facing:pitch) < 0.15 and abs(np:yaw - facing:yaw) < 0.15.
+
+    //the ship is facing the right direction, let's wait for our burn time
+    wait until node:eta <= (burn_duration/2).
+
+    //we only need to lock throttle once to a certain variable in the beginning of the loop, and adjust only the variable itself inside it
+    set tset to 0.
+    lock throttle to tset.
+
+    //initial deltav
+    set dv0 to mnv:deltav.
+
+    set done to False.
+    until done
+    {
+        //recalculate current max_acceleration, as it changes while we burn through fuel
+        set max_acc to ship:maxthrust/ship:mass.
+
+        //throttle is 100% until there is less than 1 second of time left to burn
+        //when there is less than 1 second - decrease the throttle linearly
+        set tset to max(min(mnv:deltav:mag/max_acc, 1), 0).
+
+        //here's the tricky part, we need to cut the throttle as soon as our nd:deltav and initial deltav start facing opposite directions
+        //this check is done via checking the dot product of those 2 vectors
+        if vdot(dv0, mnv:deltav) < 0
+        {
+            print "End burn, remain dv " + round(mnv:deltav:mag,1) + "m/s, vdot: " + round(vdot(dv0, mnv:deltav),1).
+            lock throttle to 0.
+            break.
+        }
+
+        //we have very little left to burn, less then 0.1m/s
+        if mnv:deltav:mag < 0.1
+        {
+            print "Finalizing burn, remain dv " + round(mnv:deltav:mag,1) + "m/s, vdot: " + round(vdot(dv0, mnv:deltav),1).
+            //we burn slowly until our node vector starts to drift significantly from initial vector
+            //this usually means we are on point
+            wait until vdot(dv0, mnv:deltav) < 0.5.
+
+            lock throttle to 0.
+            print "End burn, remain dv " + round(mnv:deltav:mag,1) + "m/s, vdot: " + round(vdot(dv0, mnv:deltav),1).
+            set done to True.
+        }
+    }
     print "Maneuver: Shutdown".
+    lock steering to prograde.
+    lock throttle to 0.
+    wait 1.
+
+    //we no longer need the maneuver node
     remove_maneuver(mnv).
 }
 
@@ -153,9 +182,9 @@ function converge_on_mnv
     {
         until false
         {
-            local oldScore is score_function(data).
+            local old_score is total_scores(data, score_function, function_targs).
             set data to improve(data, stepSize, score_function, function_targs).
-            if oldScore <= score_function(data) break.
+            if (old_score <= total_scores(data, score_function, function_targs)) break.
         }
     }
     return data.
@@ -169,14 +198,7 @@ function improve
     // Returns the best candidate
 
     parameter data, stepSize, score_function, function_targs.
-    local score_to_beat is 0.
-    local ind1 is 0.
-    until ind1 >= score_function:length
-    {
-        set sf to score_function[ind1].
-        set tf to function_targs[ind1].
-        set score_to_beat to score_to_beat + sf(data, tf).
-    }
+    local score_to_beat is total_scores(data, score_function, function_targs).
     local best_candidate is data.
     local candidates is list().
     local index is 0.
@@ -192,14 +214,7 @@ function improve
     }
     for candidate in candidates
     {
-        local candidate_score is 0.
-        local ind2 is 0.
-        until ind2 >= score_function:length
-        {
-            set sf to score_function[ind2].
-            set tf to function_targs[ind2].
-            set candidate_score to candidate_score + sf(data, tf).
-        }
+        local candidate_score is total_scores(data, score_function, function_targs).
         if candidate_score < score_to_beat
         {
             set score_to_beat to candidate_score.
@@ -207,6 +222,22 @@ function improve
         }
     }
     return best_candidate.
+}
+
+function total_scores
+{
+    // Does all score functions required and totals results
+    
+    parameter data, score_function, function_targs.
+    local score is 0.
+    local ind1 is 0.
+    until ind1 >= score_function:length
+    {
+        set sf to score_function[ind1].
+        set tf to function_targs[ind1].
+        set score to score + sf(data, tf).
+    }
+    return score.
 }
 
 function score_apoapsis
@@ -241,4 +272,28 @@ function score_arg_ap
     
     remove_maneuver(mnv).
     return score.
+}
+
+function execute_mnv_old
+{
+    parameter burn_time.
+
+    print "Executing Maneuver".
+    set steeringmanager:maxstoppingtime to 0.5.
+
+    local mnv is nextnode.
+    local burn_start is mnv:time - burn_time/2.
+    local burn_end is mnv:time + burn_time/2.
+
+    print "Maneuver: Steering".
+    lock steering to mnv:burnvector.
+    
+    wait until time:seconds >= burn_start.
+    print "Maneuver: Ignition".
+    lock throttle to 1.
+    wait until time:seconds >= burn_end.
+    lock throttle to 0.
+    lock steering to prograde.
+    print "Maneuver: Shutdown".
+    remove_maneuver(mnv).
 }
