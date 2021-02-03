@@ -51,6 +51,18 @@ function create_apside_mnv
         set mnv_semi_major to (ship:periapsis + target_ap + 2*body:radius) / 2.
         set time_to_burn to eta:periapsis.
     }
+    else if (burn_node = "np")
+    {
+        set real_rad to body:radius + ship:altitude.
+        set mnv_semi_major to (ship:periapsis + target_ap + 2*body:radius) / 2.
+        set time_to_burn to 3.
+    }
+    else if (burn_node = "na")
+    {
+        set real_rad to body:radius + ship:altitude.
+        set mnv_semi_major to (ship:apoapsis + target_pe + 2*body:radius) / 2.
+        set time_to_burn to 3.
+    }
 
     local time_at_burn is time:seconds + time_to_burn.
     local vel_at_burn is velocityat(ship, time_at_burn):orbit:mag.
