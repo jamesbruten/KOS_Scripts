@@ -69,7 +69,6 @@ function initial_launch
     stage.
     until (alt:radar > 700)
     {
-        print gforce.
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.
@@ -144,4 +143,5 @@ function prograde_climb
         until (alt:radar > 65000) wait 0.1.
         deploy_fairing().
     }
+    set steeringmanager:maxstoppingtime to 0.5.
 }

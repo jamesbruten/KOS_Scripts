@@ -6,9 +6,9 @@ function pid_throttle_gforce
     global gforce is accvec:mag / g. 
     lock gforce to accvec:mag / g.
 
-    declare global Kp to 0.15.
+    declare global Kp to 0.05.
     declare global Ki to 0.
-    declare global Kd to 0.01.
+    declare global Kd to 0.006.
 
     declare global pid to pidloop(Kp, Ki, Kd).
     set pid:setpoint to 1.4.

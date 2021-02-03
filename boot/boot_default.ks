@@ -28,13 +28,16 @@ wait 10.
 deploy_payload("payload1").
 wait 10.
 deploy_payload("payload2").
+wait 10.
+deploy_payload("payload3").
+
 if (ship:apoapsis > 750000) wait until eta:apoapsis < 60.
 lock steering to retrograde.
 wait 60.
 lock throttle to 0.3.
 wait 10.
 lock throttle to 1.
-wait until ship:periapsis < 15000.
+wait until ship:periapsis < 0.
 lock throttle to 0.
 unlock steering.
 // wait 10.
