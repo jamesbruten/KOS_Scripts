@@ -11,7 +11,7 @@ function pid_throttle_gforce
     declare global Kd to 0.01.
 
     declare global pid to pidloop(Kp, Ki, Kd).
-    set pid:setpoint to 1.9.
+    set pid:setpoint to 1.4.
 
     declare global thrott_pid to 1.
     lock throttle to thrott_pid.

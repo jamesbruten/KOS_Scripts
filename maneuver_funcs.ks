@@ -212,10 +212,15 @@ function score_ap_apang
     local score is 0.
     local mnv is node(data[0], 0, 0, data[1]).
     add_maneuver(mnv).
+
     local ap_height is mnv:orbit:apoapsis.
     set score to score + abs(ap_height - target_ap).
+
     local arg_ap is mnv:orbit:argumentofperiapsis - mnv:orbit:longitudeofascendingnode + 180.
     if (arg_ap > 360) set arg_ap to arg_ap - 360.
+    if (arg_ap < 0) set arg_ap to arg_ap + 360.
+    set score to score + abs(arg_ap - target_ang).
     
     remove_maneuver(mnv).
+    return score.
 }
