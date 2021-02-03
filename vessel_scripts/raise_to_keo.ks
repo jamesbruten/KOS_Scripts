@@ -1,6 +1,6 @@
 function ang_to_long
 {
-    local diff is burn_start_long - ship:longitude.
+    local diff is burn_start_long - ship:longitude + 180.
     if (diff < 0) set diff to diff + 360.
     return diff.
 }
