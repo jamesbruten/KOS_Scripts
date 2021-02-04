@@ -11,7 +11,7 @@ runpath("0:/boot/load_scripts.ks").
 clearscreen.
 global target_ap is 2863.33406 * 1000.
 global target_pe is target_ap.
-global burn_start_long is 180.
+global burn_start_long is 270.
 
 lock steering to prograde.
 

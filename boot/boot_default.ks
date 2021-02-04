@@ -5,9 +5,9 @@ runpath("0:/boot/load_scripts.ks").
 // if using boot_deorbit set main_cpu tag
 // Call final decoupler 'payload_deploy'     --- IMPORTANT ---
 
-declare global target_ap_km to 130.
-declare global target_pe_km to 130.
-declare global target_inc to 0.
+declare global target_ap_km to 160.
+declare global target_pe_km to 160.
+declare global target_inc to -55.
 
 if (target_ap_km < target_pe_km)
 {
@@ -40,10 +40,5 @@ lock throttle to 1.
 wait until ship:periapsis < 0.
 lock throttle to 0.
 unlock steering.
-// wait 10.
-// deploy_antenna().
-// wait 3.
-// deploy_solar_panels().
-// wait 20.
 
 wait until false.

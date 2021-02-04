@@ -1,10 +1,10 @@
 function deploy_fairing
 {
-    print "Fairing Jettison".
     for p in ship:parts
     {
         if p:hasmodule("moduleproceduralfairing")
         {
+            print "Fairing Jettison".
             local decoupler is p:getmodule("moduleproceduralfairing").
             if decoupler:hasevent("deploy") decoupler:doevent("deploy").
         }
