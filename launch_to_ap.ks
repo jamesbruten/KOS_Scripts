@@ -9,12 +9,9 @@ function launch_to_ap
     lock inp to terminal:input:getchar().
     print "Hit 'l' to launch".
     wait until inp = "l".
-    global az_data is LAZ_calc_init(target_ap, target_inc).
 
     pid_throttle_gforce().
-    lock accvec to ship:sensors:acc - ship:sensors:grav.
-    lock gforce to accvec:mag / g.
-
+    
     // Do Countdown
     countdown().
 
@@ -84,14 +81,12 @@ function to_ten_km
     // Ends at 10km with pitch of 45
     // Currently just following inclination azimuth
 
-    local azimuth is 0.
     print "Initiating Pitch and Roll Maneuver".
     lock current_pitch to -8.94037E-8 * alt:radar * alt:radar - 0.00370273 * alt:radar + 91.4233.
-    lock steering to heading(azimuth, current_pitch).
+    lock steering to heading(inst_az(target_inc), current_pitch).
     until (alt:radar > 10000)
     {
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
-        set azimuth to LAZcalc(az_data).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.
     }
@@ -110,10 +105,9 @@ function prograde_climb
     declare local fairings_deployed to false.
     declare local max_pitch to 45.
     declare local min_pitch to 10.
-    local azimuth is LAZcalc(az_data).
     lock prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     lock current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
-    lock steering to heading(azimuth, current_pitch).
+    lock steering to heading(inst_az(target_inc), current_pitch).
     until (ship:apoapsis > target_ap)
     {
         // print prograde_pitch.
@@ -128,7 +122,6 @@ function prograde_climb
             deploy_fairing().
         }
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
-        set azimuth to LAZcalc(az_data).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.
     }
