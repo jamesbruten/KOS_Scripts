@@ -2,13 +2,18 @@
 
 function launch_to_ap
 {
+    parameter auto.
+
     print "Target Apoapsis:    " + target_ap_km.
     print "Target Periapsis:   " + target_pe_km.
     print "Target Inclination: " + target_inc.
 
-    lock inp to terminal:input:getchar().
-    print "Hit 'l' to launch".
-    wait until inp = "l".
+    if (auto = false)
+    {
+        lock inp to terminal:input:getchar().
+        print "Hit 'l' to launch".
+        wait until inp = "l".
+    }
 
     pid_throttle_gforce().
     
