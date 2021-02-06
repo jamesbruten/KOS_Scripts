@@ -1,10 +1,10 @@
 function pid_throttle_gforce
 {
-    declare global g to kerbin:mu / kerbin:radius^2.
+    declare global g_pid to kerbin:mu / kerbin:radius^2.
     global accvec is ship:sensors:acc - ship:sensors:grav.
     lock accvec to ship:sensors:acc - ship:sensors:grav.
-    global gforce is accvec:mag / g. 
-    lock gforce to accvec:mag / g.
+    global gforce is accvec:mag / g_pid. 
+    lock gforce to accvec:mag / g_pid.
 
     declare global Kp to 0.05.
     declare global Ki to 0.

@@ -16,7 +16,7 @@ launch_to_ap(true).
 adjust_apsides("a").
 
 // deploy payload vehicle
-deploy_payload().
+deploy_payload("payload1").
 
 lock throttle to 0.
 list engines in ship_engines.

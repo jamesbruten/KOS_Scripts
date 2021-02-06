@@ -65,6 +65,8 @@ function countdown
 
 function initial_launch
 {
+    lock accvec to ship:sensors:acc - ship:sensors:grav.
+    lock gforce to accvec:mag / g_pid.
     lock current_pitch to 90.
     lock steering to heading(0, current_pitch, 0).
     print "Liftoff".
@@ -87,6 +89,8 @@ function to_ten_km
     // Currently just following inclination azimuth
 
     print "Initiating Pitch and Roll Maneuver".
+    lock accvec to ship:sensors:acc - ship:sensors:grav.
+    lock gforce to accvec:mag / g_pid.
     lock current_pitch to -8.94037E-8 * alt:radar * alt:radar - 0.00370273 * alt:radar + 91.4233.
     lock steering to heading(inst_az(target_inc), current_pitch).
     until (alt:radar > 10000)
@@ -102,9 +106,11 @@ function prograde_climb
     // Holds ship at 45 degrees or the pitch of prograde vector - whichever is lower
     // Prograde initially from surface velocity - changes to orbital when orbital speed > 1650
     // Cuts engines when target apoapsis reached
-    // Deploys fairings once above 50km
+    // Deploys fairings once above 65km
 
     print "Climbing on Prograde Pitch".
+    lock accvec to ship:sensors:acc - ship:sensors:grav.
+    lock gforce to accvec:mag / g_pid.
     set pid:setpoint to 2.5.
     declare local switch_to_orbit to false.
     declare local fairings_deployed to false.
