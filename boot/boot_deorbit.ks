@@ -1,23 +1,18 @@
 until false
 {
-    local staged_check is true.
+    local test is true.
     for p in ship:parts
     {
-        if (p:tag = "main_cpu") set staged_check to false.
+        if (p:tag = "main_cpu") set test to false.
     }
-    print staged_check.
-    if (staged_check = true) break.
-    else wait 60.
+    if (test = true) break.
+    wait 60.
 }
-if (ship:periapsis > 25000)
-{
-    if (ship:apoapsis > 750000) wait until eta:apoapsis < 60.
-    lock steering to retrograde.
-    wait 20.
-    lock throttle to 0.3.
-    wait 10.
-    lock throttle to 1.
-    wait until ship:periapsis < 15000.
-    lock throttle to 0.
-    unlock steering.
-}
+
+lock steering to retrograde.
+wait 20.
+lock throttle to 0.1.
+wait 10.
+lock throttle to 1.
+wait until ship:periapsis < 0.
+lock throttle to 0.
