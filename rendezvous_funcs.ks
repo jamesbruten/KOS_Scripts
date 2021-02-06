@@ -1,7 +1,6 @@
 function wait_for_launch
 {
     // Calculate time until target obit crosses launch pad
-    // Only launches with LAN
 
     local ecliptic_normal is vcrs(target:velocity:orbit, target:body:position-target:position):normalized.
     local planet_normal is heading(0, ship:latitude):vector.
@@ -12,6 +11,12 @@ function wait_for_launch
     local lt_dir is cos(ship:latitude)*(int_dir*sin(beta) +int_pos*cos(beta)) + sin(ship:latitude)*planet_normal.
     local time_to_launch is body:rotationperiod * vang(lt_dir, ship:position-body:position) / 360.
     if (vcrs(lt_dir, ship:position - body:position)*planet_normal < 0) set time_to_launch to body:rotationperiod - time_to_launch.
+
+    if (time_to_launch > body:rotationperiod/2)
+    {
+        set time_to_launch to time_to_launch - body:rotationperiod/2. 
+        set target_inc to -1 * target_inc.
+    }
 
     local launch_time is time:seconds + time_to_launch.
     local lh is round(time_to_launch/3600 - 0.5).
@@ -24,6 +29,8 @@ function wait_for_launch
 
 function match_inclination
 {
+    print "Matching Inclination".
+
     local i1 is ship:orbit:inclination.
     local i2 is target:orbit:inclination.
     local omega1 is ship:orbit:lan.
@@ -100,6 +107,8 @@ function match_inclination
     }
 
     local mnv is node(timespan(time_to_burn), 0, burn_dv, 0).
+    print "Maneuver: ".
+    print mnv.
     add_maneuver(mnv).
     execute_mnv().
 }

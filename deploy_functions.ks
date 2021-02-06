@@ -37,6 +37,20 @@ function deploy_antenna
     }
 }
 
+function deploy_dp_shield
+{
+    print "Toggling Docking Port Shield".
+    for p in ship:parts
+    {
+        if p:hasmodule("moduleanimategeneric")
+        {
+            local dp is p:getmodule("moduleanimategeneric").
+            if dp:hasevent("open shield") dp:doevent("open shield").
+            else if dp:hasevent("close shield") dp:doevent("close shield").
+        }
+    }
+}
+
 function deploy_payload
 {
     // pass name of payload decoupler - need to set this in VAB and adjust script to call

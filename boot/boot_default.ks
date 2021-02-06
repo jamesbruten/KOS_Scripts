@@ -18,7 +18,6 @@ if (target_ap_km < target_pe_km)
 
 declare global target_ap to target_ap_km * 1000.
 declare global target_pe to target_pe_km * 1000.
-set steeringmanager:maxstoppingtime to 0.1.
 
 launch_to_ap(false).
 

@@ -1,4 +1,5 @@
 // loads in and runs all scripts so that functions in memory
+@lazyglobal off.
 copypath("0:/launch_to_ap.ks", "1:launch_to_ap.ks").
 copypath("0:/maneuver_funcs.ks", "1:maneuver_funcs.ks").
 copypath("0:/calc_isp.ks", "1:calc_isp.ks").

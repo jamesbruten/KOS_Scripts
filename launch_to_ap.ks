@@ -3,6 +3,7 @@
 function launch_to_ap
 {
     parameter auto.
+    set steeringmanager:maxstoppingtime to 0.1.
 
     print "Target Apoapsis:    " + target_ap_km.
     print "Target Periapsis:   " + target_pe_km.
@@ -30,6 +31,7 @@ function launch_to_ap
     prograde_climb().
     if (alt:radar >= 69800) wait 10.
     else wait until alt:radar >= 70000.
+    set steeringmanager:maxstoppingtime to 0.5.
 }
 
 function countdown
@@ -147,5 +149,4 @@ function prograde_climb
         until (alt:radar > 65000) wait 0.1.
         deploy_fairing().
     }
-    set steeringmanager:maxstoppingtime to 0.5.
 }
