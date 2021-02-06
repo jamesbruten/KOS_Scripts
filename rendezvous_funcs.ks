@@ -112,3 +112,12 @@ function match_inclination
     add_maneuver(mnv).
     execute_mnv().
 }
+
+function transfer_orbit
+{
+    local t_semi_major is (ship:orbit:semimajoraxis + target:orbit:semimajoraxis)/2.
+    local transit_time is 2*constant:pi*sqrt(t_semi_major^3/body:mu).
+    local phase_angle is 180 - 180*transit_time/target:orbit:period.
+
+    vinit = sqrt(body:mu*(2/))
+}
