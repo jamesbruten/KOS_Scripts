@@ -1,5 +1,3 @@
-// runpath("0:/boot/load_scripts.ks").
-
 // global target_ap is 0.75*target:apoapsis.
 // global target_pe is target_ap.
 // global target_inc is target:orbit:inclination.
@@ -25,9 +23,15 @@
 //     if not en:ignition en:activate.
 // }
 
+// wait 5.
 // deploy_solar_panels().
 // wait 5.
 // deploy_dp_shield().
 // wait 5.
 
 match_inclination().
+
+// transfer_orbit().
+
+lock steering to prograde.
+until false {}.

@@ -120,7 +120,9 @@ function prograde_climb
     declare local min_pitch to 10.
     lock prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     lock current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
+    wait 0.01.
     lock steering to heading(inst_az(target_inc), current_pitch).
+    wait 0.01.
     until (ship:apoapsis > target_ap)
     {
         // print prograde_pitch.

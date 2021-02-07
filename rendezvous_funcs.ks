@@ -55,25 +55,51 @@ function match_inclination
 
     // central angle is angle between LAN and ship
     // taAN is true anomaly of ascending node
-    local central_angle is arcsin(sin(latAN)/sin(i1)).
-    local taAN is central_angle - ship:orbit:argumentofperiapsis.
+    // local central_angle is arcsin(sin(latAN)/sin(i1)).
+    // local taAN is central_angle - ship:orbit:argumentofperiapsis.
+    // if (taAN < 0) set taAN to taAN + 360.
+
+    local current_time is time:seconds.
+    local ship_orbit_normal to vcrs(ship:velocity:orbit, positionat(ship, current_time) - ship:body:position).
+    local target_orbit_normal to vcrs(target:velocity:orbit, positionat(target, current_time) - ship:body:position).
+    local lineofnodes to vcrs(ship_orbit_normal, target_orbit_normal).
+    local angle_to_node is vang(positionat(ship, current_time) - ship:body:position, lineofnodes).
+    if (angle_to_node < 180) local angle_to_node2 is angle_to_node + 180.
+    else local angle_to_node2 is angle_to_node - 180.
+
+    print "Angles to Nodes: ".
+    print angle_to_node.
+    print angle_to_node2.
+    return.
+
+
+
+
+
+
+
     local taDN is 0.
     if (taAN < 180) set taDN to taAN + 180.
     else set taDN to taAN - 180.
     local taS is ship:orbit:trueanomaly.
     local e is ship:orbit:eccentricity.
+    
+    print "True Anomalies:".
+    print taS.
+    print taAN.
+    print taDN.
+    print "      ".
 
     // E is eccentricity anomaly, M is mean anomaly
-    local E0 is arccos((e+cos(taS))/(1+e*cos(taS))).
-    local E1 is arccos((e+cos(taAN))/(1+e*cos(taAN))).
-    local E2 is arccos((e+cos(taDN))/(1+e*cos(taDN))).
-    local M0 is E0*constant:pi/180 - e*sin(E0).
-    local M1 is E1*constant:pi/180 - e*sin(E1).
-    local M2 is E2*constant:pi/180 - e*sin(E2).
+    local E0 is eccentricity_anom(e, taS).
+    local E1 is eccentricity_anom(e, taAN).
+    local E2 is eccentricity_anom(e, taDN).
+    local M0 is mean_anom(e, E0).
+    local M1 is mean_anom(e, E1).
+    local M2 is mean_anom(e, E2).
 
     // mean motion
     local n is sqrt(body:mu / ship:orbit:semimajoraxis^3).
-
     local time_AN is (M1 - M0)/n.
     if (taS > taAN) set time_AN to ship:orbit:period - time_AN.
     local time_DN is (M2 - M0)/n.
@@ -105,12 +131,28 @@ function match_inclination
         set time_to_burn to time_DN.
         set burn_dv to dv_DN.
     }
+    print burn_dv.
 
     local mnv is node(timespan(time_to_burn), 0, burn_dv, 0).
     print "Maneuver: ".
     print mnv.
     add_maneuver(mnv).
+    return.
     execute_mnv().
+}
+
+function eccentricity_anom
+{
+    parameter e, ta.        // eccentricity and true anomaly
+    local tanE2 is sqrt((1-e)/(1+e)) * tan(ta/2).
+    return 2 * arctan(tanE2).
+    // return arctan2(sqrt(1-e)*sin(ta/2), sqrt(1+e)*cos(ta/2)).
+}
+
+function mean_anom
+{
+    parameter e, ea.       // eccentricity and eccentricity anomaly
+    return ea - e*sin(ea)*180/constant:pi.
 }
 
 function transfer_orbit
@@ -119,19 +161,35 @@ function transfer_orbit
     local transit_time is 2*constant:pi*sqrt(t_semi_major^3/body:mu).
     local transfer_angle is 180 - 180*transit_time/target:orbit:period.
 
-    print "Transfer Angle: " + transfer_angle.
-
     local current_pa is get_phase_angle().
-    until (abs(current_pa) < 3)
+    print "Transfer Angle: " + transfer_angle.
+    print "Phase Angle   : " + current_pa.
+    until (abs(transfer_angle - current_pa) < 1)
     {
         set current_pa to get_phase_angle().
+        clearscreen.
+        print "Transfer Angle: " + transfer_angle.
+        print "Phase Angle   : " + current_pa.
         wait 0.1.
     }
 
-    local rad is alt:radar + body:radius.
+    local rad is ship:altitude + body:radius.
     local vinit is sqrt(body:mu*(2/rad - 1/ship:orbit:semimajoraxis)).
     local vfinal is sqrt(body:mu*(2/rad - 1/t_semi_major)).
     local dv is vfinal - vinit.
+    local burn_time is calc_burn_time(dv).
+
+    local mnv is node(timespan(burn_time/2 + 20), 0, 0, dv).
+    print "Maneuver: ".
+    print mnv.
+    add_maneuver(mnv).
+    execute_mnv().
+
+    create_apside_mnv("a_match").
+    print "Maneuver: ".
+    print mnv.
+    add_maneuver(mnv).
+    execute_mnv().
 }
 
 
@@ -186,3 +244,5 @@ function get_phase_angle
     if (sign < 0) return -phase.
     else return phase.
 }
+
+// function time_closest_approach

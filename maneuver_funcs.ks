@@ -16,9 +16,13 @@ function calc_burn_time
 {
     // calculate fuel flow rate
     // calculate burn time for required dv
+    parameter burn_dv.
 
-    local mnv is nextnode.
-    local burn_dv is mnv:deltav:mag.
+    if (burn_dv = 0)
+    {
+        local mnv is nextnode.
+        set burn_dv to mnv:deltav:mag.
+    }
     local isp is calc_current_isp().
     local dfuel is ship:availablethrust / (constant:g0 * isp).
     local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(abs(burn_dv) / (isp*constant:g0)))).
@@ -62,6 +66,12 @@ function create_apside_mnv
         set real_rad to body:radius + ship:altitude.
         set mnv_semi_major to (ship:apoapsis + target_pe + 2*body:radius) / 2.
         set time_to_burn to 45.
+    }
+    else if (burn_node = "a_match")
+    {
+        set real_rad to body:radius + ship:apoapsis.
+        set mnv_semi_major to (2*ship:apoapsis + 2*body:radius) / 2.
+        set time_to_burn to eta:apoapsis.
     }
 
     local time_at_burn is time:seconds + time_to_burn.
