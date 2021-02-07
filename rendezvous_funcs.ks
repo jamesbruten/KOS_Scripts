@@ -117,12 +117,21 @@ function transfer_orbit
 {
     local t_semi_major is (ship:orbit:semimajoraxis + target:orbit:semimajoraxis)/2.
     local transit_time is 2*constant:pi*sqrt(t_semi_major^3/body:mu).
-    local phase_angle is 180 - 180*transit_time/target:orbit:period.
+    local transfer_angle is 180 - 180*transit_time/target:orbit:period.
 
-    lock current_pa to get_phase_angle().
-    until (current_pa < )
+    print "Transfer Angle: " + transfer_angle.
 
-    vinit = sqrt(body:mu*(2/))
+    local current_pa is get_phase_angle().
+    until (abs(current_pa) < 3)
+    {
+        set current_pa to get_phase_angle().
+        wait 0.1.
+    }
+
+    local rad is alt:radar + body:radius.
+    local vinit is sqrt(body:mu*(2/rad - 1/ship:orbit:semimajoraxis)).
+    local vfinal is sqrt(body:mu*(2/rad - 1/t_semi_major)).
+    local dv is vfinal - vinit.
 }
 
 
