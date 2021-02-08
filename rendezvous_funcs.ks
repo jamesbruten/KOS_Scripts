@@ -43,7 +43,7 @@ function match_inclination
     // TA of DN
     if (vdot(DNvector + body:position, ship:velocity:orbit) > 0)
     {
-    set taDN to ship:orbit:trueanomaly + vang(DNvector, ship:position - ship:body:position).
+        set taDN to ship:orbit:trueanomaly + vang(DNvector, ship:position - ship:body:position).
     }
     else
     {
@@ -86,8 +86,6 @@ function match_inclination
     if (time_dn > ship:orbit:period) set time_dn to time_dn - ship:orbit:period.
     local time_of_dn is time:seconds + time_dn.
 
-    local time_of_burn is "x".
-    local burn_dv is "x".
     local angle_change is vang(h_targ, h_ship).
 
     local vel_an is velocityat(ship, time_of_an):orbit:mag.
@@ -96,6 +94,8 @@ function match_inclination
     local dv_an is 2 * vel_an * sin(angle_change / 2).
     local dv_dn is 2 * vel_dn * sin(angle_change / 2).
 
+    local time_of_burn is "x".
+    local burn_dv is "x".
     if (dv_an < dv_dn)
     {
         set time_of_burn to time_of_an.
@@ -218,38 +218,3 @@ function get_phase_angle
 }
 
 // function time_closest_approach
-
-
-
-
-
-
-
-// local h_ship is vcrs(heading(0, ship:latitude):vector, ship:velocity:orbit).
-// local h_target is vcrs(heading(0, target:latitude):vector, target:velocity:orbit).
-// local v_node is vcrs(h_target, h_ship).
-// local e_vect is (vcrs(ship:velocity:orbit, h_ship) / body:mu) - (-ship:obt:body:position / -ship:obt:body:position:mag).
-// local taAN is arccos(vdot(v_node, e_vect)/(e_vect:mag * v_node:mag)).
-
-
-// local ship_tpe is M0 / n.
-// local AN_tpe is M1 / n.
-// local DN_tpe is M2 / n.
-// until false
-// {
-//     if (AN_tpe < ship:orbit:period) break.
-//     set AN_tpe to AN_tpe - ship:orbit:period.
-// }
-// until false
-// {
-//     if (DN_tpe < ship:orbit:period) break.
-//     set DN_tpe to DN_tpe - ship:orbit:period.
-// }
-// print "Times Past Periapsis:".
-// print AN_tpe.
-// print DN_tpe.
-
-// local time_AN is AN_tpe - ship_tpe.
-// if (time_AN <= 0) set time_AN to time_AN + ship:orbit:period.
-// local time_DN is DN_tpe - ship_tpe.
-// if (time_DN <= 0) set time_DN to time_DN + ship:orbit:period.

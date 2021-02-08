@@ -114,10 +114,11 @@ function prograde_climb
     lock accvec to ship:sensors:acc - ship:sensors:grav.
     lock gforce to accvec:mag / g_pid.
     set pid:setpoint to 2.5.
+    when (alt:radar > 30000) then set pid:setpoint to 3.0.
     declare local switch_to_orbit to false.
     declare local fairings_deployed to false.
     declare local max_pitch to 45.
-    declare local min_pitch to 10.
+    declare local min_pitch to 15.
     lock prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     lock current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
     wait 0.01.
