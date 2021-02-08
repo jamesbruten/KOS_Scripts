@@ -30,95 +30,87 @@ function wait_for_launch
 function match_inclination
 {
     print "Matching Inclination".
-
-    local i1 is ship:orbit:inclination.
-    local i2 is target:orbit:inclination.
-    local omega1 is ship:orbit:lan.
-    local omega2 is target:orbit:lan.
-
-    local a1 is sin(i1)*cos(omega1).
-    local a2 is sin(i1)*sin(omega1).
-    local a3 is cos(i1).
-
-    local b1 is sin(i2)*cos(omega2).
-    local b2 is sin(i2)*sin(omega2).
-    local b3 is cos(i2).
-
-    local c1 is a2*b3 - a3*b2.
-    local c2 is a3*b1 - a1*b3.
-    local c3 is a1*b2 - a2*b1.
-
-    // latitude of AN
-    local latAN is arctan(c3 / sqrt(c1*c1 + c2*c2)).
-    // angle change needed for same inclination
-    local theta is arccos(a1*b1 + a2*b2 + a3*b3).
-
-    // taAN is true anomaly of ascending node
-    local arg_lat is arcsin(sin(latAN)/sin(i1)).
-    local taAN is arg_lat - ship:orbit:argumentofperiapsis.
-    print "taAN: " + taAN.
-    if (taAN < 0) set taAN to taAN + 360.
-
-    local taDN is 0.
-    if (taAN < 180) set taDN to taAN + 180.
-    else set taDN to taAN - 180.
-    local taS is ship:orbit:trueanomaly.
-    local e is ship:orbit:eccentricity.
     
-    print "True Anomalies:".
-    print taS.
-    print taAN.
-    print taDN.
-    print "      ".
+    // Orbit Normal Vectors - angular momenta
+    local h_ship is vcrs(ship:position - ship:body:position, ship:velocity:orbit).
+    local h_targ is vcrs(target:position - target:body:position, target:velocity:orbit).
 
-    // E is eccentricity anomaly, M is mean anomaly
-    local E0 is eccentricity_anom(e, taS).
-    local E1 is eccentricity_anom(e, taAN).
-    local E2 is eccentricity_anom(e, taDN).
-    local M0 is mean_anom(e, E0).
-    local M1 is mean_anom(e, E1).
-    local M2 is mean_anom(e, E2).
+    local DNvector is vcrs(h_targ, h_ship).
+    local taDN is "x".
+    local taAN is "x".
+    local taS is ship:orbit:trueanomaly.
 
-    // mean motion
-    local n is sqrt(body:mu / ship:orbit:semimajoraxis^3).
-
-    local time_AN is (M1 - M0)/n.
-    if (taS > taAN) set time_AN to ship:orbit:period - time_AN.
-    local time_DN is (M2 - M0)/n.
-    if (taS > taDN) set time_DN to ship:orbit:period - time_DN.
-
-    // Now have the time to the ascending node, calculate delta v required
-
-    // radius at AN/DN
-    local r_AN is ship:orbit:semimajoraxis * (1 - e*cos(taAN)).
-    local r_DN is ship:orbit:semimajoraxis * (1 - e*cos(taDN)).
-
-    // velocity at AN/DN
-    local v_AN is sqrt(body:mu * (2/r_AN - 1/ship:orbit:semimajoraxis)).
-    local v_DN is sqrt(body:mu * (2/r_DN - 1/ship:orbit:semimajoraxis)).
-
-    // delta v required at AN/DN
-    local dv_AN is 2*v_AN*sin(theta/2).
-    local dv_DN is 2*v_DN*sin(theta/2).
-
-    local time_to_burn is 0.
-    local burn_dv is 0.
-    if (dv_AN < dv_DN)
+    // TA of DN
+    if (vdot(DNvector + body:position, ship:velocity:orbit) > 0)
     {
-        set time_to_burn to time_AN.
-        set burn_dv to dv_AN.
+    set taDN to ship:orbit:trueanomaly + vang(DNvector, ship:position - ship:body:position).
     }
     else
     {
-        set time_to_burn to time_DN.
-        set burn_dv to dv_DN.
+        set taDN to ship:orbit:trueanomaly - vang(DNvector, ship:position - ship:body:position).
     }
 
-    local mnv is node(timespan(time_to_burn), 0, burn_dv, 0).
+    until (taDN >= 0)
+    {
+        set taDN to taDN + 360.
+    }
+    if (taDN >= 360) set taDN to taDN - 360.
+
+
+    // TA of AN
+    set taAN to taDN + 180.
+    until (taAN < 360)
+    {
+        set taAN to taAN - 360.
+    }
+
+    local e is ship:orbit:eccentricity.
+
+    // Eccentric and Mean Anomalies of ship, AN, DN
+    local Es is eccentricity_anom(e, taS).
+    local Ean is eccentricity_anom(e, taAN).
+    local Edn is eccentricity_anom(e, taDN).
+    local Ms is mean_anom(e, Es).
+    local Man is mean_anom(e, Ean).
+    local Mdn is mean_anom(e, Edn).
+
+    local n is sqrt(ship:body:mu / ship:orbit:semimajoraxis^3).
+
+    local time_an is (Man - Ms) / n.
+    if (time_an < 0) set time_an to time_an + ship:orbit:period.
+    if (time_an > ship:orbit:period) set time_an to time_an - ship:orbit:period.
+    local time_of_an is time:seconds + time_an.
+    
+    local time_dn is (Mdn - Ms) / n.
+    if (time_dn < 0) set time_dn to time_dn + ship:orbit:period.
+    if (time_dn > ship:orbit:period) set time_dn to time_dn - ship:orbit:period.
+    local time_of_dn is time:seconds + time_dn.
+
+    local time_of_burn is "x".
+    local burn_dv is "x".
+    local angle_change is vang(h_targ, h_ship).
+
+    local vel_an is velocityat(ship, time_of_an):orbit:mag.
+    local vel_dn is velocityat(ship, time_of_dn):orbit:mag.
+
+    local dv_an is 2 * vel_an * sin(angle_change / 2).
+    local dv_dn is 2 * vel_dn * sin(angle_change / 2).
+
+    if (dv_an < dv_dn)
+    {
+        set time_of_burn to time_of_an.
+        set burn_dv to -1 * dv_an.
+    }
+    else
+    {
+        set time_of_burn to time_of_dn.
+        set burn_dv to dv_dn.
+    }
+
+    local mnv is node(time_of_burn, 0, burn_dv, 0).
     print "Maneuver: ".
     print mnv.
     add_maneuver(mnv).
-    return.
     execute_mnv().
 }
 
@@ -127,13 +119,12 @@ function eccentricity_anom
     parameter e, ta.        // eccentricity and true anomaly
     local tanE2 is sqrt((1-e)/(1+e)) * tan(ta/2).
     return 2 * arctan(tanE2).
-    // return arctan2(sqrt(1-e)*sin(ta/2), sqrt(1+e)*cos(ta/2)).
 }
 
 function mean_anom
 {
     parameter e, ea.       // eccentricity and eccentricity anomaly
-    return ea - e*sin(ea)*180/constant:pi.
+    return (ea - e*sin(ea))*constant:pi/180.
 }
 
 function transfer_orbit
