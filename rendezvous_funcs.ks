@@ -53,18 +53,12 @@ function match_inclination
     // angle change needed for same inclination
     local theta is arccos(a1*b1 + a2*b2 + a3*b3).
 
-    // central angle is angle between LAN and ship
     // taAN is true anomaly of ascending node
-    local central_angle is arcsin(sin(latAN)/sin(i1)).
-    local taAN is central_angle - ship:orbit:argumentofperiapsis.
+    local arg_lat is arcsin(sin(latAN)/sin(i1)).
+    local taAN is arg_lat - ship:orbit:argumentofperiapsis.
     print "taAN: " + taAN.
     if (taAN < 0) set taAN to taAN + 360.
 
-    // local h_ship is vcrs(heading(0, ship:latitude):vector, ship:velocity:orbit).
-    // local h_target is vcrs(heading(0, target:latitude):vector, target:velocity:orbit).
-    // local v_node is vcrs(h_target, h_ship).
-    // local e_vect is (vcrs(ship:velocity:orbit, h_ship) / body:mu) - (-ship:obt:body:position / -ship:obt:body:position:mag).
-    // local taAN is arccos(vdot(v_node, e_vect)/(e_vect:mag * v_node:mag)).
     local taDN is 0.
     if (taAN < 180) set taDN to taAN + 180.
     else set taDN to taAN - 180.
@@ -88,33 +82,10 @@ function match_inclination
     // mean motion
     local n is sqrt(body:mu / ship:orbit:semimajoraxis^3).
 
-    // local ship_tpe is M0 / n.
-    // local AN_tpe is M1 / n.
-    // local DN_tpe is M2 / n.
-    // until false
-    // {
-    //     if (AN_tpe < ship:orbit:period) break.
-    //     set AN_tpe to AN_tpe - ship:orbit:period.
-    // }
-    // until false
-    // {
-    //     if (DN_tpe < ship:orbit:period) break.
-    //     set DN_tpe to DN_tpe - ship:orbit:period.
-    // }
-    // print "Times Past Periapsis:".
-    // print AN_tpe.
-    // print DN_tpe.
-
-    // local time_AN is AN_tpe - ship_tpe.
-    // if (time_AN <= 0) set time_AN to time_AN + ship:orbit:period.
-    // local time_DN is DN_tpe - ship_tpe.
-    // if (time_DN <= 0) set time_DN to time_DN + ship:orbit:period.
-
     local time_AN is (M1 - M0)/n.
-    print time_AN.
-    // if (taS > taAN) set time_AN to ship:orbit:period - time_AN.
-    // local time_DN is (M2 - M0)/n.
-    // if (taS > taDN) set time_DN to ship:orbit:period - time_DN.
+    if (taS > taAN) set time_AN to ship:orbit:period - time_AN.
+    local time_DN is (M2 - M0)/n.
+    if (taS > taDN) set time_DN to ship:orbit:period - time_DN.
 
     // Now have the time to the ascending node, calculate delta v required
 
@@ -142,7 +113,6 @@ function match_inclination
         set time_to_burn to time_DN.
         set burn_dv to dv_DN.
     }
-    print burn_dv.
 
     local mnv is node(timespan(time_to_burn), 0, burn_dv, 0).
     print "Maneuver: ".
@@ -257,3 +227,38 @@ function get_phase_angle
 }
 
 // function time_closest_approach
+
+
+
+
+
+
+
+// local h_ship is vcrs(heading(0, ship:latitude):vector, ship:velocity:orbit).
+// local h_target is vcrs(heading(0, target:latitude):vector, target:velocity:orbit).
+// local v_node is vcrs(h_target, h_ship).
+// local e_vect is (vcrs(ship:velocity:orbit, h_ship) / body:mu) - (-ship:obt:body:position / -ship:obt:body:position:mag).
+// local taAN is arccos(vdot(v_node, e_vect)/(e_vect:mag * v_node:mag)).
+
+
+// local ship_tpe is M0 / n.
+// local AN_tpe is M1 / n.
+// local DN_tpe is M2 / n.
+// until false
+// {
+//     if (AN_tpe < ship:orbit:period) break.
+//     set AN_tpe to AN_tpe - ship:orbit:period.
+// }
+// until false
+// {
+//     if (DN_tpe < ship:orbit:period) break.
+//     set DN_tpe to DN_tpe - ship:orbit:period.
+// }
+// print "Times Past Periapsis:".
+// print AN_tpe.
+// print DN_tpe.
+
+// local time_AN is AN_tpe - ship_tpe.
+// if (time_AN <= 0) set time_AN to time_AN + ship:orbit:period.
+// local time_DN is DN_tpe - ship_tpe.
+// if (time_DN <= 0) set time_DN to time_DN + ship:orbit:period.
