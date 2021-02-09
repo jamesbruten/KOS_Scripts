@@ -156,12 +156,6 @@ function transfer_orbit
     print mnv.
     add_maneuver(mnv).
     execute_mnv().
-
-    create_apside_mnv("a_match").
-    print "Maneuver: ".
-    print mnv.
-    add_maneuver(mnv).
-    execute_mnv().
 }
 
 
