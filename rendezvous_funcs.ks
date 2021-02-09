@@ -258,10 +258,12 @@ function final_rendezvous
         lock steering to lookdirup(target:position, north:vector).
         wait 10.
         lock throttle to 1.
+        local app_vel is 5.
+        if (dist < 500) set app_vel to 2.5.
         until false
         {
             set current_vel to ship:velocity:orbit - target:velocity:orbit.
-            if (current_vel:mag >= 5) break.
+            if (current_vel:mag >= app_vel) break.
         }
         lock throttle to 0.
     }
