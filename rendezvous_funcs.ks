@@ -158,7 +158,6 @@ function transfer_orbit
     execute_mnv().
 }
 
-
 function get_phase_angle
 {
     local common_ancestor is 0.
@@ -211,4 +210,24 @@ function get_phase_angle
     else return phase.
 }
 
-// function time_closest_approach
+function time_closest_approach
+{
+    // start and end times for searching for closest approach
+    local start_time is time:seconds + 0.5 * eta:apoapsis.
+    local end_time is time:seconds + 1.5 * eta:apoapsis.
+
+    local t is start_time.
+    local min_dist is 2^64.
+    local min_time is 0.
+    until (t > end_time)
+    {
+        local dist is positionat(ship, t) - positionat(target, t).
+        set dist to dist:mag.
+        if (dist < min_dist)
+        {
+            set min_dist to dist.
+            set min_time to t.
+        }
+        set t to t + 1.
+    }
+}
