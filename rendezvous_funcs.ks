@@ -136,7 +136,7 @@ function transfer_orbit
     local current_pa is get_phase_angle().
     print "Transfer Angle: " + transfer_angle.
     print "Phase Angle   : " + current_pa.
-    until (abs(transfer_angle - current_pa) < 1)
+    until (abs(transfer_angle - current_pa) < 0.25)
     {
         set current_pa to get_phase_angle().
         clearscreen.
@@ -151,7 +151,7 @@ function transfer_orbit
     local dv is vfinal - vinit.
     local burn_time is calc_burn_time(dv).
 
-    local mnv is node(timespan(burn_time/2 + 20), 0, 0, dv).
+    local mnv is node(timespan(burn_time/2 + 20), 0, 0, dv+0.1).
     print "Maneuver: ".
     print mnv.
     add_maneuver(mnv).
@@ -213,39 +213,59 @@ function get_phase_angle
 function final_rendezvous
 {
     // Get Ship to within 250m and kill velocity
-    local wanted_min is 200.
-    list engines in ship_engines.
-    for en in ship_engines
-    {
-        if (en:ignition = true) set en:thrustlimit to 10.
-    }
+    print "Performing Final Rendezvous".
 
-    lock current_vel to ship:velocity:orbit - target:velocity:orbit.
-    lock dist to ship:position - target:position.
+    local wanted_min is 200.
+    
+    local dist is ship:position - target:position.
+    local current_vel is ship:velocity:orbit - target:velocity:orbit.
     until false
     {
-        if (dist:mag < 1000) local rlist is closest_approach(wanted_min, 0).
+        set dist to ship:position - target:position.
+        if (dist:mag < 10000) local rlist is closest_approach(wanted_min, 0).
         else local rlist is closest_approach(wanted_min, eta:apoapsis).
         local min_time is rlist[0].
         local min_dist is rlist[1].
+        local time_until_burn is min_time - time:seconds.
 
         // Required burn dv and burn time to kill velocity relative to target
         local vel_diff is velocityat(ship, min_time):orbit - velocityat(target, min_time):orbit.
         local killdv_time is calc_burn_time(vel_diff:mag).
 
-        lock steering to -1*vel_diff.
+        print "Burn in: " + time_until_burn.
+        print "Burn DV: " + vel_diff:mag.
+        print "Burn Time: " + killdv_time.
+        print "Min Sep: " + min_dist.
+        print "    ".
+        local mnv is node(min_time, vel_diff:mag, 0, 0).
+        add_maneuver(mnv).
+
+        lock steering to lookdirup(-1*vel_diff, north:vector).
         wait until time:seconds >= min_time - killdv_time / 2.
+        remove_maneuver(mnv).
         lock throttle to 1.
         wait until time:seconds >= min_time + killdv_time / 2.
         lock throttle to 0.
+        set dist to ship:position - target:position.
         if (dist:mag < 250) break.
 
-        lock steering to target:position.
+        list engines in ship_engines.
+        for en in ship_engines
+        {
+            if (en:ignition = true) set en:thrustlimit to 10.
+        }
+
+        lock steering to lookdirup(target:position, north:vector).
         wait 10.
-        lock throttle to 0.5.
-        wait until current_vel >= 3.
+        lock throttle to 1.
+        until false
+        {
+            set current_vel to ship:velocity:orbit - target:velocity:orbit.
+            if (current_vel:mag >= 5) break.
+        }
         lock throttle to 0.
     }
+    print "Rendezvous Complete".
 }
 
 function closest_approach
@@ -254,17 +274,18 @@ function closest_approach
     // If closest approach less than wanted distance will get time to wanted distance
     parameter wanted_min, search_param.
 
-
     // start and end times for searching for closest approach
+    local start_time is 0.
+    local end_time is 0.
     if (search_param > 0)
     {
-        local start_time is time:seconds + 0.5 * eta:apoapsis.
-        local end_time is time:seconds + 1.5 * eta:apoapsis.
+        set start_time to time:seconds + 0.5 * eta:apoapsis.
+        set end_time to time:seconds + 1.5 * eta:apoapsis.
     }
     else
     {
-        local start_time is time:seconds + 2.
-        local end_time is time:seconds + 300.
+        set start_time to time:seconds + 2.
+        set end_time to time:seconds + 300.
     }
 
     local t is start_time.
@@ -274,6 +295,7 @@ function closest_approach
     {
         local dist is positionat(ship, t) - positionat(target, t).
         set dist to dist:mag.
+        if (dist < wanted_min) break.
         if (dist < min_dist and dist >= wanted_min)
         {
             set min_dist to dist.

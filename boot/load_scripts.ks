@@ -8,6 +8,7 @@ copypath("0:/autostaging.ks", "1:autostaging.ks").
 copypath("0:/deploy_functions.ks", "1:deploy_functions.ks").
 copypath("0:/pid_funcs.ks", "1:pid_funcs.ks").
 copypath("0:/rendezvous_funcs.ks", "1:rendezvous_funcs.ks").
+copypath("0:/docking_funcs.ks", "1:docking_funcs.ks").
 
 runpath("1:launch_to_ap.ks").
 runpath("1:maneuver_funcs.ks").
@@ -17,3 +18,4 @@ runpath("1:autostaging.ks").
 runpath("1:deploy_functions.ks").
 runpath("1:pid_funcs.ks").
 runpath("1:rendezvous_funcs.ks").
+runpath("1:docking_funcs.ks").
