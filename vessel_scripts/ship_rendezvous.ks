@@ -29,6 +29,8 @@ wait 5.
 deploy_dp_shield().
 wait 5.
 
+set steeringmanager:maxstoppingtime to 0.5.
+
 match_inclination().
 
 // transfer_orbit().
