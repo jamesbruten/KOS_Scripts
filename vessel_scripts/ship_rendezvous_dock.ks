@@ -4,11 +4,11 @@ global target_inc is target:orbit:inclination.
 global target_ap_km is target_ap/1000.
 global target_pe_km is target_pe/1000.
 
-// // wait for target orbit to be above ship
-// wait_for_launch().
+// wait for target orbit to be above ship
+wait_for_launch().
 
-// // do launch until apoapsis in parking orbit
-// launch_to_ap(true).
+// do launch until apoapsis in parking orbit
+launch_to_ap(true).
 
 // deploy payload vehicle
 deploy_payload("payload1").
@@ -34,6 +34,8 @@ deploy_solar_panels().
 wait 5.
 deploy_dp_shield().
 wait 5.
+deploy_antenna().
+wait 5.
 
 set steeringmanager:maxstoppingtime to 0.5.
 
@@ -42,5 +44,6 @@ match_inclination().
 transfer_orbit().
 
 final_rendezvous().
+wait 5.
 
 dock_vessels().
