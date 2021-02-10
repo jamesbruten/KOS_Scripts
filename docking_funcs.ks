@@ -72,7 +72,7 @@ function leave_keepout
     parameter targetport.
     print "Leaving Keep Out Sphere".
     local target_radius is 200.
-    local speed is 5.
+    local speed is 2.
 
     lock dist to ship:position - targetport:ship:position.
     lock move_vector to (dist:normalized * target_radius) - dist.
@@ -135,12 +135,7 @@ function move_to_corner
     until false
     {
         translate(move_vector:normalized * speed - relative_vel).
-        local gap is targetport:nodeposition - shipport:nodeposition + min_vect.
-        if (gap:mag < 20)
-        {
-            set speed to 1.
-            if (gap < 10) set speed to 0.5.
-        }
+        set speed to set_speed(targetport:nodeposition - shipport:nodeposition + min_vect).
         if (move_vector:mag < 1) break.
         wait 0.01.
     }
@@ -158,12 +153,7 @@ function move_to_corner
         until false
         {
             translate(move_vector:normalized * speed - relative_vel).
-            local gap is targetport:nodeposition - shipport:nodeposition + v2.
-            if (gap:mag < 20)
-            {
-                set speed to 1.
-                if (gap < 10) set speed to 0.5.
-            }
+            set speed to set_speed(targetport:nodeposition - shipport:nodeposition + v2).
             if (move_vector:mag < 1) break.
             wait 0.01.
         }
@@ -188,15 +178,22 @@ function approach_port
     {
         translate(move_vector:normalized * speed - relative_vel).
         local dist is targetport:nodeposition - shipport:nodeposition.
-        local gap is targetport:nodeposition - shipport:nodeposition + offset.
-        if (gap:mag < 20 and distance > 50)
-        {
-            set speed to 1.
-            if (gap < 10) set speed to 0.5.
-        }
+        if (distance > 50) set speed to set_speed(targetport:nodeposition - shipport:nodeposition + offset).
         if (vang(shipport:portfacing:vector, dist)<ang_error and abs(dist - distance)<dist_error) break.
         wait 0.01.
     }
     translate(V(0,0,0)).
     if (shipport:state <> "Ready") print "Successfully Docked".
+}
+
+function set_speed
+{
+    parameter vector.
+    
+    local speed is 2.
+
+    if (vector:mag < 10) set speed to 0.5.
+    else if (vector:mag < 20) set speed to 1.
+    
+    return speed.
 }
