@@ -21,11 +21,11 @@ function dock_vessels
 
     move_to_corner(targetport, shipport).
 
-    approach_port(targetport, shipport, 100, 2).
-    approach_port(targetport, shipport, 5, 2).
-    approach_port(targetport, shipport, 2, 1).
-    approach_port(targetport, shipport, 1, 0.5).
-    approach_port(targetport, shipport, 0, 0.25).
+    approach_port(targetport, shipport, 100, 2, 4, 2).
+    approach_port(targetport, shipport, 10, 2, 2, 0.1).
+    approach_port(targetport, shipport, 2, 1, 2, 0.1).
+    approach_port(targetport, shipport, 1, 0.5, 2, 0.1).
+    approach_port(targetport, shipport, 0, 0.25, 1, 0.1).
 
     RCS off.
     unlock steering.
@@ -135,8 +135,12 @@ function move_to_corner
     until false
     {
         translate(move_vector:normalized * speed - relative_vel).
-        local
+        local gap is targetport:nodeposition - shipport:nodeposition + min_vect.
+        if (gap:mag < 20)
+        {
             set speed to 1.
+            if (gap < 10) set speed to 0.5.
+        }
         if (move_vector:mag < 1) break.
         wait 0.01.
     }
@@ -154,10 +158,11 @@ function move_to_corner
         until false
         {
             translate(move_vector:normalized * speed - relative_vel).
-            if (dist:mag < 20)
+            local gap is targetport:nodeposition - shipport:nodeposition + v2.
+            if (gap:mag < 20)
             {
-                print "Speed 1".
                 set speed to 1.
+                if (gap < 10) set speed to 0.5.
             }
             if (move_vector:mag < 1) break.
             wait 0.01.
@@ -168,7 +173,7 @@ function move_to_corner
 
 function approach_port
 {
-    parameter targetport, shipport, distance, speed.
+    parameter targetport, shipport, distance, speed, ang_error, dist_error.
 
     print "Approaching to Target Port + " + distance + " at Speed: " + speed.
 
@@ -183,12 +188,13 @@ function approach_port
     {
         translate(move_vector:normalized * speed - relative_vel).
         local dist is targetport:nodeposition - shipport:nodeposition.
-        if (distance = 100 and dist:mag < 20)
+        local gap is targetport:nodeposition - shipport:nodeposition + offset.
+        if (gap:mag < 20 and distance > 50)
         {
-            print "Speed 1".
             set speed to 1.
+            if (gap < 10) set speed to 0.5.
         }
-        if (vang(shipport:portfacing:vector, dist)<1 and abs(dist - distance)<0.1) break.
+        if (vang(shipport:portfacing:vector, dist)<ang_error and abs(dist - distance)<dist_error) break.
         wait 0.01.
     }
     translate(V(0,0,0)).
