@@ -22,7 +22,6 @@ function dock_vessels
 
     approach_port(targetport, shipport, 100, 2, 4, 2).
     approach_port(targetport, shipport, 10, 2, 2, 0.1).
-    approach_port(targetport, shipport, 2, 1, 2, 0.1).
     approach_port(targetport, shipport, 1, 0.5, 2, 0.1).
     approach_port(targetport, shipport, 0, 0.25, 1, 0.1).
 
@@ -153,7 +152,7 @@ function approach_port
 
     until shipport:state <> "Ready"
     {
-        if (distance > 50) local speed is set_speed(targetport:nodeposition - shipport:nodeposition + offset, init_speed).
+        if (distance > 5) local speed is set_speed(targetport:nodeposition - shipport:nodeposition + offset, init_speed).
         translate(move_vector:normalized * speed - relative_vel).
         local dist is targetport:nodeposition - shipport:nodeposition.
         if (vang(shipport:portfacing:vector, dist)<ang_error and abs(dist:mag - distance)<dist_error) break.

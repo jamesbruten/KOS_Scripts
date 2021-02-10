@@ -38,6 +38,3 @@ global target_pe_km is target_pe/1000.
 // final_rendezvous().
 
 dock_vessels().
-
-lock steering to prograde.
-until false {}.
