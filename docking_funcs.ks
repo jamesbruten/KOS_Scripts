@@ -135,11 +135,8 @@ function move_to_corner
     until false
     {
         translate(move_vector:normalized * speed - relative_vel).
-        if (dist:mag < 20)
-        {
-            print "Speed 1".
+        local
             set speed to 1.
-        }
         if (move_vector:mag < 1) break.
         wait 0.01.
     }
