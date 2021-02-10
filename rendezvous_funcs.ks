@@ -212,10 +212,10 @@ function get_phase_angle
 
 function final_rendezvous
 {
-    // Get Ship to within 250m and kill velocity
-    print "Performing Final Rendezvous".
+    // Get Ship to within 400m and kill velocity
+    print "Performing Final Rendezvous to within 400m".
 
-    local wanted_min is 200.
+    local wanted_min is 350.
     
     local dist is ship:position - target:position.
     local current_vel is ship:velocity:orbit - target:velocity:orbit.
@@ -247,7 +247,7 @@ function final_rendezvous
         wait until time:seconds >= min_time + killdv_time / 2.
         lock throttle to 0.
         set dist to ship:position - target:position.
-        if (dist:mag < 250) break.
+        if (dist:mag < 400) break.
 
         list engines in ship_engines.
         for en in ship_engines
