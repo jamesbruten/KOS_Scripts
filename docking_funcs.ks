@@ -16,7 +16,7 @@ function dock_vessels
     leave_keepout(targetport).
 
     print "Aligning Steering".
-    lock steering to lookdirup(-1*targetport:portfacing:vector, north:vector).
+    lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
 
     move_to_corner(targetport, shipport).
 
@@ -76,7 +76,7 @@ function leave_keepout
     lock dist to ship:position - targetport:ship:position.
     lock move_vector to (dist:normalized * target_radius) - dist.
     lock relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
-    lock steering to lookdirup(-1*targetport:portfacing:vector, north:vector).
+    lock steering to north:vector.
 
     until false
     {
@@ -125,7 +125,7 @@ function move_to_corner
     lock dist to ship:position - min_vect.
     lock move_vector to targetport:nodeposition - shipport:nodeposition + min_vect.
     lock relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
-    lock steering to lookdirup(-1*targetport:portfacing:vector, north:vector).
+    lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
 
     until false
     {
@@ -148,7 +148,7 @@ function approach_port
     lock offset to targetport:portfacing:vector * distance.
     lock move_vector to targetport:nodeposition - shipport:nodeposition + offset.
     lock relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
-    lock steering to lookdirup(-1*targetport:portfacing:vector, north:vector).
+    lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
 
     until shipport:state <> "Ready"
     {
