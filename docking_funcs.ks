@@ -12,7 +12,7 @@ function dock_vessels
     local targetport is get_target_port().
     local shipport is ship:dockingports[0].
 
-    // kill_relative_velocity(targetport).
+    kill_relative_velocity(targetport).
 
     print "Pointing in line with Target Port".
     lock steering to lookdirup(-1*targetport:portfacing:vector, north:vector).
