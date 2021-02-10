@@ -137,6 +137,8 @@ function prograde_climb
             set fairings_deployed to true.
             deploy_fairing().
         }
+        when (alt:radar > 60000) then set min_pitch to 8.
+        when (alt:radar > 70000) then set min_pitch to 0.
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.

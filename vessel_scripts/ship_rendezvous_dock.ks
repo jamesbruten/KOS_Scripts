@@ -10,31 +10,37 @@ global target_pe_km is target_pe/1000.
 // // do launch until apoapsis in parking orbit
 // launch_to_ap(true).
 
-// // circularise parking orbit
-// adjust_apsides("a").
+// deploy payload vehicle
+deploy_payload("payload1").
 
-// // deploy payload vehicle
-// deploy_payload("payload1").
+list engines in ship_engines.
+for en in ship_engines
+{
+    en:activate().
+}
 
-// lock throttle to 0.
-// list engines in ship_engines.
-// for en in ship_engines
-// {
-//     if not en:ignition en:activate.
-// }
+// circularise parking orbit
+adjust_apsides("a").
 
-// wait 5.
-// deploy_solar_panels().
-// wait 5.
-// deploy_dp_shield().
-// wait 5.
+lock throttle to 0.
+list engines in ship_engines.
+for en in ship_engines
+{
+    if not en:ignition en:activate.
+}
 
-// set steeringmanager:maxstoppingtime to 0.5.
+wait 5.
+deploy_solar_panels().
+wait 5.
+deploy_dp_shield().
+wait 5.
 
-// match_inclination().
+set steeringmanager:maxstoppingtime to 0.5.
 
-// transfer_orbit().
+match_inclination().
 
-// final_rendezvous().
+transfer_orbit().
+
+final_rendezvous().
 
 dock_vessels().
