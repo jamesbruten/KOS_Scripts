@@ -154,7 +154,9 @@ function transfer_orbit
     if (ang2 < 0) set angle_left to 360 - transfer_angle - abs(ang2).
     else set angle_left to ang2 - transfer_angle.
     local wait_time is (angle_left - 10) / rate_change.
+    wait_time = max(wait_time, 60).
 
+    print "Warping to Plane Change, minutes: " + wait_time/60.
     warpto(time:seconds + wait_time).
     wait until ship:unpacked.
     
