@@ -10,17 +10,8 @@ wait_for_launch().
 // do launch until apoapsis in parking orbit
 launch_to_ap(true).
 
-list engines in ship_engines.
-for en in ship_engines
-{
-    en:activate().
-}
-
 // circularise parking orbit
 adjust_apsides("a").
-
-// deploy payload vehicle
-deploy_payload("payload2").
 
 lock throttle to 0.
 list engines in ship_engines.
@@ -44,6 +35,12 @@ match_inclination().
 transfer_orbit().
 
 final_rendezvous().
+wait 5.
+
+for dp in ship:dockingports
+{
+    if (dp:tag = "payload") dp:undock().
+}
 wait 5.
 
 dock_vessels().

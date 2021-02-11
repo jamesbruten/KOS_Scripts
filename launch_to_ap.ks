@@ -116,10 +116,10 @@ function prograde_climb
     // Deploys fairings once above 65km
 
     print "Climbing on Prograde Pitch".
+
     set accvec to ship:sensors:acc - ship:sensors:grav.
     set gforce to accvec:mag / g_pid.
     set pid:setpoint to 2.5.
-    when (alt:radar > 30000) then set pid:setpoint to 3.0.
     declare local switch_to_orbit to false.
     declare local fairings_deployed to false.
     declare local max_pitch to 45.
@@ -128,6 +128,9 @@ function prograde_climb
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
     set needed_az to inst_az(target_inc).
     lock steering to heading(needed_az, prograde_pitch).
+    when (alt:radar > 30000) then set pid:setpoint to 3.0.
+    when (alt:radar > 60000) then set min_pitch to 8.
+    when (alt:radar > 70000) then set min_pitch to 0.
 
     until (ship:apoapsis > target_ap)
     {
@@ -152,8 +155,6 @@ function prograde_climb
             deploy_fairing().
         }
 
-        when (alt:radar > 60000) then set min_pitch to 8.
-        when (alt:radar > 70000) then set min_pitch to 0.
         if (check_stage_thrust() = false) autostage().
     }
     if (alt:radar < 60000) wait 0.2.            // these two lines boost apoapsis slightly to negate for atmospheric drag
