@@ -120,13 +120,10 @@ function prograde_climb
     declare local max_pitch to 45.
     declare local min_pitch to 15.
     lock prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
-    lock current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
-    wait 0.01.
-    lock steering to heading(inst_az(target_inc), current_pitch).
-    wait 0.01.
+    // lock current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
+    lock steering to heading(inst_az(target_inc), prograde_pitch).
     until (ship:apoapsis > target_ap)
     {
-        // print prograde_pitch.
         if (switch_to_orbit = false and ship:velocity:orbit:mag > 1650)
         {
             set switch_to_orbit to true.
@@ -137,6 +134,8 @@ function prograde_climb
             set fairings_deployed to true.
             deploy_fairing().
         }
+        when (alt:radar > 60000) then set min_pitch to 8.
+        when (alt:radar > 70000) then set min_pitch to 0.
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.

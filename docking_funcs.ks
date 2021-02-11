@@ -10,7 +10,16 @@ function dock_vessels
     RCS on.
     
     local targetport is get_target_port().
-    local shipport is ship:dockingports[0].
+    local shipport is "x".
+    for dp in ship:dockingports
+    {
+        if (dp:tag = "docker")
+        {
+            set shipport to dp.
+            break.
+        }
+    }
+    shipport:controlfrom().
 
     kill_relative_velocity(targetport).
     leave_keepout(targetport).
@@ -20,10 +29,11 @@ function dock_vessels
 
     move_to_corner(targetport, shipport).
 
-    approach_port(targetport, shipport, 100, 2, 4, 2).
-    approach_port(targetport, shipport, 10, 2, 2, 0.1).
-    approach_port(targetport, shipport, 1, 0.5, 2, 0.1).
-    approach_port(targetport, shipport, 0, 0.25, 1, 0.1).
+    approach_port(targetport, shipport, 100, 2, 2).
+    approach_port(targetport, shipport, 20, 2, 0.5).
+    approach_port(targetport, shipport, 10, 0.5, 0.1).
+    approach_port(targetport, shipport, 1, 0.4, 0.1).
+    approach_port(targetport, shipport, 0, 0.25, 0.1).
 
     if (shipport:state <> "Ready") print "Successfully Docked".
     RCS off.
@@ -91,7 +101,6 @@ function leave_keepout
 function move_to_corner
 {
     parameter targetport, shipport.
-    print "Moving to Nearest Approach Corner".
 
     local ax_dist is 100.
     
@@ -131,6 +140,9 @@ function move_to_corner
     {
         local speed is set_speed(targetport:nodeposition - shipport:nodeposition + min_vect, init_speed).
         translate(move_vector:normalized * speed - relative_vel).
+        clearscreen.
+        print "Moving to Nearest Approach Corner".
+        print move_vector:mag.
         if (move_vector:mag < 1) break.
         wait 0.01.
     }
@@ -139,23 +151,24 @@ function move_to_corner
 
 function approach_port
 {
-    parameter targetport, shipport, distance, init_speed, ang_error, dist_error.
+    parameter targetport, shipport, distance, init_speed, dist_error.
 
-    print "Approaching to Target Port + " + distance + " at Speed: " + speed.
-
-    shipport:controlfrom().
-
+    local speed is init_speed.
     lock offset to targetport:portfacing:vector * distance.
-    lock move_vector to targetport:nodeposition - shipport:nodeposition + offset.
+    lock move_vector to targetport:position - shipport:position + offset.
     lock relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
     lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
 
     until shipport:state <> "Ready"
     {
-        if (distance > 5) local speed is set_speed(targetport:nodeposition - shipport:nodeposition + offset, init_speed).
+        if (distance > 5) set speed to set_speed(targetport:nodeposition - shipport:nodeposition + offset, init_speed).
         translate(move_vector:normalized * speed - relative_vel).
-        local dist is targetport:nodeposition - shipport:nodeposition.
-        if (vang(shipport:portfacing:vector, dist)<ang_error and abs(dist:mag - distance)<dist_error) break.
+        local dvect is targetport:position - shipport:position.
+        clearscreen.
+        print "Approaching Target Port + " + distance + " at Speed: " + init_speed.
+        print move_vector:mag.
+        print vang(shipport:portfacing:vector, dvect).
+        if (move_vector:mag < dist_error and vang(shipport:portfacing:vector, dvect) < 2) break.
         wait 0.01.
     }
     translate(V(0,0,0)).
@@ -164,6 +177,7 @@ function approach_port
 function set_speed
 {
     parameter vector, speed.
+    if (speed <= 0.5) return 0.5.
     
     if (vector:mag < 10) set speed to 0.5.
     else if (vector:mag < 20) set speed to 1.
