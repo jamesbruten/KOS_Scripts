@@ -10,9 +10,6 @@ wait_for_launch().
 // do launch until apoapsis in parking orbit
 launch_to_ap(true).
 
-// deploy payload vehicle
-deploy_payload("payload1").
-
 list engines in ship_engines.
 for en in ship_engines
 {
@@ -21,6 +18,9 @@ for en in ship_engines
 
 // circularise parking orbit
 adjust_apsides("a").
+
+// deploy payload vehicle
+deploy_payload("payload2").
 
 lock throttle to 0.
 list engines in ship_engines.

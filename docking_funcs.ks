@@ -10,7 +10,15 @@ function dock_vessels
     RCS on.
     
     local targetport is get_target_port().
-    local shipport is ship:dockingports[0].
+    local shipport is "x".
+    for dp in ship:dockingports
+    {
+        if (dp:tag = "docker")
+        {
+            set shipport to dp.
+            break.
+        }
+    }
     shipport:controlfrom().
 
     kill_relative_velocity(targetport).

@@ -120,13 +120,10 @@ function prograde_climb
     declare local max_pitch to 45.
     declare local min_pitch to 15.
     lock prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
-    lock current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
-    wait 0.01.
-    lock steering to heading(inst_az(target_inc), current_pitch).
-    wait 0.01.
+    // lock current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
+    lock steering to heading(inst_az(target_inc), prograde_pitch).
     until (ship:apoapsis > target_ap)
     {
-        // print prograde_pitch.
         if (switch_to_orbit = false and ship:velocity:orbit:mag > 1650)
         {
             set switch_to_orbit to true.
