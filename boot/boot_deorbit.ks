@@ -9,6 +9,13 @@ until false
     wait 60.
 }
 
+list engines in ship_engines.
+for en in ship_engines
+{
+    if not en:ignition en:activate.
+    set en:thrustlimit to 100.
+}
+
 lock steering to retrograde.
 wait 20.
 lock throttle to 0.1.

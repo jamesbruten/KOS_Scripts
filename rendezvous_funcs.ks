@@ -24,6 +24,10 @@ function wait_for_launch
 
     print "Launch In: " + time_to_launch.
     print "Launch In: " + lh + " hours + " + lm + " minutes".
+    print "Warping".
+    wait 5.
+    warpto(launch_time - 60).
+    wait until ship:unpacked.
     wait until time:seconds > launch_time - 40.
 }
 
@@ -133,36 +137,39 @@ function transfer_orbit
     local transit_time is 2*constant:pi*sqrt(t_semi_major^3/body:mu).
     local transfer_angle is 180 - 180*transit_time/target:orbit:period.
 
-    // local current_pa is get_phase_angle().
-    // print "Transfer Angle: " + transfer_angle.
-    // print "Phase Angle   : " + current_pa.
-    // until (abs(transfer_angle - current_pa) < 0.25)
-    // {
-    //     set current_pa to get_phase_angle().
-    //     clearscreen.
-    //     print "Transfer Angle: " + transfer_angle.
-    //     print "Phase Angle   : " + current_pa.
-    //     wait 0.1.
-    // }
-    local ang1 is get_phase_angle().
-    local t1 is time:seconds.
-    wait 10.
-    local ang2 is get_phase_angle().
-    local t2 is time:seconds.
-    local rate_change is (ang2 - ang1) /(t2 - t2).
-    local angle_left is "x".
-    if (ang2 < 0) set angle_left to 360 - transfer_angle - abs(ang2).
-    else set angle_left to ang2 - transfer_angle.
-    local wait_time is (angle_left - 10) / rate_change.
-    wait_time = max(wait_time, 60).
-
-    print "Warping to Plane Change, minutes: " + wait_time/60.
-    warpto(time:seconds + wait_time).
-    wait until ship:unpacked.
-    
     local current_pa is get_phase_angle().
     print "Transfer Angle: " + transfer_angle.
     print "Phase Angle   : " + current_pa.
+    until (abs(transfer_angle - current_pa) < 0.25)
+    {
+        set current_pa to get_phase_angle().
+        clearscreen.
+        print "Transfer Angle: " + transfer_angle.
+        print "Phase Angle   : " + current_pa.
+        wait 0.1.
+    }
+    // local ang1 is get_phase_angle().
+    // local t1 is time:seconds.
+    // wait 10.
+    // local ang2 is get_phase_angle().
+    // local t2 is time:seconds.
+    // local rate_change is (ang1 - ang2) /(t2 - t1).
+    // local angle_left is "x".
+    // if (ang2 < 0) set angle_left to 360 - transfer_angle - abs(ang2).
+    // else set angle_left to ang2 - transfer_angle.
+    // print transfer_angle.
+    // print ang2.
+    // print angle_left.
+    // local wait_time is (angle_left - 10) / rate_change.
+    // set wait_time to max(wait_time, 0).
+
+    // print "Warping to Plane Change, minutes: " + wait_time/60.
+    // warpto(time:seconds + wait_time).
+    // wait until ship:unpacked.
+    
+    // local current_pa is get_phase_angle().
+    // print "Transfer Angle: " + transfer_angle.
+    // print "Phase Angle   : " + current_pa.
     wait until (abs(transfer_angle - current_pa) < 0.25).
 
     local rad is ship:altitude + body:radius.
