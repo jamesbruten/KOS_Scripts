@@ -67,15 +67,16 @@ function countdown
 
 function initial_launch
 {
-    lock accvec to ship:sensors:acc - ship:sensors:grav.
-    lock gforce to accvec:mag / g_pid.
-    lock current_pitch to 90.
-    lock steering to heading(0, current_pitch, 0).
+    set accvec to ship:sensors:acc - ship:sensors:grav.
+    set gforce to accvec:mag / g_pid.
+    lock steering to heading(0, 90, 0).
     print "Liftoff".
     print "Climbing to 700m".
     stage.
     until (alt:radar > 700)
     {
+        set accvec to ship:sensors:acc - ship:sensors:grav.
+        set gforce to accvec:mag / g_pid.
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.
@@ -91,15 +92,19 @@ function to_ten_km
     // Currently just following inclination azimuth
 
     print "Initiating Pitch and Roll Maneuver".
-    lock accvec to ship:sensors:acc - ship:sensors:grav.
-    lock gforce to accvec:mag / g_pid.
-    lock current_pitch to -8.94037E-8 * alt:radar * alt:radar - 0.00370273 * alt:radar + 91.4233.
-    lock steering to heading(inst_az(target_inc), current_pitch).
+    set accvec to ship:sensors:acc - ship:sensors:grav.
+    set gforce to accvec:mag / g_pid.
+    set current_pitch to -8.94037E-8 * alt:radar * alt:radar - 0.00370273 * alt:radar + 91.4233.
+    set needed_az to inst_az(target_inc).
+    lock steering to heading(needed_az, current_pitch).
     until (alt:radar > 10000)
     {
+        set accvec to ship:sensors:acc - ship:sensors:grav.
+        set gforce to accvec:mag / g_pid.
+        set current_pitch to -8.94037E-8 * alt:radar * alt:radar - 0.00370273 * alt:radar + 91.4233.
+        set needed_az to inst_az(target_inc).
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
-        wait 0.01.
     }
 }
 
@@ -111,19 +116,31 @@ function prograde_climb
     // Deploys fairings once above 65km
 
     print "Climbing on Prograde Pitch".
-    lock accvec to ship:sensors:acc - ship:sensors:grav.
-    lock gforce to accvec:mag / g_pid.
+    set accvec to ship:sensors:acc - ship:sensors:grav.
+    set gforce to accvec:mag / g_pid.
     set pid:setpoint to 2.5.
     when (alt:radar > 30000) then set pid:setpoint to 3.0.
     declare local switch_to_orbit to false.
     declare local fairings_deployed to false.
     declare local max_pitch to 45.
     declare local min_pitch to 15.
-    lock prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
-    // lock current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
-    lock steering to heading(inst_az(target_inc), prograde_pitch).
+    set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
+    set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
+    set needed_az to inst_az(target_inc).
+    lock steering to heading(needed_az, prograde_pitch).
+
     until (ship:apoapsis > target_ap)
     {
+        set accvec to ship:sensors:acc - ship:sensors:grav.
+        set gforce to accvec:mag / g_pid.
+        set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
+        set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
+        set needed_az to inst_az(target_inc).
+        set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
+        clearscreen.
+        print current_pitch.
+        print needed_az.
+
         if (switch_to_orbit = false and ship:velocity:orbit:mag > 1650)
         {
             set switch_to_orbit to true.
@@ -134,11 +151,10 @@ function prograde_climb
             set fairings_deployed to true.
             deploy_fairing().
         }
+
         when (alt:radar > 60000) then set min_pitch to 8.
         when (alt:radar > 70000) then set min_pitch to 0.
-        set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
-        wait 0.01.
     }
     if (alt:radar < 60000) wait 0.2.            // these two lines boost apoapsis slightly to negate for atmospheric drag
     else if (alt:radar < 65000) wait 0.1.
