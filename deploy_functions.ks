@@ -64,11 +64,4 @@ function deploy_payload
             p:getmodule("moduledecouple"):doevent("decouple").
         } 
     }
-
-    lock throttle to 0.
-    list engines in ship_engines.
-    for en in ship_engines
-    {
-        en:activate().
-    }
 }
