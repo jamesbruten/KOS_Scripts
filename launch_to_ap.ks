@@ -120,14 +120,15 @@ function prograde_climb
     set accvec to ship:sensors:acc - ship:sensors:grav.
     set gforce to accvec:mag / g_pid.
     set pid:setpoint to 2.5.
-    declare local switch_to_orbit to false.
     declare local fairings_deployed to false.
     declare local max_pitch to 45.
     declare local min_pitch to 15.
     set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
     set needed_az to inst_az(target_inc).
+
     lock steering to heading(needed_az, prograde_pitch).
+
     when (alt:radar > 30000) then set pid:setpoint to 3.0.
     when (alt:radar > 60000) then set min_pitch to 8.
     when (alt:radar > 70000) then set min_pitch to 0.
@@ -136,19 +137,12 @@ function prograde_climb
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
-        set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
+        if (ship:velocity:orbit:mag < 1650) set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
+        else set prograde_pitch to 90 - vang(ship:prograde:vector, up:vector).
         set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
         set needed_az to inst_az(target_inc).
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
-        clearscreen.
-        print current_pitch.
-        print needed_az.
 
-        if (switch_to_orbit = false and ship:velocity:orbit:mag > 1650)
-        {
-            set switch_to_orbit to true.
-            lock prograde_pitch to 90 - vang(ship:prograde:vector, up:vector).
-        }
         if (fairings_deployed = false and alt:radar > 65000)
         {
             set fairings_deployed to true.
@@ -157,6 +151,7 @@ function prograde_climb
 
         if (check_stage_thrust() = false) autostage().
     }
+    
     if (alt:radar < 60000) wait 0.2.            // these two lines boost apoapsis slightly to negate for atmospheric drag
     else if (alt:radar < 65000) wait 0.1.
 

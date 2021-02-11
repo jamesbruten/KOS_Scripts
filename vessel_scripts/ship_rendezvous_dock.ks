@@ -13,12 +13,12 @@ launch_to_ap(true).
 // circularise parking orbit
 adjust_apsides("a").
 
-lock throttle to 0.
-list engines in ship_engines.
-for en in ship_engines
-{
-    if not en:ignition en:activate.
-}
+// lock throttle to 0.
+// list engines in ship_engines.
+// for en in ship_engines
+// {
+//     if not en:ignition en:activate.
+// }
 
 wait 5.
 deploy_solar_panels().
@@ -37,10 +37,7 @@ transfer_orbit().
 final_rendezvous().
 wait 5.
 
-for dp in ship:dockingports
-{
-    if (dp:tag = "payload") dp:undock().
-}
+deploy_payload("payload").
 wait 5.
 
 dock_vessels().
