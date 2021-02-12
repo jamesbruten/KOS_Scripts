@@ -19,3 +19,15 @@ runpath("1:deploy_functions.ks").
 runpath("1:pid_funcs.ks").
 runpath("1:rendezvous_funcs.ks").
 runpath("1:docking_funcs.ks").
+
+
+function do_warp
+{
+    parameter warp_delta.
+
+    if (warp_delta > 30)
+    {
+        warpto(time:seconds + warp_delta).
+        wait until ship:unpacked.
+    }
+}

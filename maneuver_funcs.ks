@@ -104,9 +104,8 @@ function execute_mnv
     set burn_duration to mnv:deltav:mag/max_acc.
     print "Estimated burn duration: " + round(burn_duration) + "s".
 
-    wait 10.
-    warpto(time:seconds + mnv:eta - 60 - burn_duration/2).
-    wait until ship:unpacked.
+    wait 5.
+    do_warp(mnv:eta-60-burn_duration/2).
     wait until mnv:eta <= (burn_duration/2 + 45).
 
     //now we need to wait until the burn vector and ship's facing are aligned
