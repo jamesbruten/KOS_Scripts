@@ -22,7 +22,7 @@ function dock_vessels
     shipport:controlfrom().
 
     kill_relative_velocity(targetport).
-    leave_keepout(targetport).
+    leave_keepout(targetport, 2).
 
     print "Aligning Steering".
     lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
@@ -57,6 +57,7 @@ function kill_relative_velocity
 
     print "Killing Relative Velocity".
 
+    set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
     until relative_vel:mag < 0.1
     {
         set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
@@ -78,10 +79,11 @@ function get_target_port
 
 function leave_keepout
 {
-    parameter targetport.
+    parameter targetport, speed.
+
+
     print "Leaving Keep Out Sphere".
     local target_radius is 200.
-    local speed is 2.
 
     lock steering to north:vector.
 
