@@ -44,6 +44,7 @@ for p in ship:parts
 {
     if (p:hasmodule("moduledecouple")) p:getmodule("moduledecouple"):doevent("decouple").
 }
+
 wait until alt:radar < 60000.
 unlock steering.
 wait until alt:radar < 6000.
