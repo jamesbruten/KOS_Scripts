@@ -57,9 +57,9 @@ function kill_relative_velocity
 
     print "Killing Relative Velocity".
 
-    lock relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
     until relative_vel:mag < 0.1
     {
+        set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
         translate(-relative_vel).
     }
     translate(V(0,0,0)).
@@ -83,16 +83,15 @@ function leave_keepout
     local target_radius is 200.
     local speed is 2.
 
-    lock dist to ship:position - targetport:ship:position.
-    lock move_vector to (dist:normalized * target_radius) - dist.
-    lock relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
     lock steering to north:vector.
 
     until false
     {
+        set dist to ship:position - targetport:ship:position.
+        set move_vector to (dist:normalized * target_radius) - dist.
+        set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
         translate(move_vector:normalized * speed - relative_vel).
-        local gap is ship:position - targetport:ship:position.
-        if (gap:mag > target_radius) break.
+        if (dist:mag > target_radius) break.
         wait 0.01. 
     }
     translate(V(0,0,0)).
@@ -131,14 +130,14 @@ function move_to_corner
     }
 
     local init_speed is 2.
-    lock dist to ship:position - min_vect.
-    lock move_vector to targetport:nodeposition - shipport:nodeposition + min_vect.
-    lock relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
     lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
 
     until false
     {
-        local speed is set_speed(targetport:nodeposition - shipport:nodeposition + min_vect, init_speed).
+        set dist to ship:position - min_vect.
+        set move_vector to targetport:nodeposition - shipport:nodeposition + min_vect.
+        set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
+        local speed is set_speed(move_vector, init_speed).
         translate(move_vector:normalized * speed - relative_vel).
         clearscreen.
         print "Moving to Nearest Approach Corner".
@@ -154,14 +153,14 @@ function approach_port
     parameter targetport, shipport, distance, init_speed, dist_error.
 
     local speed is init_speed.
-    lock offset to targetport:portfacing:vector * distance.
-    lock move_vector to targetport:position - shipport:position + offset.
-    lock relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
     lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
 
     until shipport:state <> "Ready"
     {
-        if (distance > 5) set speed to set_speed(targetport:nodeposition - shipport:nodeposition + offset, init_speed).
+        set offset to targetport:portfacing:vector * distance.
+        set move_vector to targetport:position - shipport:position + offset.
+        set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
+        if (distance > 5) set speed to set_speed(move_vector, init_speed).
         translate(move_vector:normalized * speed - relative_vel).
         local dvect is targetport:position - shipport:position.
         clearscreen.
