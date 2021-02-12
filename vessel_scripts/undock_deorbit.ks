@@ -22,7 +22,7 @@ RCS on.
 leave_keepout(target, 10).
 RCS off.
 
-SET TARGET TO "".
+set target to "".
 lock steering to retrograde.
 lock throttle to 0.
 
@@ -37,7 +37,14 @@ wait 10.
 lock throttle to 1.
 wait until ship:periapsis < 0.
 lock throttle to 0.
+
 deploy_dp_shield().
-stage.
-wait until alt:radar < 10000.
-stage.
+
+for p in ship:parts
+{
+    if (p:hasmodule("moduledecouple")) p:getmodule("moduledecouple"):doevent("decouple").
+}
+wait until alt:radar < 60000.
+unlock steering.
+wait until alt:radar < 6000.
+chutes on.
