@@ -1,26 +1,15 @@
 runpath("0:/boot/load_scripts.ks").
 
-SAS off.
-
-for dp in ship:dockingports
-{
-    if (dp:tag = "undocker")
-    {
-        print "Undocking".
-        dp:undock().
-        wait 0.
-        break.
-    }
-}
-
-print "Waiting For Target".
 lock inp to terminal:input:getchar().
-print "Hit 'e' once target docking port set  -- MUST be a DP".
-wait until inp = "e".
+print "Hit 'l' to start RCS movement".
+wait until inp = "l".
 
+SAS off.
 RCS on.
-leave_keepout(target, 10).
+set ship:control:fore to -1.
+wait 10.
 RCS off.
+wait 10.
 
 set target to "".
 lock steering to retrograde.
