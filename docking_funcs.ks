@@ -19,6 +19,21 @@ function dock_vessels
             break.
         }
     }
+    if (shipport = "x")
+    {
+        print "Change Ship DP tag to docker".
+        print "Hit 'l' when done".
+        lock inp to terminal:input:getchar().
+        wait until inp = "l".
+        for dp in ship:dockingports
+        {
+            if (dp:tag = "docker")
+            {
+                set shipport to dp.
+                break.
+            }
+        }
+    }
     shipport:controlfrom().
 
     kill_relative_velocity(targetport).
