@@ -129,7 +129,7 @@ function prograde_climb
 
     lock steering to heading(needed_az, prograde_pitch).
 
-    when (alt:radar > 30000) then set pid:setpoint to 3.0.
+    when (alt:radar > 27000) then set pid:setpoint to 3.0.
     when (alt:radar > 60000) then set min_pitch to 8.
     when (alt:radar > 70000) then set min_pitch to 0.
 
