@@ -12,7 +12,7 @@ function wait_for_launch
     local time_to_launch is body:rotationperiod * vang(lt_dir, ship:position-body:position) / 360.
     if (vcrs(lt_dir, ship:position - body:position)*planet_normal < 0) set time_to_launch to body:rotationperiod - time_to_launch.
 
-    if (time_to_launch > body:rotationperiod/2)
+    if (time_to_launch > body:rotationperiod/2 and abs(ship:latitude)<2)
     {
         set time_to_launch to time_to_launch - body:rotationperiod/2. 
         set target_inc to -1 * target_inc.
@@ -286,7 +286,7 @@ function final_rendezvous
         }
 
         lock steering to lookdirup(target:position, north:vector).
-        wait 10.
+        wait 20.
         lock throttle to 1.
         local app_vel is 5.
         if (dist:mag < 500) set app_vel to 2.5.

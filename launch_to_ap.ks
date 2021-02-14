@@ -94,14 +94,14 @@ function to_ten_km
     print "Initiating Pitch and Roll Maneuver".
     set accvec to ship:sensors:acc - ship:sensors:grav.
     set gforce to accvec:mag / g_pid.
-    set current_pitch to -8.94037E-8 * alt:radar * alt:radar - 0.00370273 * alt:radar + 91.4233.
+    set current_pitch to -8.94037E-8 * ship:altitude * ship:altitude - 0.00370273 * ship:altitude + 91.4233.
     set needed_az to inst_az(target_inc).
     lock steering to heading(needed_az, current_pitch).
-    until (alt:radar > 10000)
+    until (ship:altitude > 10000)
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
-        set current_pitch to -8.94037E-8 * alt:radar * alt:radar - 0.00370273 * alt:radar + 91.4233.
+        set current_pitch to -8.94037E-8 * ship:altitude * ship:altitude - 0.00370273 * ship:altitude + 91.4233.
         set needed_az to inst_az(target_inc).
         set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
