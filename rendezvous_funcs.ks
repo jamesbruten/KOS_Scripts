@@ -31,6 +31,13 @@ function wait_for_launch
     wait until time:seconds > launch_time - 40.
 }
 
+function wait_for_launch_new
+{
+    local ship_normal is heading(0, ship:latitude):vector:normalized.
+    local target_normal is vcrs(target:velocity:orbit, target:body:position-target:position):normalized.
+    local ang_diff is vang(ship_normal, target_normal).
+}
+
 function match_inclination
 {
     print "Matching Inclination".
