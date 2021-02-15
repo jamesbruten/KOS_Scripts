@@ -9,46 +9,24 @@ function dock_vessels
     }
     RCS on.
     
-    local targetport is get_target_port().
-    local shipport is "x".
-    for dp in ship:dockingports
-    {
-        if (dp:tag = "docker")
-        {
-            set shipport to dp.
-            break.
-        }
-    }
-    if (shipport = "x")
-    {
-        print "Change Ship DP tag to docker".
-        print "Hit 'l' when done".
-        lock inp to terminal:input:getchar().
-        wait until inp = "l".
-        for dp in ship:dockingports
-        {
-            if (dp:tag = "docker")
-            {
-                set shipport to dp.
-                break.
-            }
-        }
-    }
+    local targetport is get_target_port("target_dp").
+    local shipport is assign_ports("docker").
     shipport:controlfrom().
 
     kill_relative_velocity(targetport).
     leave_keepout(targetport, 2).
 
     print "Aligning Steering".
-    lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
+    local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
+    lock steering to steering_vector.
 
-    move_to_corner(targetport, shipport).
+    move_to_corner(targetport, shipport,steering_vector).
 
-    approach_port(targetport, shipport, 100, 2, 2).
-    approach_port(targetport, shipport, 20, 2, 0.5).
-    approach_port(targetport, shipport, 10, 0.5, 0.1).
-    approach_port(targetport, shipport, 1, 0.4, 0.1).
-    approach_port(targetport, shipport, 0, 0.25, 0.1).
+    approach_port(targetport, shipport, 100, 2, 2, steering_vector).
+    approach_port(targetport, shipport, 20, 2, 0.5, steering_vector).
+    approach_port(targetport, shipport, 10, 0.5, 0.1, steering_vector).
+    approach_port(targetport, shipport, 1, 0.4, 0.1, steering_vector).
+    approach_port(targetport, shipport, 0, 0.25, 0.1, steering_vector).
 
     if (shipport:state <> "Ready") print "Successfully Docked".
     RCS off.
@@ -83,13 +61,41 @@ function kill_relative_velocity
 
 function get_target_port
 {
+    parameter port_name.
     if (target:dockingports:length <> 0)
     {
         for dp in target:dockingports
         {
-            if (dp:tag = "target_dp") return dp.
+            if (dp:tag = port_name) return dp.
         }
     }
+}
+
+function assign_ports
+{
+    parameter port_name.
+
+    local tp is "x".
+    until false
+    {
+        for dp in ship:dockingports
+        {
+            if (dp:tag = port_name)
+            {
+                set tp to dp.
+                break.
+            }
+        }
+        if (tp = "x")
+        {
+            print "Change Ship DP tag to " + port_name.
+            print "Hit 'l' when done".
+            lock inp to terminal:input:getchar().
+            wait until inp = "l".
+        }
+        else break.
+    }
+    return tp.
 }
 
 function leave_keepout
@@ -116,7 +122,7 @@ function leave_keepout
 
 function move_to_corner
 {
-    parameter targetport, shipport.
+    parameter targetport, shipport, steering_vector.
 
     local ax_dist is 100.
     
@@ -147,7 +153,7 @@ function move_to_corner
     }
 
     local init_speed is 2.
-    lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
+    lock steering to steering_vector.
 
     until false
     {
@@ -167,10 +173,10 @@ function move_to_corner
 
 function approach_port
 {
-    parameter targetport, shipport, distance, init_speed, dist_error.
+    parameter targetport, shipport, distance, init_speed, dist_error, steering_vector.
 
     local speed is init_speed.
-    lock steering to lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
+    lock steering to steering_vector.
 
     until shipport:state <> "Ready"
     {
