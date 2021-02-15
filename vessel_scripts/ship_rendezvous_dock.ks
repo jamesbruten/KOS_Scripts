@@ -14,15 +14,6 @@ launch_to_ap(true).
 adjust_apsides("a").
 
 wait 5.
-deploy_payload("payload").
-wait 5.
-lock throttle to 0.
-list engines in ship_engines.
-for en in ship_engines
-{
-    if not en:ignition en:activate.
-}
-wait 5.
 deploy_solar_panels().
 wait 5.
 deploy_dp_shield().
@@ -33,6 +24,15 @@ wait 5.
 set steeringmanager:maxstoppingtime to 0.5.
 
 match_inclination().
+
+deploy_payload("payload").
+lock throttle to 0.
+list engines in ship_engines.
+for en in ship_engines
+{
+    if not en:ignition en:activate.
+}
+wait 5.
 
 transfer_orbit().
 
