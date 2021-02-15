@@ -1,4 +1,5 @@
 runpath("0:/boot/load_scripts.ks").
+set steeringmanager:maxstoppingtime to 0.5.
 
 lock inp to terminal:input:getchar().
 print "Change DP on tug to 'tug_dp1' and DP on Station to 'tug_dp2'".
@@ -17,16 +18,19 @@ SAS off.
 RCS on.
 set ship:control:fore to -1.
 wait 5.
-RCS off.
+// translate(V(0,0,0)).
+set ship:control:fore to 0.
 wait 5.
+
+shipport:controlfrom().
 
 kill_relative_velocity(targetport).
 
 print "Aligning Steering".
-local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
+local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:topvector).
 lock steering to steering_vector.
 
-move_to_corner(targetport, shipport,steering_vector).
+move_to_corner(targetport, shipport, steering_vector).
 
 approach_port(targetport, shipport, 100, 2, 2, steering_vector).
 approach_port(targetport, shipport, 20, 2, 0.5, steering_vector).
