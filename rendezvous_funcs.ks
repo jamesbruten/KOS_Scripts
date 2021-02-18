@@ -138,6 +138,35 @@ function mean_anom
     return (ea - e*sin(ea))*constant:pi/180.
 }
 
+function warp_to_pa
+{
+    parameter target_angle.
+
+    local ang1 is get_phase_angle().
+    local t1 is time:seconds.
+    wait 10.
+    local ang2 is get_phase_angle().
+    local t2 is time:seconds.
+    local rate_change is (ang1 - ang2) /(t2 - t1).
+    local angle_left is "x".
+    if (ang2 < 0) set angle_left to 360 - transfer_angle - abs(ang2).
+    else set angle_left to ang2 - transfer_angle.
+    local wait_time is (angle_left - 10) / rate_change.
+    set wait_time to max(wait_time, 0).
+
+    if (wait_time > 30)
+    {
+        print "Warping to Plane Change, minutes: " + wait_time/60.
+        local end_time is time:seconds + wait_time.
+        do_warp(wait_time).
+        wait until time:seconds > end_time + 15.
+        local current_pa is get_phase_angle().
+        print "Transfer Angle: " + transfer_angle.
+        print "Phase Angle   : " + current_pa.
+    }
+    else print "No Warp Necessary".
+}
+
 function transfer_orbit
 {
     local t_semi_major is (ship:orbit:semimajoraxis + target:orbit:semimajoraxis)/2.
@@ -155,29 +184,6 @@ function transfer_orbit
         print "Phase Angle   : " + current_pa.
         wait 0.1.
     }
-    // local ang1 is get_phase_angle().
-    // local t1 is time:seconds.
-    // wait 10.
-    // local ang2 is get_phase_angle().
-    // local t2 is time:seconds.
-    // local rate_change is (ang1 - ang2) /(t2 - t1).
-    // local angle_left is "x".
-    // if (ang2 < 0) set angle_left to 360 - transfer_angle - abs(ang2).
-    // else set angle_left to ang2 - transfer_angle.
-    // local wait_time is (angle_left - 10) / rate_change.
-    // set wait_time to max(wait_time, 0).
-
-    // if (wait_time > 30)
-    // {
-    //     print "Warping to Plane Change, minutes: " + wait_time/60.
-    //     local end_time is time:seconds + wait_time.
-    //     do_warp(wait_time).
-    //     wait until time:seconds > end_time + 15.
-    //     local current_pa is get_phase_angle().
-    //     print "Transfer Angle: " + transfer_angle.
-    //     print "Phase Angle   : " + current_pa.
-    // }
-    // else print "No Warp Necessary".
 
     wait until (abs(transfer_angle - get_phase_angle()) < 0.25).
 
