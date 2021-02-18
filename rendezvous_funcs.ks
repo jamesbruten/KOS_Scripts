@@ -141,6 +141,7 @@ function mean_anom
 function time_to_pa
 {
     // returns the time until the given target phase angle
+    // Assumes moving prograde and that PA is getting smaller over time
 
     parameter target_angle.
 
@@ -148,18 +149,33 @@ function time_to_pa
     local t1 is time:seconds.
     wait 10.
     local ang2 is get_phase_angle().
+    if (ang2 > ang1) set ang1 to ang1 + 360.
     local t2 is time:seconds.
-    local ang_diff is 
+
     local rate_change is (ang1 - ang2) /(t2 - t1).
 
     local angle_left is "x".
     local phase_angle is get_phase_angle().
     local tcalc is time:seconds.
     set phase_angle to phase_angle - target_angle.
-    if (phase_angle < 1) set phase_angle to phase_angle + 360.
+    if (phase_angle < 2) set phase_angle to phase_angle + 360.
 
-    time_left 
+    local time_left is phase_angle / rate_change.
+
+    return time_left. 
 }
+
+// local current_pa is get_phase_angle().
+// print "Transfer Angle: " + transfer_angle.
+// print "Phase Angle   : " + current_pa.
+// until (abs(transfer_angle - current_pa) < 1)
+// {
+//     set current_pa to get_phase_angle().
+//     clearscreen.
+//     print "Transfer Angle: " + transfer_angle.
+//     print "Phase Angle   : " + current_pa.
+//     wait 0.1.
+// }
 
 function transfer_orbit
 {
@@ -167,30 +183,20 @@ function transfer_orbit
     local transit_time is 2*constant:pi*sqrt(t_semi_major^3/body:mu).
     local transfer_angle is 180 - 180*transit_time/target:orbit:period.
 
-    local current_pa is get_phase_angle().
     print "Transfer Angle: " + transfer_angle.
-    print "Phase Angle   : " + current_pa.
-    until (abs(transfer_angle - current_pa) < 0.25)
-    {
-        set current_pa to get_phase_angle().
-        clearscreen.
-        print "Transfer Angle: " + transfer_angle.
-        print "Phase Angle   : " + current_pa.
-        wait 0.1.
-    }
 
-    wait until (abs(transfer_angle - get_phase_angle()) < 0.25).
+    local time_to_mnv is time_to_pa(transfer_angle).
+    local time_of_mnv is time:seconds + time_to_mnv.
 
-    local rad is ship:altitude + body:radius.
-    local vinit is sqrt(body:mu*(2/rad - 1/ship:orbit:semimajoraxis)).
-    local vfinal is sqrt(body:mu*(2/rad - 1/t_semi_major)).
-    local dv is vfinal - vinit.
-    local burn_time is calc_burn_time(dv).
+    local vinit is velocityat(ship, time_of_mnv):orbit:mag.
+    local burn_radius is ship:body:altitudeof(positionat(ship, time_of_mnv)) + ship:body:radius.
+    local transfer_vel is sqrt(ship:body:mu * (2/burn_radius - 1/t_semi_major)).
+    local dv is transfer_vel - vinit.
 
-    local mnv is node(timespan(burn_time/2 + 20), 0, 0, dv+0.1).
-    print "Maneuver: ".
-    print mnv.
+    local mnv is node(timestamp(time_of_mnv), 0, 0, dv).
     add_maneuver(mnv).
+    print "Transfer Maneuver:".
+    print mnv.
     execute_mnv().
 }
 
@@ -244,7 +250,7 @@ function get_phase_angle
                         (target:position - common_ancestor:position):normalized).
 
     local sign is vdot(binormal, signVector).
-    if (sign < 0) return 360 + phase.
+    if (sign < 0) return 360 - phase.
     else return phase.
 }
 
@@ -348,27 +354,3 @@ function closest_approach
 }
 
 
-function transfer_body
-{
-    // Will execute maneuver to get initial rendezvous with a targeted body based on orbital calcs.
-
-    local transfer_pe is ship:orbit:semimajoraxis.
-    local transfer_ap is target:orbit:semimajoraxis.
-    local transfer_sm is (transfer_ap + transfer_pe) / 2.
-    local transfer_time is constant:pi * sqrt(transfer_sm^3 / ship:body:mu).
-    local transfer_angle is 180 - 180*transfer_time/target:orbit:period.
-
-    local current_pa is get_phase_angle().
-    print "Transfer Angle: " + transfer_angle.
-    print "Phase Angle   : " + current_pa.
-    until (abs(transfer_angle - current_pa) < 0.25)
-    {
-        set current_pa to get_phase_angle().
-        clearscreen.
-        print "Transfer Angle: " + transfer_angle.
-        print "Phase Angle   : " + current_pa.
-        wait 0.1.
-    }
-
-    wait until (abs(transfer_angle - get_phase_angle()) < 0.25).
-}
