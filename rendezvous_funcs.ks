@@ -185,7 +185,7 @@ function transfer_orbit
         wait 0.1.
     }
 
-    // wait until (abs(transfer_angle - get_phase_angle()) < 0.25).
+    wait until (abs(transfer_angle - get_phase_angle()) < 0.25).
 
     local rad is ship:altitude + body:radius.
     local vinit is sqrt(body:mu*(2/rad - 1/ship:orbit:semimajoraxis)).
