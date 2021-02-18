@@ -10,6 +10,8 @@ wait_for_launch().
 // do launch until apoapsis in parking orbit
 launch_to_ap(true).
 
+lights on.
+
 // circularise parking orbit
 adjust_apsides("a").
 
