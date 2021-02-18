@@ -350,3 +350,29 @@ function closest_approach
     }
     return list(min_time, min_dist).
 }
+
+
+function transfer_body
+{
+    // Will execute maneuver to get initial rendezvous with a targeted body based on orbital calcs.
+
+    local transfer_pe is ship:orbit:semimajoraxis.
+    local transfer_ap is target:orbit:semimajoraxis.
+    local transfer_sm is (transfer_ap + transfer_pe) / 2.
+    local transfer_time is constant:pi * sqrt(transfer_sm^3 / ship:body:mu).
+    local transfer_angle is 180 - 180*transfer_time/target:orbit:period.
+
+    local current_pa is get_phase_angle().
+    print "Transfer Angle: " + transfer_angle.
+    print "Phase Angle   : " + current_pa.
+    until (abs(transfer_angle - current_pa) < 0.25)
+    {
+        set current_pa to get_phase_angle().
+        clearscreen.
+        print "Transfer Angle: " + transfer_angle.
+        print "Phase Angle   : " + current_pa.
+        wait 0.1.
+    }
+
+    wait until (abs(transfer_angle - get_phase_angle()) < 0.25).
+}

@@ -11,6 +11,7 @@ wait_for_launch().
 launch_to_ap(true).
 
 lights on.
+set steeringmanager:maxstoppingtime to 0.5.
 
 // circularise parking orbit
 adjust_apsides("a").
@@ -22,8 +23,6 @@ deploy_dp_shield().
 wait 5.
 // deploy_antenna().
 // wait 5.
-
-set steeringmanager:maxstoppingtime to 0.5.
 
 match_inclination().
 
