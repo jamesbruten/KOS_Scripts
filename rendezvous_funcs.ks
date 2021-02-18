@@ -138,8 +138,10 @@ function mean_anom
     return (ea - e*sin(ea))*constant:pi/180.
 }
 
-function warp_to_pa
+function time_to_pa
 {
+    // returns the time until the given target phase angle
+
     parameter target_angle.
 
     local ang1 is get_phase_angle().
@@ -147,24 +149,16 @@ function warp_to_pa
     wait 10.
     local ang2 is get_phase_angle().
     local t2 is time:seconds.
+    local ang_diff is 
     local rate_change is (ang1 - ang2) /(t2 - t1).
-    local angle_left is "x".
-    if (ang2 < 0) set angle_left to 360 - transfer_angle - abs(ang2).
-    else set angle_left to ang2 - transfer_angle.
-    local wait_time is (angle_left - 10) / rate_change.
-    set wait_time to max(wait_time, 0).
 
-    if (wait_time > 30)
-    {
-        print "Warping to Plane Change, minutes: " + wait_time/60.
-        local end_time is time:seconds + wait_time.
-        do_warp(wait_time).
-        wait until time:seconds > end_time + 15.
-        local current_pa is get_phase_angle().
-        print "Transfer Angle: " + transfer_angle.
-        print "Phase Angle   : " + current_pa.
-    }
-    else print "No Warp Necessary".
+    local angle_left is "x".
+    local phase_angle is get_phase_angle().
+    local tcalc is time:seconds.
+    set phase_angle to phase_angle - target_angle.
+    if (phase_angle < 1) set phase_angle to phase_angle + 360.
+
+    time_left 
 }
 
 function transfer_orbit
@@ -202,6 +196,8 @@ function transfer_orbit
 
 function get_phase_angle
 {
+    // returns current phase angle to target in range 0-360
+
     local common_ancestor is 0.
     local my_ancestors is list().
     local your_ancestors is list().
@@ -248,7 +244,7 @@ function get_phase_angle
                         (target:position - common_ancestor:position):normalized).
 
     local sign is vdot(binormal, signVector).
-    if (sign < 0) return -phase.
+    if (sign < 0) return 360 + phase.
     else return phase.
 }
 
