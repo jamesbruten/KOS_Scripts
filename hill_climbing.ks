@@ -2,9 +2,10 @@
 // Call in these functions in this way from a vessel script
 
 // local params is list(min_start, 0 ...). where list vals are the individual params to use eg. time of burn, prograde etc.
-// set params to converge_on_mnv(params, score_func@, list(wanted_v1, wanted_v2), min_start).
+// set params to converge_on_mnv(params, score_func@, list(wanted_v1, wanted_v2), min_start, list(100, 10, 1, 0.1)).
 
 // score_func is the score function being used (below), wanted_v1 etc are the parameters to match, min_start is the earliest burn start time
+// last list is the step sizes to use in the hill climbing
 
 
 
@@ -14,8 +15,8 @@ function converge_on_mnv
     // Sends step size and relevant score function to improve function
     // Breaks out of loop once score drops - at best possible score
 
-    parameter data, score_function, aimpoint, min_start.
-    for step_size in list(100, 10, 1, 0.1)
+    parameter data, score_function, aimpoint, min_start, step_sizes.
+    for step_size in step_sizes
     {
         until false
         {
@@ -95,7 +96,7 @@ function score_mun_transfer
 {
     // Scores maneuver based on distance from Mun at closest approach
     // data is normal vel, prograde vel
-    // aimpoint is Mun periapsis
+    // aimpoint is Mun periapsis and Mun inclination
     // assumes mnv will be at min_start
 
     parameter data, aimpoint, min_start.
@@ -105,9 +106,20 @@ function score_mun_transfer
     local mnv is node(min_start, 0, data[0], data[1]).
     add_maneuver(mnv).
 
+    if (mnv:orbit:hasnextpatch = false)
+    {
+        remove_maneuver(mnv).
+        return 2^50.
+    }
+
     local mun_pe is mnv:orbit:nextpatch:periapsis.
-    set score to score + abs(mun_pe - aimpoint[0]).
-    if (mun_pe < 7500) set score to 2 * score.
+    local score1 is abs(mun_pe - aimpoint[0]).
+    if (mun_pe < 7500) set score1 to 2 * score1.
+
+    local mun_inc is mnv:orbit:nextpatch:inclination.
+    local score2 is abs(mun_inc - aimpoint[1]).
+
+    set score to score1 + score2*10000.
 
     remove_maneuver(mnv).
     return score.
