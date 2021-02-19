@@ -108,8 +108,10 @@ function score_mun_transfer
 
     if (mnv:orbit:hasnextpatch = false)
     {
+        local ap_time is eta:apoapsis.
+        local diff_pos is positionat(ship, time:seconds+ap_time) - positionat(target, time:seconds+ap_time).
         remove_maneuver(mnv).
-        return 2^50.
+        return diff_pos:mag.
     }
 
     local mun_pe is mnv:orbit:nextpatch:periapsis.
