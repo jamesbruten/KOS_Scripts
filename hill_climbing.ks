@@ -94,15 +94,21 @@ function score_aph_aparg
 function score_mun_transfer
 {
     // Scores maneuver based on distance from Mun at closest approach
-    // data is time of burn, normal vel, prograde vel
+    // data is normal vel, prograde vel
     // aimpoint is Mun periapsis
+    // assumes mnv will be at min_start
 
     parameter data, aimpoint, min_start.
 
-    if (data[0] < min_start) return 2^50.
+    local score is 0.
 
-    local mnv is node(data[0], 0, data[1], data[2]).
+    local mnv is node(min_start, 0, data[0], data[1]).
     add_maneuver(mnv).
 
-    local 
+    local mun_pe is mnv:orbit:nextpatch:periapsis.
+    set score to score + abs(mun_pe - aimpoint[0]).
+    if (mun_pe < 7500) set score to 2 * score.
+
+    remove_maneuver(mnv).
+    return score.
 }

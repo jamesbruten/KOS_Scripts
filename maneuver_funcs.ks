@@ -3,9 +3,9 @@
 function adjust_apsides
 {
     // raise/lower opposite of burn_node
-    parameter burn_node.
+    parameter burn_node, ap_height.
 
-    create_apside_mnv(burn_node).
+    create_apside_mnv(burn_node, ap_height).
 
     execute_mnv().
 
@@ -36,7 +36,7 @@ function create_apside_mnv
     // For maneuver calc need radius at burn and final orbit semimajor
     // The semimajor should be calculated based on the actual orbit, not target
     // ie. if at apoapsis, semimajor = (real_ap + target_pe) / 2
-    parameter burn_node.
+    parameter burn_node, ap_height.
 
     print "Calculating Maneuver Burn".
 
@@ -46,32 +46,14 @@ function create_apside_mnv
     if (burn_node = "a")
     {
         set real_rad to body:radius + ship:apoapsis.
-        set mnv_semi_major to (ship:apoapsis + target_pe + 2*body:radius) / 2.
+        set mnv_semi_major to (ship:apoapsis + ap_height + 2*body:radius) / 2.
         set time_to_burn to eta:apoapsis.
     }
     else if (burn_node = "p")
     {
         set real_rad to body:radius + ship:periapsis.
-        set mnv_semi_major to (ship:periapsis + target_ap + 2*body:radius) / 2.
+        set mnv_semi_major to (ship:periapsis + ap_height + 2*body:radius) / 2.
         set time_to_burn to eta:periapsis.
-    }
-    else if (burn_node = "np")
-    {
-        set real_rad to body:radius + ship:altitude.
-        set mnv_semi_major to (ship:periapsis + target_ap + 2*body:radius) / 2.
-        set time_to_burn to 45.
-    }
-    else if (burn_node = "na")
-    {
-        set real_rad to body:radius + ship:altitude.
-        set mnv_semi_major to (ship:apoapsis + target_pe + 2*body:radius) / 2.
-        set time_to_burn to 45.
-    }
-    else if (burn_node = "a_match")
-    {
-        set real_rad to body:radius + ship:apoapsis.
-        set mnv_semi_major to (2*ship:apoapsis + 2*body:radius) / 2.
-        set time_to_burn to eta:apoapsis.
     }
 
     local time_at_burn is time:seconds + time_to_burn.

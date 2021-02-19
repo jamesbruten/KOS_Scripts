@@ -14,7 +14,7 @@ lights on.
 set steeringmanager:maxstoppingtime to 0.5.
 
 // circularise parking orbit
-adjust_apsides("a").
+adjust_apsides("a", ship:apoapsis).
 
 wait 5.
 deploy_solar_panels().
