@@ -58,3 +58,12 @@ add_maneuver(mnv).
 execute_maneuver().
 wait 5.
 
+print "Warping to Next Body".
+local old_body is ship:body.
+do_warp(ship:orbit:nextpatcheta).
+wait until old_body <> ship:body.
+
+wait 5.
+adjust_apsides("p", next_ap).
+wait 5.
+adjust_apsides("a", next_pe).
