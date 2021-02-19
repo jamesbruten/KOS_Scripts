@@ -2,8 +2,6 @@
 
 function do_landing
 {
-    runpath("0:/boot/load_scripts.ks").
-
     SAS off.
     RCS off.
 
@@ -38,3 +36,8 @@ function stopping_distance
 }
 
 function 
+
+
+
+runpath("0:/boot/load_scripts.ks").
+do_landing().
