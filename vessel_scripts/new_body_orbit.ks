@@ -54,8 +54,8 @@ else
     set wait_end to time:seconds + wait_time + 15.
     set step_sizes to list(10, 1, 0.1, 0.01).
 }
-// do_warp(wait_time).
-// wait until time:seconds > wait_end.
+do_warp(wait_time).
+wait until time:seconds > wait_end.
 
 local min_start is time:seconds + 120.
 local params is list(0, 0).
