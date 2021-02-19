@@ -21,20 +21,22 @@ set steeringmanager:maxstoppingtime to 0.5.
 adjust_apsides("a", ship:apoapsis).
 
 wait 5.
-deploy_payload("payload").
-lock throttle to 0.
-list engines in ship_engines.
-for en in ship_engines
-{
-    if not en:ignition en:activate.
-}
-wait 5.
 deploy_solar_panels().
 wait 5.
 deploy_antenna().
 wait 5.
 
 transfer_orbit().
+wait 5.
+
+deploy_payload("payload").
+lock throttle to 0.
+wait 1.
+list engines in ship_engines.
+for en in ship_engines
+{
+    if not en:ignition en:activate.
+}
 wait 5.
 
 print "Doing Mid-Course Correction".
@@ -59,7 +61,7 @@ wait until time:seconds > wait_end.
 
 local min_start is time:seconds + 120.
 local params is list(0, 0).
-set params to converge_on_mnv(params, score_mun_transfer@, list(10000, 0), min_start, step_sizes).
+set params to converge_on_mnv(params, score_mun_transfer@, list(9000, 90), min_start, step_sizes).
 
 set mnv to node(min_start, 0, params[0], params[1]).
 print "Maneuver Burn:".
@@ -78,3 +80,7 @@ adjust_apsides("p", next_ap).
 wait 5.
 adjust_apsides("a", next_pe).
 wait 5.
+
+AG1 on.
+wait 5.
+print "Finished Script".
