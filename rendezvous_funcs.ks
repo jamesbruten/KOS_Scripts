@@ -217,6 +217,97 @@ function transfer_orbit
     execute_mnv().
 }
 
+function transfer_orbit_interplanetary
+{
+    local t_semi_major is (ship:body:orbit:semimajoraxis + target:orbit:semimajoraxis)/2.
+    local burn_radius is ship:body:orbit:semimajoraxis.
+    local body_vel is body:velocity:orbit - sun:velocity:orbit.
+    local transfer_vel is sqrt(ship:body:body:mu * (2/burn_radius - 1/t_semi_major)) - body_vel:mag.
+
+    until false
+    {
+        local ejection_angle is calc_ejection_angle(transfer_vel).
+        print ejection_angle.
+        local ang is current_ejection_angle().
+        print ang.
+        local ang_left is ejection_angle - ang.
+        if (ang_left < 0) set ang_left to 360 + ang_left.
+        local time_to_mnv is ship:orbit:period * ang_left / 360.
+        local time_of_mnv is time:seconds + time_to_mnv.
+
+        local r1 is ship:body:altitudeof(positionat(ship, time_of_mnv)) + ship:body:radius.
+        local r2 is body:soiradius.
+        local wanted_v is sqrt((r1 * (r2*transfer_vel*transfer_vel - 2*body:mu) + 2*r2*body:mu) / (r1*r2)).
+        local vinit is velocityat(ship, time_of_mnv):orbit:mag.
+        local dv is wanted_v - vinit.
+
+        local mnv is node(timestamp(time_of_mnv), 0, 0, dv).
+        add_maneuver(mnv).
+
+        if (mnv:orbit:nextpatch:body <> sun)
+        {
+            remove_maneuver(mnv).
+            print "Waiting 1 Orbit to avoid interaction".
+            local wait_time is ship:orbit:period.
+            local wait_end is time_seconds + wait_time + 10.
+            do_warp(wait_time).
+            wait until time:seconds > wait_end.
+        }
+        else
+        {
+            print "Transfer Maneuver:".
+            print mnv.
+            break.
+        }
+    }
+
+    execute_mnv().
+}
+
+function calc_ejection_angle
+{
+    // Returns the ejection angle for transfer burn to target
+
+    parameter v_inf.  // velocity you need to have relative to the current body when leaving its SOI
+
+    set v_esc to sqrt(2 * body:mu / ship:orbit:semimajoraxis).  // escape velocity from parking orbit.  
+    set v to sqrt ( v_esc^2 + v_inf^2).                             // velocity of hyperbolic trajectory at periapsis  
+    set r to ship:orbit:semimajoraxis.  
+    set L to v * r.                                             // v-cross-r, without direction  
+    set En to v^2/2 - body:mu / r.                              //specific orbital energy. Is negative unless you're on an escape trajectory  
+
+    set e to sqrt(1 + (2*En*L^2)/(body:mu ^2)).                // eccentricity. Should be > 1.  
+    set theta to arccos(1/e).  
+
+    set theta to 180 - theta.
+    
+    if (target:orbit:semimajoraxis > body:orbit:semimajoraxis) set theta to 360 - theta.
+    else set theta to 180 - theta.
+
+    return theta.
+}
+
+function current_ejection_angle
+{
+    // returns the angle between orbiting body prograde and ship prograde
+    // returns false if current body is Kerbol
+
+    if (ship:body = sun) return false.
+
+    local ship_vel is ship:velocity:orbit.
+    local body_vel is body:velocity:orbit - sun:velocity:orbit.
+    local ship_vel_sun is ship_vel - sun:velocity:orbit.
+    local orb_vel1 is ship_vel_sun:mag - body_vel:mag.
+    wait 0.1.
+    set ship_vel to ship:velocity:orbit.
+    set body_vel to body:velocity:orbit - sun:velocity:orbit.
+    set ship_vel_sun to ship_vel - sun:velocity:orbit.
+    set ang to vang(ship_vel, body_vel).
+    local orb_vel2 is ship_vel_sun:mag - body_vel:mag.
+    if (orb_vel2 > orb_vel1) set ang to 360 - ang.
+    return ang - 90.
+}
+
 function get_phase_angle
 {
     // returns current phase angle to target in range 0-360

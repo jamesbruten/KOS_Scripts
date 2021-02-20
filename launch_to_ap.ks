@@ -29,6 +29,7 @@ function launch_to_ap
 
     // fly prograde until apoapsis height reached.
     prograde_climb().
+
     if (alt:radar >= 69800) wait 10.
     else wait until alt:radar >= 70000.
     set steeringmanager:maxstoppingtime to 0.5.
@@ -158,6 +159,20 @@ function prograde_climb
     lock throttle to 0.
     lock steering to prograde.
     print "Engine Shutdown".
+
+    for p in ship:parts
+    {
+        if (p:tag = "stage1")
+        {
+            print "Dropping 1st Stage".
+            wait 5.
+            stage.
+            wait 1.
+            stage.
+            wait 5.
+        }
+    }
+
     if (fairings_deployed = false)
     {
         until (alt:radar > 65000) wait 0.1.

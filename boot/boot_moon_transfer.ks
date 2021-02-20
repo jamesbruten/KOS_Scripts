@@ -7,4 +7,4 @@ print "Make sure body target selected.".
 print "Hit 'l' to launch".
 wait until inp = "l".
 
-runpath("0:/vessel_scripts/new_body_orbit.ks").
+runpath("0:/vessel_scripts/moon_transfer.ks").

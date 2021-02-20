@@ -6,7 +6,7 @@ global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
 // Target Body Orbit Params
-global next_ap_km is 200.
+global next_ap_km is 1000.
 global next_pe_km is next_ap_km.
 global next_ap is next_ap_km * 1000.
 global next_pe is next_pe_km * 1000.
@@ -39,11 +39,21 @@ for en in ship_engines
 }
 wait 5.
 
+if (target <> mun and target <> minmus)
+{
+    print "Warping Until Outside Kerbin SOI".
+    local time_kerbol is ship:orbit:nextpatcheta.
+    local wait_time is time_kerbol + 300.
+    local wait_end is time:seconds + wait_time + 60.
+    do_warp(wait_time).
+    wait until time:seconds > wait_end.
+}
+
 print "Doing Mid-Course Correction".
 local wait_time is "x".
 local wait_end is "x".
 local step_sizes is "x".
-if (ship:orbit:hasnextpatch = false)
+if (ship:orbit:hasnextpatch = false or ship:orbit:nextpatch:body <> target)
 {
     set wait_time to eta:apoapsis/3.
     set wait_end to time:seconds + wait_time + 15.
@@ -59,9 +69,11 @@ else
 do_warp(wait_time).
 wait until time:seconds > wait_end.
 
+local step_sizes is list(100, 10, 1, 0.1, 0.01).
+
 local min_start is time:seconds + 120.
 local params is list(0, 0).
-set params to converge_on_mnv(params, score_mun_transfer@, list(9000, 90), min_start, step_sizes).
+set params to converge_on_mnv(params, score_moon_midcourse_correction@, list(60000, 90), min_start, step_sizes).
 
 set mnv to node(min_start, 0, params[0], params[1]).
 print "Maneuver Burn:".

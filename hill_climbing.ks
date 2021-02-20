@@ -92,7 +92,7 @@ function score_aph_aparg
     return score.
 }
 
-function score_mun_transfer
+function score_moon_midcourse_correction
 {
     // Scores maneuver based on distance from Mun at closest approach
     // data is normal vel, prograde vel
@@ -106,7 +106,7 @@ function score_mun_transfer
     local mnv is node(min_start, 0, data[0], data[1]).
     add_maneuver(mnv).
 
-    if (mnv:orbit:hasnextpatch = false)
+    if (mnv:orbit:hasnextpatch = false or mnv:orbit:nextpatch:body <> target)
     {
         local ap_time is eta:apoapsis.
         local diff_pos is positionat(ship, time:seconds+ap_time) - positionat(target, time:seconds+ap_time).
@@ -125,4 +125,72 @@ function score_mun_transfer
 
     remove_maneuver(mnv).
     return score.
+}
+
+
+function score_planet_midcourse_correction
+{
+    // Scores maneuver based on distance from Mun at closest approach
+    // data is normal vel, prograde vel
+    // aimpoint is Mun periapsis and Mun inclination
+    // assumes mnv will be at min_start
+
+    parameter data, aimpoint, min_start.
+
+    local score is 0.
+
+    local mnv is node(min_start, data[0], data[1], data[2]).
+    add_maneuver(mnv).
+
+    if (mnv:orbit:hasnextpatch = false or mnv:orbit:nextpatch:body <> target)
+    {
+        local diff_pos is closest_dist_planet().
+        remove_maneuver(mnv).
+        return diff_pos.
+    }
+
+    local mun_pe is mnv:orbit:nextpatch:periapsis.
+    local score1 is abs(mun_pe - aimpoint[0]).
+    if (mun_pe < max(target:atm:height, 9000)) set score1 to 2 * score1.
+
+    local mun_inc is mnv:orbit:nextpatch:inclination.
+    local score2 is abs(mun_inc - aimpoint[1]).
+
+    set score to score1 + score2*30000.
+
+    remove_maneuver(mnv).
+    return score.
+}
+
+function closest_dist_planet
+{
+    local eta_ap is eta:apoapsis.
+    local left_time is time:seconds + eta_ap/2.
+    local right_time is left_time + eta_ap.
+    local precision is 60.
+    local time_closest is ternary_search(target_distance@, left_time, right_time, precision).
+    local mnv is node(time_closest, 10, 0, 0).
+    return target_distance(time_closest).
+}
+
+function target_distance
+{
+    parameter t.
+    local ans is positionat(ship, t) - positionat(target, t).
+    return ans:mag.
+}
+
+function ternary_search
+{
+    parameter f, left, right, absolute_precision.
+    until false
+    {
+        if (abs(right - left) < absolute_precision) return (left + right) / 2.
+
+        local left_third is left + (right - left) / 3.
+        local right_third is right - (right - left) / 3.
+
+        if (f(left_third) > f(right_third)) set left to left_third.
+        else set right to right_third.
+    }
 }
