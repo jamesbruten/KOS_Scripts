@@ -185,18 +185,35 @@ function transfer_orbit
 
     print "Transfer Angle: " + transfer_angle.
 
-    local time_to_mnv is time_to_pa(transfer_angle).
-    local time_of_mnv is time:seconds + time_to_mnv.
+    until false
+    {
+        local time_to_mnv is time_to_pa(transfer_angle).
+        local time_of_mnv is time:seconds + time_to_mnv.
 
-    local vinit is velocityat(ship, time_of_mnv):orbit:mag.
-    local burn_radius is ship:body:altitudeof(positionat(ship, time_of_mnv)) + ship:body:radius.
-    local transfer_vel is sqrt(ship:body:mu * (2/burn_radius - 1/t_semi_major)).
-    local dv is transfer_vel - vinit.
+        local vinit is velocityat(ship, time_of_mnv):orbit:mag.
+        local burn_radius is ship:body:altitudeof(positionat(ship, time_of_mnv)) + ship:body:radius.
+        local transfer_vel is sqrt(ship:body:mu * (2/burn_radius - 1/t_semi_major)).
+        local dv is transfer_vel - vinit.
 
-    local mnv is node(timestamp(time_of_mnv), 0, 0, dv).
-    add_maneuver(mnv).
-    print "Transfer Maneuver:".
-    print mnv.
+        local mnv is node(timestamp(time_of_mnv), 0, 0, dv).
+        add_maneuver(mnv).
+        
+        if (mnv:orbit:hasnextpatch = true and mnv:orbit:nextpatch:body <> target)
+        {
+            remove_maneuver(mnv).
+            print "Waiting 1 Orbit to avoid interaction".
+            local wait_time is ship:orbit:period.
+            local wait_end is time_seconds + wait_time + 10.
+            do_warp(wait_time).
+            wait until time:seconds > wait_end.
+        }
+        else
+        {
+            print "Transfer Maneuver:".
+            print mnv.
+            break.
+        }
+    }
     execute_mnv().
 }
 
