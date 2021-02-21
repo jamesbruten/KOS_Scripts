@@ -17,17 +17,20 @@ function converge_on_mnv
 
     parameter data, score_function, aimpoint, min_start, step_sizes.
     local step_size is step_sizes[0].
-    until step_size < 0.1
+    until false
     {
-        print step_size.
+        local count is 0.
         until false
         {
             local old_score is score_function(data, aimpoint, min_start).
             set data to improve(data, step_size, score_function, aimpoint, min_start, old_score).
             if (old_score <= score_function(data, aimpoint, min_start)) break.
-            // print "os: " + old_score + "   ns: " + score_function(data, aimpoint, min_start).
+            set count to count + 1.
+            if (count > 200) break.
         }
-        set step_size to step_size / 2.
+        if (step_size = 0.1) break.
+        set step_size to step_size / 4.
+        if (step_size < 0.1) set step_size to 0.1.
     }
     return data.
 }

@@ -49,7 +49,7 @@ local wait_end is time:seconds + wait_time + 15.
 do_warp(wait_time).
 wait until time:seconds > wait_end.
 
-local mnum is 1.
+local mnum is 2.
 until mnum > 2
 {
     print "Doing Mid-Course Correction " + mnum.
@@ -69,11 +69,8 @@ until mnum > 2
         set wait_end to time:seconds + wait_time + 15.
         set step_sizes to list(10, 1, 0.1).
     }
-    if mnum > 1
-    {
-        do_warp(wait_time).
-        wait until time:seconds > wait_end.
-    }
+    do_warp(wait_time).
+    wait until time:seconds > wait_end.
 
     local min_start is time:seconds + 2*60*60.
     local capture_pe is max(target:atm:height*1.5, 9000).
@@ -89,7 +86,7 @@ until mnum > 2
     wait 5.
     for en in ship_engines
     {
-        set en:thrustlimit to 5.
+        set en:thrustlimit to 30.
     }
 
     set mnum to mnum + 1.
@@ -116,7 +113,7 @@ until false
 }
 
 wait 5.
-adjust_apsides("p", 0.5*ship:body:soiradius).
+adjust_apsides("p", 0.3*ship:body:soiradius).
 wait 5.
 adjust_apsides("a", next_pe).
 wait 5.
