@@ -16,14 +16,18 @@ function converge_on_mnv
     // Breaks out of loop once score drops - at best possible score
 
     parameter data, score_function, aimpoint, min_start, step_sizes.
-    for step_size in step_sizes
+    local step_size is step_sizes[0].
+    until step_size < 0.1
     {
+        print step_size.
         until false
         {
             local old_score is score_function(data, aimpoint, min_start).
             set data to improve(data, step_size, score_function, aimpoint, min_start, old_score).
             if (old_score <= score_function(data, aimpoint, min_start)) break.
+            // print "os: " + old_score + "   ns: " + score_function(data, aimpoint, min_start).
         }
+        set step_size to step_size / 2.
     }
     return data.
 }
@@ -146,7 +150,7 @@ function score_planet_midcourse_correction
     {
         local diff_pos is closest_dist_planet().
         remove_maneuver(mnv).
-        return diff_pos*10.
+        return diff_pos*100000.
     }
 
     local mun_pe is mnv:orbit:nextpatch:periapsis.
@@ -156,7 +160,7 @@ function score_planet_midcourse_correction
     local mun_inc is mnv:orbit:nextpatch:inclination.
     local score2 is abs(mun_inc - aimpoint[1]).
 
-    set score to score1 + score2*50000.
+    set score to score1 + score2*30000.
 
     remove_maneuver(mnv).
     return score.
