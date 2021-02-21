@@ -14,40 +14,40 @@ global next_ap_km is next_ap / 100.
 global next_pe_km is next_pe / 100.
 local next_inc is 90.
 
-// // do launch until apoapsis in parking orbit
-// launch_to_ap(true).
+// do launch until apoapsis in parking orbit
+launch_to_ap(true).
 
-// lights on.
-// set steeringmanager:maxstoppingtime to 0.5.
+lights on.
+set steeringmanager:maxstoppingtime to 0.5.
 
-// // circularise parking orbit
-// adjust_apsides("a", ship:apoapsis).
+// circularise parking orbit
+adjust_apsides("a", ship:apoapsis).
 
-// wait 5.
-// deploy_solar_panels().
-// wait 5.
-// deploy_antenna().
-// wait 5.
+wait 5.
+deploy_solar_panels().
+wait 5.
+deploy_antenna().
+wait 5.
 
-// transfer_orbit_interplanetary().
-// wait 5.
+transfer_orbit_interplanetary().
+wait 5.
 
-// deploy_payload("payload").
-// lock throttle to 0.
-// wait 1.
-// list engines in ship_engines.
-// for en in ship_engines
-// {
-//     if not en:ignition en:activate.
-// }
-// wait 5.
+deploy_payload("payload").
+lock throttle to 0.
+wait 1.
+list engines in ship_engines.
+for en in ship_engines
+{
+    if not en:ignition en:activate.
+}
+wait 5.
 
-// print "Warping Until Outside Kerbin SOI".
-// local time_kerbol is ship:orbit:nextpatcheta.
-// local wait_time is time_kerbol + 300.
-// local wait_end is time:seconds + wait_time + 15.
-// do_warp(wait_time).
-// wait until time:seconds > wait_end.
+print "Warping Until Outside Kerbin SOI".
+local time_kerbol is ship:orbit:nextpatcheta.
+local wait_time is time_kerbol + 300.
+local wait_end is time:seconds + wait_time + 15.
+do_warp(wait_time).
+wait until time:seconds > wait_end.
 
 local mnum is 1.
 until mnum > 2
