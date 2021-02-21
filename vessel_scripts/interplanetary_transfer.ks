@@ -78,7 +78,8 @@ until mnum > 2
     local min_start is time:seconds + 2*60*60.
     local capture_pe is max(target:atm:height*1.5, 9000).
     local params is list(0, 0, 0).
-    set params to converge_on_mnv(params, score_planet_midcourse_correction@, list(capture_pe, next_inc), min_start, step_sizes).
+    if (mnum = 1) set params to converge_on_mnv(params, score_planet_midcourse_alt@, list(capture_pe), min_start, step_sizes).
+    else set params to converge_on_mnv(params, score_planet_midcourse_alt_inc@, list(capture_pe, next_inc), min_start, step_sizes).
 
     set mnv to node(min_start, params[0], params[1], params[2]).
     print "Maneuver Burn:".

@@ -132,7 +132,34 @@ function score_moon_midcourse_correction
 }
 
 
-function score_planet_midcourse_correction
+function score_planet_midcourse_alt
+{
+    // Scores maneuver based on distance from Mun at closest approach
+    // data is normal vel, prograde vel
+    // aimpoint is Mun periapsis and Mun inclination
+    // assumes mnv will be at min_start
+
+    parameter data, aimpoint, min_start.
+
+    local mnv is node(min_start, data[0], data[1], data[2]).
+    add_maneuver(mnv).
+
+    if (mnv:orbit:hasnextpatch = false or mnv:orbit:nextpatch:body <> target)
+    {
+        local diff_pos is closest_dist_planet().
+        remove_maneuver(mnv).
+        return diff_pos*100000.
+    }
+
+    local mun_pe is mnv:orbit:nextpatch:periapsis.
+    local score1 is abs(mun_pe - aimpoint[0]).
+    if (mun_pe < max(target:atm:height, 9000)) set score1 to 2 * score1.
+
+    remove_maneuver(mnv).
+    return score1.
+}
+
+function score_planet_midcourse_alt_inc
 {
     // Scores maneuver based on distance from Mun at closest approach
     // data is normal vel, prograde vel
