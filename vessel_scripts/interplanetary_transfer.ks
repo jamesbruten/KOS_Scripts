@@ -104,6 +104,4 @@ wait 5.
 adjust_apsides("p", ship:periapsis).
 wait 5.
 
-AG1 on.
-wait 5.
 print "Finished Script".
