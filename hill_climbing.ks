@@ -146,7 +146,7 @@ function score_planet_midcourse_correction
     {
         local diff_pos is closest_dist_planet().
         remove_maneuver(mnv).
-        return diff_pos.
+        return diff_pos*10.
     }
 
     local mun_pe is mnv:orbit:nextpatch:periapsis.
@@ -156,7 +156,7 @@ function score_planet_midcourse_correction
     local mun_inc is mnv:orbit:nextpatch:inclination.
     local score2 is abs(mun_inc - aimpoint[1]).
 
-    set score to score1 + score2*30000.
+    set score to score1 + score2*50000.
 
     remove_maneuver(mnv).
     return score.

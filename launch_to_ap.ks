@@ -121,9 +121,9 @@ function prograde_climb
     set accvec to ship:sensors:acc - ship:sensors:grav.
     set gforce to accvec:mag / g_pid.
     set pid:setpoint to 2.5.
-    declare local fairings_deployed to false.
-    declare local max_pitch to 45.
-    declare local min_pitch to 15.
+    local fairings_deployed is false.
+    local max_pitch is 45.
+    local min_pitch is 15.
     set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
     set needed_az to inst_az(target_inc).

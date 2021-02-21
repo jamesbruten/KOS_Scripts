@@ -10,6 +10,7 @@ global next_ap_km is 700.
 global next_pe_km is next_ap_km.
 global next_ap is next_ap_km * 1000.
 global next_pe is next_pe_km * 1000.
+local next_inc is 0.
 
 // do launch until apoapsis in parking orbit
 launch_to_ap(true).
@@ -69,8 +70,9 @@ do_warp(wait_time).
 wait until time:seconds > wait_end.
 
 local min_start is time:seconds + 2*60*60.
+local capture_pe is max(target:atm:height*1.25, 9000).
 local params is list(0, 0, 0).
-set params to converge_on_mnv(params, score_planet_midcourse_correction@, list(100000, 0), min_start, step_sizes).
+set params to converge_on_mnv(params, score_planet_midcourse_correction@, list(capture_pe, next_inc), min_start, step_sizes).
 
 set mnv to node(min_start, params[0], params[1], params[2]).
 print "Maneuver Burn:".
@@ -95,9 +97,11 @@ until false
 }
 
 wait 5.
-adjust_apsides("p", next_ap).
+adjust_apsides("p", 0.5*ship:body:soiradius).
 wait 5.
-adjust_apsides("a", ship:apoapsis).
+adjust_apsides("a", next_pe).
+wait 5.
+adjust_apsides("p", ship:periapsis).
 wait 5.
 
 AG1 on.
