@@ -10,22 +10,10 @@ wait_for_launch().
 // do launch until apoapsis in parking orbit
 launch_to_ap(true).
 
-lights on.
-set steeringmanager:maxstoppingtime to 0.5.
-
 // circularise parking orbit
 adjust_apsides("a", ship:apoapsis).
 
 wait 5.
-deploy_solar_panels().
-wait 5.
-deploy_dp_shield().
-wait 5.
-// deploy_antenna().
-// wait 5.
-
-match_inclination().
-
 deploy_payload("payload").
 lock throttle to 0.
 list engines in ship_engines.
@@ -34,6 +22,17 @@ for en in ship_engines
     if not en:ignition en:activate.
 }
 wait 5.
+deploy_solar_panels().
+wait 5.
+deploy_dp_shield().
+wait 5.
+// deploy_antenna().
+// wait 5.
+
+lights on.
+set steeringmanager:maxstoppingtime to 0.5.
+
+match_inclination().
 
 transfer_orbit().
 
