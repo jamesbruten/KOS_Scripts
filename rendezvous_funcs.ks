@@ -196,7 +196,7 @@ function transfer_orbit
         wait 0.1.
     }
 
-    local vinit is ship:velocity:orbit.
+    local vinit is ship:velocity:orbit:mag.
     local burn_radius is ship:altitude + ship:body:radius.
     local transfer_vel is sqrt(ship:body:mu * (2/burn_radius - 1/t_semi_major)).
     local dv is transfer_vel - vinit.

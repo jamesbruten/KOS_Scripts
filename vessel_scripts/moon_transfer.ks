@@ -7,7 +7,7 @@ global target_pe is target_pe_km*1000.
 
 // Target Body Orbit Params
 set target to Minmus.
-global next_ap_km is 500.
+global next_ap_km is 50.
 global next_pe_km is next_ap_km.
 global next_ap is next_ap_km * 1000.
 global next_pe is next_pe_km * 1000.
@@ -22,8 +22,8 @@ set steeringmanager:maxstoppingtime to 0.5.
 adjust_apsides("a", ship:apoapsis).
 
 wait 5.
-deploy_solar_panels().
-wait 5.
+// deploy_solar_panels().
+// wait 5.
 deploy_antenna().
 wait 5.
 
@@ -64,7 +64,7 @@ local step_sizes is list(100, 10, 1, 0.1, 0.01).
 
 local min_start is time:seconds + 120.
 local params is list(0, 0).
-set params to converge_on_mnv(params, score_moon_midcourse_correction@, list(10000, 90), min_start, step_sizes).
+set params to converge_on_mnv(params, score_moon_midcourse_correction@, list(10000, 0), min_start, step_sizes).
 
 set mnv to node(min_start, 0, params[0], params[1]).
 print "Maneuver Burn:".

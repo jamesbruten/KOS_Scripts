@@ -133,6 +133,7 @@ function prograde_climb
     when (alt:radar > 27000) then set pid_gforce:setpoint to 3.0.
     when (alt:radar > 60000) then set min_pitch to 8.
     when (alt:radar > 70000) then set min_pitch to 0.
+    when (ship:velocity:orbit:mag > 2150) then lock steering to prograde.
 
     until (ship:apoapsis > target_ap)
     {
