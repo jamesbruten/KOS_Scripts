@@ -6,7 +6,7 @@ global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
 // Target Body Orbit Params
-set target to Duna.
+set target to Eve.
 local target_body is target.
 global next_ap is 225000.       // gilly:periapsis - 1.1*gilly:soiradius.
 global next_pe is next_ap.
@@ -49,7 +49,7 @@ local wait_end is time:seconds + wait_time + 15.
 do_warp(wait_time).
 wait until time:seconds > wait_end.
 
-local mnum is 2.
+local mnum is 1.
 until mnum > 2
 {
     print "Doing Mid-Course Correction " + mnum.

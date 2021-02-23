@@ -165,19 +165,50 @@ function time_to_pa
     return time_left. 
 }
 
-// local current_pa is get_phase_angle().
-// print "Transfer Angle: " + transfer_angle.
-// print "Phase Angle   : " + current_pa.
-// until (abs(transfer_angle - current_pa) < 1)
-// {
-//     set current_pa to get_phase_angle().
-//     clearscreen.
-//     print "Transfer Angle: " + transfer_angle.
-//     print "Phase Angle   : " + current_pa.
-//     wait 0.1.
-// }
+local current_pa is get_phase_angle().
+print "Transfer Angle: " + transfer_angle.
+print "Phase Angle   : " + current_pa.
+until (abs(transfer_angle - current_pa) < 1)
+{
+    set current_pa to get_phase_angle().
+    clearscreen.
+    print "Transfer Angle: " + transfer_angle.
+    print "Phase Angle   : " + current_pa.
+    wait 0.1.
+}
+
 
 function transfer_orbit
+{
+    local t_semi_major is (ship:orbit:semimajoraxis + target:orbit:semimajoraxis)/2.
+    local transit_time is 2*constant:pi*sqrt(t_semi_major^3/body:mu).
+    local transfer_angle is 180 - 180*transit_time/target:orbit:period.
+
+    local current_pa is get_phase_angle().
+    print "Transfer Angle: " + transfer_angle.
+    print "Phase Angle   : " + current_pa.
+    until (abs(transfer_angle - current_pa) < 0.25)
+    {
+        set current_pa to get_phase_angle().
+        clearscreen.
+        print "Transfer Angle: " + transfer_angle.
+        print "Phase Angle   : " + current_pa.
+        wait 0.1.
+    }
+
+    local vinit is ship:velocity:orbit.
+    local burn_radius is ship:altitude + ship:body:radius.
+    local transfer_vel is sqrt(ship:body:mu * (2/burn_radius - 1/t_semi_major)).
+    local dv is transfer_vel - vinit.
+
+    local mnv is node(timespan(30), 0, 0, dv).
+    add_maneuver(mnv).
+        
+    execute_mnv().
+}
+
+
+function transfer_orbit_moon
 {
     local t_semi_major is (ship:orbit:semimajoraxis + target:orbit:semimajoraxis)/2.
     local transit_time is 2*constant:pi*sqrt(t_semi_major^3/body:mu).

@@ -26,7 +26,7 @@ wait 5.
 deploy_antenna().
 wait 5.
 
-transfer_orbit().
+transfer_orbit_moon().
 wait 5.
 
 deploy_payload("payload").
