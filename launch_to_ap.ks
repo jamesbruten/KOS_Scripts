@@ -78,7 +78,7 @@ function initial_launch
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
-        set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
+        set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
         wait 0.01.
     }
@@ -104,7 +104,7 @@ function to_ten_km
         set gforce to accvec:mag / g_pid.
         set current_pitch to -8.94037E-8 * ship:altitude * ship:altitude - 0.00370273 * ship:altitude + 91.4233.
         set needed_az to inst_az(target_inc).
-        set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
+        set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
     }
 }
@@ -120,7 +120,7 @@ function prograde_climb
 
     set accvec to ship:sensors:acc - ship:sensors:grav.
     set gforce to accvec:mag / g_pid.
-    set pid:setpoint to 2.5.
+    set pid_gforce:setpoint to 2.5.
     local fairings_deployed is false.
     local max_pitch is 45.
     local min_pitch is 15.
@@ -130,7 +130,7 @@ function prograde_climb
 
     lock steering to heading(needed_az, prograde_pitch).
 
-    when (alt:radar > 27000) then set pid:setpoint to 3.0.
+    when (alt:radar > 27000) then set pid_gforce:setpoint to 3.0.
     when (alt:radar > 60000) then set min_pitch to 8.
     when (alt:radar > 70000) then set min_pitch to 0.
 
@@ -142,7 +142,7 @@ function prograde_climb
         else set prograde_pitch to 90 - vang(ship:prograde:vector, up:vector).
         set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
         set needed_az to inst_az(target_inc).
-        set thrott_pid to max(0, min(1, thrott_pid + pid:update(time:seconds, gforce))).
+        set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
 
         if (fairings_deployed = false and alt:radar > 65000)
         {
