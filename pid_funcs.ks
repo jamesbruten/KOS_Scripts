@@ -22,11 +22,11 @@ function pid_throttle_height
 {
     parameter target_height.
 
-    global Kp_height is 0.05.
-    global Ki_height is 0.01.
-    global Kd_height is 0.01.
+    global Kp_height is 0.02.
+    global Ki_height is 0.001.
+    global Kd_height is 0.015.
 
-    global pid_height is pidloop(Kp_height, Ki_height, Kd_height).
+    global pid_height is pidloop(Kp_height, Ki_height, Kd_height, 0, 1).
     set pid_height:setpoint to target_height.
 
     global thrott_pid is 0.

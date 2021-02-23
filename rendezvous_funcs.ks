@@ -165,17 +165,17 @@ function time_to_pa
     return time_left. 
 }
 
-local current_pa is get_phase_angle().
-print "Transfer Angle: " + transfer_angle.
-print "Phase Angle   : " + current_pa.
-until (abs(transfer_angle - current_pa) < 1)
-{
-    set current_pa to get_phase_angle().
-    clearscreen.
-    print "Transfer Angle: " + transfer_angle.
-    print "Phase Angle   : " + current_pa.
-    wait 0.1.
-}
+// local current_pa is get_phase_angle().
+// print "Transfer Angle: " + transfer_angle.
+// print "Phase Angle   : " + current_pa.
+// until (abs(transfer_angle - current_pa) < 1)
+// {
+//     set current_pa to get_phase_angle().
+//     clearscreen.
+//     print "Transfer Angle: " + transfer_angle.
+//     print "Phase Angle   : " + current_pa.
+//     wait 0.1.
+// }
 
 
 function transfer_orbit
