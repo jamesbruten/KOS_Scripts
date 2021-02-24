@@ -1,3 +1,19 @@
+function wait_for_window
+{
+    local orbit_normal is vcrs(target:velocity:orbit, target:body:position-target:position):normalized.
+    local ship_vector is ship:body:position-ship:position.
+
+    local ang is vang(orbit_normal, ship_vector).       // For launch window this should be 90
+    print ang.
+
+
+    local wait_ang is 0. // difference between when angle of 90 and now.
+    local time_to_launch is body:rotationperiod * wait_ang / 360.
+}
+
+wait_for_launch().
+
+
 function wait_for_launch
 {
     // Calculate time until target obit crosses launch pad
