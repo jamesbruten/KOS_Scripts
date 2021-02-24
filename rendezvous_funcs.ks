@@ -1,8 +1,3 @@
-function wait_for_window
-{
-    
-}
-
 function wait_for_launch
 {
     // Calculate time until target obit crosses launch pad
