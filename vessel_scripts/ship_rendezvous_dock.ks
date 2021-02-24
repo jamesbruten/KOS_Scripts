@@ -22,14 +22,14 @@ for en in ship_engines
     if not en:ignition en:activate.
 }
 wait 5.
+lights on.
 deploy_solar_panels().
 wait 5.
 deploy_dp_shield().
 wait 5.
-// deploy_antenna().
-// wait 5.
+deploy_antenna().
+wait 5.
 
-lights on.
 set steeringmanager:maxstoppingtime to 0.5.
 
 match_inclination().
