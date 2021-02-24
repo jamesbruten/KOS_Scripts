@@ -1,57 +1,39 @@
 function wait_for_window
 {
-    local orbit_normal is vcrs(target:velocity:orbit, target:body:position-target:position):normalized.
-    local ship_vector is ship:body:position-ship:position.
+    //  waits for srfpos to be underneat orbitable, at launch give target and ship
+    parameter orbitable, srfpos.
 
-    local ang is vang(orbit_normal, ship_vector).       // For launch window this should be 90
-    print ang.
-
-
-    local wait_ang is 0. // difference between when angle of 90 and now.
-    local time_to_launch is body:rotationperiod * wait_ang / 360.
-}
-
-wait_for_launch().
-
-
-function wait_for_launch
-{
-    // Calculate time until target obit crosses launch pad
-
-    local ecliptic_normal is vcrs(target:velocity:orbit, target:body:position-target:position):normalized.
-    local planet_normal is heading(0, ship:latitude):vector.
-    local body_inc is vang(planet_normal, ecliptic_normal).
-    local beta is arccos(max(-1, min(1, cos(body_inc)*sin(ship:latitude)/sin(body_inc)))).
-    local int_dir is vcrs(planet_normal, ecliptic_normal):normalized.
-    local int_pos is -vxcl(planet_normal, ecliptic_normal):normalized.
-    local lt_dir is cos(ship:latitude)*(int_dir*sin(beta) +int_pos*cos(beta)) + sin(ship:latitude)*planet_normal.
-    local time_to_launch is body:rotationperiod * vang(lt_dir, ship:position-body:position) / 360.
-    if (vcrs(lt_dir, ship:position - body:position)*planet_normal < 0) set time_to_launch to body:rotationperiod - time_to_launch.
-
-    if (time_to_launch > body:rotationperiod/2 and abs(ship:latitude)<2)
+    local warp_level is 0.
+    until false
     {
-        set time_to_launch to time_to_launch - body:rotationperiod/2. 
-        set target_inc to -1 * target_inc.
+        local orbit_normal is vcrs(orbitable:velocity:orbit, orbitable:body:position-orbitable:position):normalized.
+        local body_normal is srfpos:body:position - srfpos:position.
+        local ang is vang(orbit_normal, body_normal).
+        local diff is abs(90 - ang).
+        if (diff < 0.5)
+        {
+            set warp to 0.
+            break.
+        }
+        else if (diff < 2)
+        {
+            set warp to 2.
+            set warp_level to 2.
+        }
+        else if (diff < 15)
+        {
+            set warp to 4.
+            set warp_level to 4.
+        }
+        else
+        {
+            set warp to 5.
+            set warp_level to 5.
+        }
+        clearscreen.
+        print "Warping to Window".
+        print round(ang, 2) + "      " + round(diff, 2) + "      " + warp_level.
     }
-
-    local launch_time is time:seconds + time_to_launch.
-    local lh is round(time_to_launch/3600 - 0.5).
-    local lm is round((time_to_launch-lh*3600)/60 - 0.5)-2.
-
-    print "Launch In: " + time_to_launch.
-    print "Launch In: " + lh + " hours + " + lm + " minutes".
-    print "Warping".
-    wait 2.
-    local warp_delta is time_to_launch - 60.
-    do_warp(warp_delta).
-    wait until time:seconds > launch_time - 40.
-}
-
-function wait_for_launch_new
-{
-    local ship_normal is heading(0, ship:latitude):vector:normalized.
-    local target_normal is vcrs(target:velocity:orbit, target:body:position-target:position):normalized.
-    local ang_diff is vang(ship_normal, target_normal).
 }
 
 function match_inclination

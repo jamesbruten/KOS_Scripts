@@ -5,7 +5,7 @@ global target_ap_km is target_ap/1000.
 global target_pe_km is target_pe/1000.
 
 // wait for target orbit to be above ship
-wait_for_launch().
+wait_for_window(target, ship).
 
 // do launch until apoapsis in parking orbit
 launch_to_ap(true).
