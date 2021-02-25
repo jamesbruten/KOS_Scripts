@@ -34,6 +34,7 @@ function wait_for_window
         print "Warping to Window".
         print round(ang, 2) + "      " + round(diff, 2) + "      " + warp_level.
     }
+    wait 3.
 }
 
 function match_inclination
