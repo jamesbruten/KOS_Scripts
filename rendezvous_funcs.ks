@@ -40,8 +40,8 @@ function wait_for_window
     local orbit_normal is vcrs(orbitable:velocity:orbit, orbitable:body:position-orbitable:position):normalized.
     local body_normal is srfpos:body:position - srfpos:position.
     local cross is vcrs(orbit_normal, body_normal).
-    print cross.
-    print cross:mag.
+    local yval is cross:y.
+    if (yval > 0) set target_inc to -1 * target_inc.
 }
 
 function match_inclination
