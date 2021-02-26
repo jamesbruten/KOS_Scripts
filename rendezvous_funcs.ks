@@ -13,6 +13,7 @@ function wait_for_window
         if (diff < 0.5)
         {
             set warp to 0.
+            wait until ship:unpacked.
             break.
         }
         else if (diff < 2)
@@ -35,6 +36,12 @@ function wait_for_window
         print round(ang, 2) + "      " + round(diff, 2) + "      " + warp_level.
     }
     wait 3.
+    
+    local orbit_normal is vcrs(orbitable:velocity:orbit, orbitable:body:position-orbitable:position):normalized.
+    local body_normal is srfpos:body:position - srfpos:position.
+    local cross is vcrs(orbit_normal, body_normal).
+    print cross.
+    print cross:mag.
 }
 
 function match_inclination
