@@ -84,17 +84,17 @@ function lower_periapsis
     lock throttle to 0.
     print "Shutdown".
 
-    return wait_end + ship:orbit:period / 2 - time:seconds.
+    return wait_end + ship:orbit:period / 2.
 }
 
 correct_landing_inc
 {
     parameter landing_lat, landing_lng, eta_landing.
 
-    local wait_time is eta_landing / 2.
+    local wait_time is (eta_landing - time:seconds) / 2.
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 5).
     wait until time:seconds > wait_end.
 
-    
+
 }
