@@ -3,6 +3,8 @@ function wait_for_landing
     //  waits for srfpos to be underneat orbitable, at launch give target and ship
     parameter landing_lat, landing_long, orbitable.
 
+    if (ship:orbit:inclination < 10) return.
+
     // The angle rotated by body during one orbit
     local rot_ang is 360 * orbitable:orbit:period / orbitable:body:rotationperiod.
 
