@@ -96,5 +96,9 @@ correct_landing_inc
     do_warp(wait_time - 5).
     wait until time:seconds > wait_end.
 
+    local vel_vect is vxcl(up:vector, ship:velocity:orbit).
+    local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
+
+    local ang is vang(vel_vect, target_vect).
 
 }
