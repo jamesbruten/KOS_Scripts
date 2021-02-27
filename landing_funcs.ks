@@ -87,7 +87,7 @@ function lower_periapsis
     return wait_end + ship:orbit:period / 2.
 }
 
-correct_landing_inc
+function correct_landing_inc
 {
     parameter landing_lat, landing_lng, eta_landing.
 
