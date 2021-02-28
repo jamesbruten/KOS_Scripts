@@ -206,7 +206,7 @@ function intercept_landing_site
             print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
             print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
             set tot_diff_new to diff_lat + diff_lng.
-            if (tot_diff_new > tot_diff_old and diff_lng < 2)
+            if (tot_diff_new > tot_diff_old and diff_lng < 0.5)
             {
                 lock throttle to 0.
                 wait 0.5.
@@ -252,7 +252,7 @@ function final_landing
                 clearscreen.
                 print "Throttle Percent: " + pct.
                 print "Final Landing Burn".
-                if (ship:status = "landed" or alt:radar < 5) break.
+                if (ship:status = "landed" or alt:radar < 2) break.
             }
             lock throttle to 0.
             unlock steering.
