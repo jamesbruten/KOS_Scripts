@@ -3,7 +3,11 @@ function wait_for_landing
     //  waits for srfpos to be underneat orbitable, at launch give target and ship
     parameter landing_lat, landing_long, orbitable.
 
-    if (ship:orbit:inclination < 10) return.
+    // the angle that the body rotates during one orbit of ship
+    // will wait until landing site within this angle of orbit
+    local ang_error is 360 * ship:orbit:period / body:rotationperiod.
+
+    if (ship:orbit:inclination < ang_error) return.
 
     // The angle rotated by body during one orbit
     local rot_ang is 360 * orbitable:orbit:period / orbitable:body:rotationperiod.
@@ -14,7 +18,7 @@ function wait_for_landing
     local body_normal is srfpos:normalized.
     local ang is vang(orbit_normal, body_normal).
     local diff is abs(90 - ang).
-    if (diff < 10) do_warp(orbitable:body:rotationperiod/4).
+    if (diff < 5) do_warp(orbitable:body:rotationperiod/4).
 
     local warp_level is 0.
     until false
@@ -24,18 +28,18 @@ function wait_for_landing
         local body_normal is srfpos:normalized.
         local ang is vang(orbit_normal, body_normal).
         local diff is abs(90 - ang).
-        if (diff < 10)
+        if (diff < ang_error)
         {
             set warp to 0.
             wait until ship:unpacked.
             break.
         }
-        else if (diff < 11)
+        else if (diff < ang_error+1)
         {
             set warp to 2.
             set warp_level to 2.
         }
-        else if (diff < 20)
+        else if (diff < ang_error+10)
         {
             set warp to 4.
             set warp_level to 4.
@@ -46,7 +50,7 @@ function wait_for_landing
             set warp_level to 5.
         }
         clearscreen.
-        print "Warping to 10 Deg".
+        print "Warping to " + ang_error + " Deg".
         print round(ang, 2) + "      " + round(diff, 2) + "      " + warp_level.
     }
     wait 3.
@@ -68,7 +72,8 @@ function lower_periapsis
     set burn_lng to burn_lng + 180.
 
     local lng1 is ship:geoposition:lng + 180.
-    local ang_diff is 0.//ANGLE DIFFERENCE CALC
+    local ang_diff is burn_lng - lng1.
+    if (ang_diff < 0) set ang_diff to ang_diff + 360.
     
     print "Warping to Opposite Side".
 
