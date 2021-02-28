@@ -28,11 +28,11 @@ function wait_for_landing
     local warp_level is 0.
     until false
     {
-        local orbit_normal is vcrs(orbitable:velocity:orbit, orbitable:body:position-orbitable:position):normalized.
-        local srfpos is ship:body:position - latlng(landing_lat, landing_long):position.
-        local body_normal is srfpos:normalized.
-        local ang is vang(orbit_normal, body_normal).
-        local diff is abs(90 - ang).
+        set orbit_normal to vcrs(orbitable:velocity:orbit, orbitable:body:position-orbitable:position):normalized.
+        set srfpos to ship:body:position - latlng(landing_lat, landing_long):position.
+        set body_normal to srfpos:normalized.
+        set ang to vang(orbit_normal, body_normal).
+        set diff to abs(90 - ang).
         if (diff < ang_error)
         {
             set warp to 0.
@@ -219,9 +219,6 @@ function intercept_landing_site
 
 function final_landing
 {
-    local impact_lat is addons:tr:impactpos:lat.
-    local impact_lng is addons:tr:impactpos:lng.
-
     lock steering to srfretrograde.
     wait 5.
     gear on.
