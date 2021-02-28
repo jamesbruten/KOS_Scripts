@@ -180,7 +180,7 @@ function intercept_landing_site
     parameter landing_lat, landing_lng.
 
     local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
-    local wait_time is eta:periapsis - cancel_dv_time.
+    local wait_time is eta:periapsis - 2 * cancel_dv_time.
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 10).
     wait until time:seconds > wait_end.
