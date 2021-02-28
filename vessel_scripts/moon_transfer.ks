@@ -6,7 +6,7 @@ global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
 // Target Body Orbit Params
-set target to Mun.
+set target to Minmus.
 global next_inc is 0.
 global next_ap_km is 50.
 global next_pe_km is next_ap_km.
