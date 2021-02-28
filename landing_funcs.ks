@@ -137,13 +137,14 @@ function correct_landing_inc
     do_warp(wait_time - 5).
     wait until time:seconds > wait_end.
 
-    local vel_vect is vxcl(up:vector, ship:velocity:orbit).
-    local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
-    local ang_init is vang(vel_vect, target_vect).
-
     local normal is vcrs(ship:velocity:orbit, -body:position).
     lock steering to normal.
     wait 10.
+
+    local vel_vect is vxcl(up:vector, ship:velocity:orbit).
+    local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
+    local ang_init is vang(vel_vect, target_vect).
+    
     lock throttle to 0.25.
     wait 0.5.
     until false
