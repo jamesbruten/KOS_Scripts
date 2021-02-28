@@ -175,16 +175,19 @@ function intercept_landing_site
 {
     parameter landing_lat, landing_lng.
 
-    local wait_time is 0.8 * eta:periapsis.
+    local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
+    local wait_time is eta:periapsis - cancel_dv_time.
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 10).
     wait until time:seconds > wait_end.
 
     lock steering to retrograde.
     wait 10.
-    lock throttle to 0.5.
+    lock throttle to 1.
     local tot_diff_old is 1000.
     local tot_diff_new is 1000.
+    local diff_lng is 100.
+    when (diff_lng < 2) lock throttle to 0.5.
     until false
     {
         if addons:tr:hasimpact
@@ -192,13 +195,14 @@ function intercept_landing_site
             local impact_lat is addons:tr:impactpos:lat.
             local impact_lng is addons:tr:impactpos:lng.
             local diff_lat is abs(impact_lat - landing_lat).
-            local diff_lng is abs(impact_lng - landing_lng).
+            set diff_lng to abs(impact_lng - landing_lng).
+            if (diff_lng > 180) set diff_lng to 360 - diff_lng.
             clearscreen.
             print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
             print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
             print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
             set tot_diff_new to diff_lat + diff_lng.
-            if (tot_diff_new > tot_diff_old and diff_lng < 5)
+            if (tot_diff_new > tot_diff_old and diff_lng < 2)
             {
                 lock throttle to 0.
                 wait 0.5.
@@ -238,7 +242,7 @@ function final_landing
 
         if (alt:radar < 50 or ship:verticalspeed >= 0 or abs(ship:groundspeed) < 0.2)
         {
-            when (ship:groundspeed < 0.15) then lock steering to heading(0, 90).
+            when (ship:groundspeed < 0.15) then lock steering to lookdirup(up:forevector, ship:facing:topvector).
             until false
             {
                 set pct to touch_down_throttle().
