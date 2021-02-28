@@ -189,7 +189,7 @@ function intercept_landing_site
     local tot_diff_old is 1000.
     local tot_diff_new is 1000.
     local diff_lng is 100.
-    when (diff_lng < 2) lock throttle to 0.5.
+    when (diff_lng < 2) then lock throttle to 0.5.
     until false
     {
         if addons:tr:hasimpact

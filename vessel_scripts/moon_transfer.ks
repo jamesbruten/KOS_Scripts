@@ -12,20 +12,20 @@ global next_pe_km is next_ap_km.
 global next_ap is next_ap_km * 1000.
 global next_pe is next_pe_km * 1000.
 
-// // do launch until apoapsis in parking orbit
-// launch_to_ap(true).
+// do launch until apoapsis in parking orbit
+launch_to_ap(true).
 
-// lights on.
-// set steeringmanager:maxstoppingtime to 0.5.
+lights on.
+set steeringmanager:maxstoppingtime to 0.5.
 
-// // circularise parking orbit
-// adjust_apsides("a", ship:apoapsis).
+// circularise parking orbit
+adjust_apsides("a", ship:apoapsis).
 
+wait 5.
+// deploy_solar_panels().
 // wait 5.
-// // deploy_solar_panels().
-// // wait 5.
-// deploy_antenna().
-// wait 5.
+deploy_antenna().
+wait 5.
 
 transfer_orbit_moon().
 wait 5.
