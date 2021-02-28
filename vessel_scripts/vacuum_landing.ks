@@ -1,4 +1,4 @@
-local target_lat is 0.
+local target_lat is -2.
 local target_lng is -8.6.
 
 lock steering to retrograde.
@@ -15,3 +15,7 @@ wait_for_landing(target_lat,target_lng, ship).
 local eta_landing is lower_periapsis(target_lng).
 
 correct_landing_inc(target_lat, target_lng, eta_landing).
+
+intercept_landing_site(target_lat, target_lng).
+
+final_landing().
