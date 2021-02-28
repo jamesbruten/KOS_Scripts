@@ -280,8 +280,6 @@ function stopping_distance
 
 function touch_down_throttle
 {
-    local grav is constant:g * body:mass / body:radius^2.
-    local max_decel is (ship:availablethrust / ship:mass) - grav.
     if (ship:verticalspeed > -1.5) return 0.
     else return stopping_distance() / (alt:radar - 5).
 }
