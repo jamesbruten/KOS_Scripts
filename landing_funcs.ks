@@ -145,6 +145,7 @@ function correct_landing_inc
     lock steering to normal.
     wait 10.
     lock throttle to 0.25.
+    wait 0.5.
     until false
     {
         set vel_vect to vxcl(up:vector, ship:velocity:orbit).
