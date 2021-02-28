@@ -231,6 +231,7 @@ function final_landing
         if (pct >= 1.0) break.
         clearscreen.
         print "Throttle Percent: " + pct.
+        print "Waiting for Landing Burn".
         wait 0.1.
     }
 
@@ -241,6 +242,7 @@ function final_landing
         set pct to stopping_distance() / (distance_to_impact() - 50).
         clearscreen.
         print "Throttle Percent: " + pct.
+        print "Initial Landing Burn".
 
         if (alt:radar < 50 or ship:verticalspeed >= 0 or abs(ship:groundspeed) < 0.2)
         {
@@ -250,6 +252,7 @@ function final_landing
                 set pct to touch_down_throttle().
                 clearscreen.
                 print "Throttle Percent: " + pct.
+                print "Final Landing Burn".
                 if (ship:status = "landed" or alt:radar < 5) break.
             }
             lock throttle to 0.
