@@ -144,14 +144,16 @@ function correct_landing_inc
     local vel_vect is vxcl(up:vector, ship:velocity:orbit).
     local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
     local ang_init is vang(vel_vect, target_vect).
+    local ang is ang_init.
 
-    lock throttle to 0.25.
-    wait 0.2.
+    when (ang < 0.25) then lock throttle to 0.25.
+    lock throttle to 0.5.
+    wait 0.1.
     until false
     {
         set vel_vect to vxcl(up:vector, ship:velocity:orbit).
         set target_vect to vxcl(up:vector, latlng(landing_lat, landing_lng):position).
-        local ang is vang(vel_vect, target_vect).
+        set ang to vang(vel_vect, target_vect).
         if (ang > ang_init)
         {
             lock throttle to 0.
@@ -160,7 +162,7 @@ function correct_landing_inc
             set ang_init to 500.
             lock throttle to 0.25.
         }
-        if (ang < 0.1) break.
+        if (ang < 0.05) break.
         set normal to vcrs(ship:velocity:orbit, -body:position).
         clearscreen.
         print "Targeting Landing Site      Difference: " + round(ang, 2).
