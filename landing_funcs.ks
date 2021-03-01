@@ -228,7 +228,7 @@ function correct_landing_inc
             set ang_init to 500.
             lock throttle to t_val.
         }
-        if (ang < 0.05) break.
+        if (ang < 0.025) break.
         set normal to vcrs(ship:velocity:orbit, -body:position).
         clearscreen.
         print "Targeting Landing Site      Difference: " + round(ang, 2).
@@ -275,7 +275,7 @@ function intercept_landing_site
             print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
             print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
             set tot_diff_new to diff_lat + diff_lng.
-            if (tot_diff_new > tot_diff_old and diff_lng < 0.5)
+            if (tot_diff_new > tot_diff_old and diff_lng < 0.5 and diff_lat < 0.5)
             {
                 lock throttle to 0.
                 wait 0.5.

@@ -247,7 +247,7 @@ function transfer_orbit_moon
             remove_maneuver(mnv).
             print "Waiting 1 Orbit to avoid interaction".
             local wait_time is ship:orbit:period.
-            local wait_end is time_seconds + wait_time + 10.
+            local wait_end is time:seconds + wait_time + 5.
             do_warp(wait_time).
             wait until time:seconds > wait_end.
         }
