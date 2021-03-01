@@ -10,6 +10,7 @@ copypath("0:/pid_funcs.ks", "1:pid_funcs.ks").
 copypath("0:/rendezvous_funcs.ks", "1:rendezvous_funcs.ks").
 copypath("0:/docking_funcs.ks", "1:docking_funcs.ks").
 copypath("0:/hill_climbing.ks", "1:hill_climbing.ks").
+copypath("0:/landing_funcs.ks", "1:landing_funcs.ks").
 
 runpath("1:launch_to_ap.ks").
 runpath("1:maneuver_funcs.ks").
@@ -21,6 +22,7 @@ runpath("1:pid_funcs.ks").
 runpath("1:rendezvous_funcs.ks").
 runpath("1:docking_funcs.ks").
 runpath("1:hill_climbing.ks").
+runpath("1:landing_funcs.ks").
 
 
 function do_warp
