@@ -18,4 +18,6 @@ correct_landing_inc(target_lat, target_lng, eta_landing).
 
 intercept_landing_site(target_lat, target_lng).
 
+final_impact_correction(target_lat, target_lng).
+
 final_landing().

@@ -215,6 +215,49 @@ function intercept_landing_site
             set tot_diff_old to tot_diff_new.
         }
     }
+    wait 5.
+}
+
+function final_impact_correction
+{
+    parameter landing_lat, landing_lng.
+
+    local impact_lat is addons:tr:impactpos:lat.
+    local impact_lng is addons:tr:impactpos:lng.
+
+    local diff_lat is abs(impact_lat - landing_lat).
+    local diff_lng is abs(impact_lng - landing_lng).
+    if (diff_lng > 180) set diff_lng to 360 - diff_lng.
+    local x is cos(landing_lat) * sin(diff_lng).
+    local y is cos(impact_lat) * sin(landing_lat) - sin(impact_lat) * cos(landing_lat) * cos(diff_lng).
+    local bearing is arctan2(x, y).
+    lock steering to heading(bearing, 0, 0).
+
+    local tot_diff_old is diff_lng + diff_lng.
+    local tot_diff_new is tot_diff_old.
+
+    lock throttle to 0.5.
+    until false
+    {
+        set impact_lat to addons:tr:impactpos:lat.
+        set impact_lng to addons:tr:impactpos:lng.
+        set diff_lat to abs(impact_lat - landing_lat).
+        set diff_lng to abs(impact_lng - landing_lng).
+        if (diff_lng > 180) set diff_lng to 360 - diff_lng.
+        clearscreen.
+        print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
+        print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
+        print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
+        set tot_diff_new to diff_lng + diff_lat.
+        if (tot_diff_new > tot_diff_old)
+        {
+            lock throttle to 0.
+            wait 0.5.
+            lock steering to srfretrograde.
+            break.
+        }
+        set tot_diff_old to tot_diff_new.
+    }
 }
 
 function final_landing
