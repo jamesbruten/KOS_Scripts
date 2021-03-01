@@ -8,14 +8,16 @@ function wait_for_landing
     local ang_error is 360 * ship:orbit:period / body:rotationperiod.
     print "ang_error: " + ang_error.
 
-    if (ship:orbit:inclination < max(3, ang_error))
+    if (ship:orbit:inclination < 5)
     {
         print "Aligned with landing".
+        wait 5.
         return.
     }
     else if (ship:orbit:inclination > 80 and abs(landing_lat) > 80)
     {
         print "Aligned with landing".
+        wait 5.
         return.
     }
 
@@ -63,7 +65,7 @@ function wait_for_landing
     wait 3.
 }
 
-function lower_periapsis
+function lower_periapsis_lng
 {
     // waits until opposite landing site then lowers periapsis to 9000m
     parameter landing_lng.
@@ -119,6 +121,67 @@ function lower_periapsis
     print "Pointing Retrograde".
     lock steering to retrograde.
     wait 15.
+    print "Retrograde Burn".
+    lock throttle to 0.25.
+    wait until ship:periapsis < p_val+100.
+    lock throttle to 0.
+    print "Shutdown".
+    wait 2.
+
+    return eta:periapsis + time:seconds.
+}
+
+function lower_periapsis_lat
+{
+    // waits until opposite landing site then lowers periapsis to 9000m
+    parameter landing_lat.
+
+    local p_val is 1.15 * body:radius - body:radius.
+
+    local transfer_semimajor is (ship:orbit:semimajoraxis + p_val + body:radius) / 2.
+    local transfer_t is 2*constant:pi*sqrt(transfer_semimajor^3 / body:mu). // orbital period of transfer orbit.
+    local body_rot is  360 * 0.5 * transfer_t / body:rotationperiod.
+
+    local burn_lat is -1 * landing_lat.
+    set burn_lat to burn_lat + body_rot * landing_lat / abs(landing_lat).
+
+    local a1 is burn_lat.
+    local warp_level is 0.
+    until false
+    {
+        local a2 is ship:geoposition:lat.
+        local diff is abs(a1 - a2).
+        clearscreen.
+        print "Warping to Longitude: " + burn_lat.
+        print round(ship:geoposition:lat, 2) + "     " + round(diff, 2) + "     " + warp_level.
+
+        if (diff < 0.25)
+        {
+            set warp to 0.
+            wait until ship:unpacked.
+            break.
+        }
+        else if (diff < 1)
+        {
+            set warp to 2.
+            set warp_level to 2.
+        }
+        else if (diff < 10)
+        {
+            set warp to 4.
+            set warp_level to 4.
+        }
+        else
+        {
+            set warp to 5.
+            set warp_level to 5.
+        }
+    }
+
+    print "Body Rot: " + body_rot.
+    print "Pointing Retrograde".
+    lock steering to retrograde.
+    wait 10.
     print "Retrograde Burn".
     lock throttle to 0.25.
     wait until ship:periapsis < p_val+100.
@@ -205,6 +268,7 @@ function intercept_landing_site
             local impact_lng is addons:tr:impactpos:lng.
             local diff_lat is abs(impact_lat - landing_lat).
             set diff_lng to abs(impact_lng - landing_lng).
+            if (landing_lat > 80) set diff_lng to 0.
             if (diff_lng > 180) set diff_lng to 360 - diff_lng.
             clearscreen.
             print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
@@ -221,49 +285,6 @@ function intercept_landing_site
         }
     }
     wait 5.
-}
-
-function final_impact_correction
-{
-    parameter landing_lat, landing_lng.
-
-    local impact_lat is addons:tr:impactpos:lat.
-    local impact_lng is addons:tr:impactpos:lng.
-
-    local diff_lat is abs(impact_lat - landing_lat).
-    local diff_lng is abs(impact_lng - landing_lng).
-    if (diff_lng > 180) set diff_lng to 360 - diff_lng.
-    local x is cos(landing_lat) * sin(diff_lng).
-    local y is cos(impact_lat) * sin(landing_lat) - sin(impact_lat) * cos(landing_lat) * cos(diff_lng).
-    local bearing is arctan2(x, y).
-    lock steering to heading(bearing, 0, 0).
-    wait 10.
-
-    local tot_diff_old is diff_lng + diff_lng.
-    local tot_diff_new is tot_diff_old.
-
-    lock throttle to 0.5.
-    until false
-    {
-        set impact_lat to addons:tr:impactpos:lat.
-        set impact_lng to addons:tr:impactpos:lng.
-        set diff_lat to abs(impact_lat - landing_lat).
-        set diff_lng to abs(impact_lng - landing_lng).
-        if (diff_lng > 180) set diff_lng to 360 - diff_lng.
-        clearscreen.
-        print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
-        print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
-        print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
-        set tot_diff_new to diff_lng + diff_lat.
-        if (tot_diff_new > tot_diff_old)
-        {
-            lock throttle to 0.
-            wait 0.5.
-            lock steering to srfretrograde.
-            break.
-        }
-        set tot_diff_old to tot_diff_new.
-    }
 }
 
 function final_landing
