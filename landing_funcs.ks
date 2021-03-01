@@ -8,14 +8,16 @@ function wait_for_landing
     local ang_error is 360 * ship:orbit:period / body:rotationperiod.
     print "ang_error: " + ang_error.
 
-    if (ship:orbit:inclination < ang_error)
+    if (ship:orbit:inclination < max(3, ang_error))
     {
         print "Aligned with landing".
         return.
     }
-
-    // The angle rotated by body during one orbit
-    local rot_ang is 360 * orbitable:orbit:period / orbitable:body:rotationperiod.
+    else if (ship:orbit:inclination > 80 and abs(landing_lat) > 80)
+    {
+        print "Aligned with landing".
+        return.
+    }
 
     // srfpos is normal vector to a flat body at the given lat/long
     local orbit_normal is vcrs(orbitable:velocity:orbit, orbitable:body:position-orbitable:position):normalized.
@@ -33,18 +35,18 @@ function wait_for_landing
         set body_normal to srfpos:normalized.
         set ang to vang(orbit_normal, body_normal).
         set diff to abs(90 - ang).
-        if (diff < ang_error)
+        if (diff < 0.25)
         {
             set warp to 0.
             wait until ship:unpacked.
             break.
         }
-        else if (diff < ang_error+1)
+        else if (diff < 0.5)
         {
             set warp to 2.
             set warp_level to 2.
         }
-        else if (diff < ang_error+10)
+        else if (diff < 5)
         {
             set warp to 4.
             set warp_level to 4.
@@ -55,7 +57,7 @@ function wait_for_landing
             set warp_level to 5.
         }
         clearscreen.
-        print "Warping to " + ang_error + " Deg".
+        print "Warping to " + 90 + " Deg Normal Angle".
         print round(ang, 2) + "      " + round(diff, 2) + "      " + warp_level.
     }
     wait 3.
@@ -69,7 +71,7 @@ function lower_periapsis
     local p_val is 1.15 * body:radius - body:radius.
 
     local transfer_semimajor is (ship:orbit:semimajoraxis + p_val + body:radius) / 2.
-    local transfer_t is 2*constant:pi*sqrt(transfer_semimajor^3 / body:mu). // orbital period of transfer from apoapsis to 9000.
+    local transfer_t is 2*constant:pi*sqrt(transfer_semimajor^3 / body:mu). // orbital period of transfer orbit.
     local body_rot is  360 * 0.5 * transfer_t / body:rotationperiod.
 
     local burn_lng is landing_lng - 180.
@@ -146,8 +148,9 @@ function correct_landing_inc
     local ang_init is vang(vel_vect, target_vect).
     local ang is ang_init.
 
-    when (ang < 0.25) then lock throttle to 0.25.
-    lock throttle to 0.5.
+    local t_val is 0.5.
+    lock throttle to t_val.
+    when (ang < 0.25) then set t_val to 0.25.
     wait 0.1.
     until false
     {
@@ -160,7 +163,7 @@ function correct_landing_inc
             lock steering to -1 * normal.
             wait 10.
             set ang_init to 500.
-            lock throttle to 0.25.
+            lock throttle to t_val.
         }
         if (ang < 0.05) break.
         set normal to vcrs(ship:velocity:orbit, -body:position).
@@ -182,7 +185,7 @@ function intercept_landing_site
     parameter landing_lat, landing_lng.
 
     local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
-    local wait_time is eta:periapsis - 2 * cancel_dv_time.
+    local wait_time is eta:periapsis - 3 * cancel_dv_time.
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 10).
     wait until time:seconds > wait_end.
@@ -234,6 +237,7 @@ function final_impact_correction
     local y is cos(impact_lat) * sin(landing_lat) - sin(impact_lat) * cos(landing_lat) * cos(diff_lng).
     local bearing is arctan2(x, y).
     lock steering to heading(bearing, 0, 0).
+    wait 10.
 
     local tot_diff_old is diff_lng + diff_lng.
     local tot_diff_new is tot_diff_old.
@@ -326,5 +330,5 @@ function stopping_distance
 function touch_down_throttle
 {
     if (ship:verticalspeed > -1.5) return 0.
-    else return stopping_distance() / (alt:radar - 5).
+    else return stopping_distance() / (alt:radar - 2).
 }

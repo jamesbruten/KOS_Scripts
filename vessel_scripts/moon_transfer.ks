@@ -7,7 +7,7 @@ global target_pe is target_pe_km*1000.
 
 // Target Body Orbit Params
 set target to Minmus.
-global next_inc is 20.
+global next_inc is 30.
 global next_ap_km is 50.
 global next_pe_km is next_ap_km.
 global next_ap is next_ap_km * 1000.
@@ -74,6 +74,7 @@ add_maneuver(mnv).
 execute_mnv().
 wait 5.
 
+lock steering to retrograde.
 print "Warping to Next Body".
 local old_body is ship:body.
 do_warp(ship:orbit:nextpatcheta).
