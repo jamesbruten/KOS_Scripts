@@ -138,12 +138,7 @@ function lower_periapsis_lat
 
     local p_val is 1.15 * body:radius - body:radius.
 
-    local transfer_semimajor is (ship:orbit:semimajoraxis + p_val + body:radius) / 2.
-    local transfer_t is 2*constant:pi*sqrt(transfer_semimajor^3 / body:mu). // orbital period of transfer orbit.
-    local body_rot is  360 * 0.5 * transfer_t / body:rotationperiod.
-
     local burn_lat is -1 * landing_lat.
-    set burn_lat to burn_lat + body_rot * landing_lat / abs(landing_lat).
 
     local a1 is burn_lat.
     local warp_level is 0.
@@ -275,7 +270,13 @@ function intercept_landing_site
             print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
             print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
             set tot_diff_new to diff_lat + diff_lng.
-            if (tot_diff_new > tot_diff_old and diff_lng < 0.5 and diff_lat < 0.5)
+            if (tot_diff_new > tot_diff_old and diff_lng < 0.5 and diff_lat < 1.0)
+            {
+                lock throttle to 0.
+                wait 0.5.
+                break.
+            }
+            if (ship:groundspeed < 20)
             {
                 lock throttle to 0.
                 wait 0.5.
