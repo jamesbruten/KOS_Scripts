@@ -171,35 +171,42 @@ function time_to_pa
     return time_left. 
 }
 
-// local current_pa is get_phase_angle().
-// print "Transfer Angle: " + transfer_angle.
-// print "Phase Angle   : " + current_pa.
-// until (abs(transfer_angle - current_pa) < 1)
-// {
-//     set current_pa to get_phase_angle().
-//     clearscreen.
-//     print "Transfer Angle: " + transfer_angle.
-//     print "Phase Angle   : " + current_pa.
-//     wait 0.1.
-// }
-
-
 function transfer_orbit
 {
     local t_semi_major is (ship:orbit:semimajoraxis + target:orbit:semimajoraxis)/2.
     local transit_time is 2*constant:pi*sqrt(t_semi_major^3/body:mu).
     local transfer_angle is 180 - 180*transit_time/target:orbit:period.
 
-    local current_pa is get_phase_angle().
-    print "Transfer Angle: " + transfer_angle.
-    print "Phase Angle   : " + current_pa.
-    until (abs(transfer_angle - current_pa) < 0.25)
+    local warp_level is 0.
+    until false
     {
-        set current_pa to get_phase_angle().
+        local current_pa is get_phase_angle().
+        local diff is abs(transfer_angle - current_pa).
+
+        if (diff <= 0.28)
+        {
+            set warp to 0.
+            wait until ship:unpacked.
+            break.
+        }
+        else if (diff < 1.0)
+        {
+            set warp to 2.
+            set warp_level to 2.
+        }
+        else if (diff < 10)
+        {
+            set warp to 4.
+            set warp_level to 4.
+        }
+        else
+        {
+            set warp to 5.
+            set warp_level to 5.
+        }
         clearscreen.
-        print "Transfer Angle: " + transfer_angle.
-        print "Phase Angle   : " + current_pa.
-        wait 0.1.
+        print "Warping to Transfer Angle".
+        print "TA: " + round(transfer_angle, 2) + "    PA: " + round(current_pa, 2) + "    Diff:" + round(diff, 2).
     }
 
     local vinit is ship:velocity:orbit:mag.
