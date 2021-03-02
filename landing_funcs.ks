@@ -191,7 +191,7 @@ function correct_landing_inc
 {
     parameter landing_lat, landing_lng, eta_landing.
 
-    local wait_time is (eta_landing - time:seconds) / 2.
+    local wait_time is 2 * (eta_landing - time:seconds) / 3.
     local wait_end is wait_time + time:seconds.
     print "Warping: " + wait_time.
     do_warp(wait_time - 5).
