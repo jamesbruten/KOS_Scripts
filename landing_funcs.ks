@@ -208,7 +208,7 @@ function correct_landing_inc
 
     local t_val is 0.5.
     lock throttle to t_val.
-    when (ang < 0.25) then set t_val to 0.25.
+    when (ang < 0.5) then set t_val to 0.25.
     wait 0.1.
     until false
     {
@@ -323,7 +323,7 @@ function final_landing
                 clearscreen.
                 print "Throttle Percent: " + pct.
                 print "Final Landing Burn".
-                if (ship:status = "landed" or alt:radar < 2) break.
+                if (ship:status = "landed" or alt:radar < 3) break.
             }
             lock throttle to 0.
             unlock steering.
@@ -351,6 +351,6 @@ function stopping_distance
 
 function touch_down_throttle
 {
-    if (ship:verticalspeed > -1.5) return 0.
-    else return stopping_distance() / (alt:radar - 2).
+    if (ship:verticalspeed > -0.5) return 0.
+    else return stopping_distance() / (alt:radar - 3).
 }
