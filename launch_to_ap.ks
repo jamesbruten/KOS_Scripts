@@ -180,3 +180,55 @@ function prograde_climb
         deploy_fairing().
     }
 }
+
+function launch_to_vac
+{
+    parameter ap_height, orb_inc.
+
+    set steeringmanager:maxstoppingtime to 0.1.
+
+    lock inp to terminal:input:getchar().
+    print "Hit 'l' to launch".
+    wait until inp = "l".
+
+    lock throttle to 0.
+    list engines in ship_engines.
+    for en in ship_engines
+    {
+        set en:thrustlimit to 100.
+        en:activate.
+    }
+    lock steering to lookdirup(up:forevector, ship:facing:topvector).
+
+    local needed_az is inst_az(orb_inc).
+    
+    local t-minus is 5.
+    until (t-minus < 1)
+    {
+        clearscreen.
+        print "Target Apoapsis: " + ap_heigh.
+        print "Target Inclination: " + orb_inc.
+        print "t-minus: " + t-minus.
+    }
+    clearscreen.
+        print "Target Apoapsis: " + ap_heigh.
+        print "Target Inclination: " + orb_inc.
+        print "Liftoff".
+
+    lock throttle to 1.
+    wait 1.
+    
+    lock steering to heading(needed_az, 0).
+    when (ship:periapsis > 0) then lock steering to prograde.
+    until (alt:radar > 1500)
+    {
+        set needed_az to inst_az(orb_inc).
+    }
+    until (ship:apoapsis >= ap_height - 100)
+    {
+        set needed_az to inst_az(orb_inc).
+    }
+    print "Shutdown".
+    lock throttle to 0.
+    lock steering to prograde.
+}
