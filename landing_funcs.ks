@@ -147,16 +147,16 @@ function lower_periapsis_lat
         local a2 is ship:geoposition:lat.
         local diff is abs(a1 - a2).
         clearscreen.
-        print "Warping to Longitude: " + burn_lat.
+        print "Warping to Latitude: " + burn_lat.
         print round(ship:geoposition:lat, 2) + "     " + round(diff, 2) + "     " + warp_level.
 
-        if (diff < 0.25)
+        if (diff < 1)
         {
             set warp to 0.
             wait until ship:unpacked.
             break.
         }
-        else if (diff < 1)
+        else if (diff < 2)
         {
             set warp to 2.
             set warp_level to 2.
@@ -173,7 +173,6 @@ function lower_periapsis_lat
         }
     }
 
-    print "Body Rot: " + body_rot.
     print "Pointing Retrograde".
     lock steering to retrograde.
     wait 10.

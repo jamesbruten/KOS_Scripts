@@ -5,9 +5,16 @@ global target_inc is 0.
 global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
+if (ship:body <> kerbin)
+{
+    if (ship:orbit:eccentricity > 0.1) adjust_apsides("a", ship:apoapsis).
+}
+else
+{
+
 // Target Body Orbit Params
 set target to Minmus.
-global next_inc is 90.
+global next_inc is 38.
 global next_ap_km is 50.
 global next_pe_km is next_ap_km.
 global next_ap is next_ap_km * 1000.
@@ -87,3 +94,5 @@ adjust_apsides("a", next_pe).
 wait 10.
 
 print "In Moon Orbit".
+
+}

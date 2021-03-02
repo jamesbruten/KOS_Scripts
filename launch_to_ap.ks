@@ -202,13 +202,13 @@ function launch_to_vac
 
     local needed_az is inst_az(orb_inc).
     
-    local t-minus is 5.
-    until (t-minus < 1)
+    local tminus is 5.
+    until (tminus < 1)
     {
         clearscreen.
         print "Target Apoapsis: " + ap_heigh.
         print "Target Inclination: " + orb_inc.
-        print "t-minus: " + t-minus.
+        print "t-minus: " + tminus.
     }
     clearscreen.
         print "Target Apoapsis: " + ap_heigh.
