@@ -15,7 +15,7 @@ wait_for_landing(target_lat,target_lng, ship).
 if (abs(target_lat) > 80) local eta_landing is lower_periapsis_lat(target_lat).
 else local eta_landing is lower_periapsis_lng(target_lng).
 
-correct_landing_inc(target_lat, target_lng, eta_landing).
+correct_landing_inc(target_lat, target_lng, eta_landing, true).
 
 intercept_landing_site(target_lat, target_lng).
 

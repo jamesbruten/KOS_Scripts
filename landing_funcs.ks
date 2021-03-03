@@ -188,13 +188,18 @@ function lower_periapsis_lat
 
 function correct_landing_inc
 {
-    parameter landing_lat, landing_lng, eta_landing.
+    parameter landing_lat, landing_lng, eta_landing, warp_mode.
 
-    local wait_time is 2 * (eta_landing - time:seconds) / 3.
-    local wait_end is wait_time + time:seconds.
-    print "Warping: " + wait_time.
-    do_warp(wait_time - 5).
-    wait until time:seconds > wait_end.
+    if (warp_mode = true)
+    {
+        local wait_time is 2 * (eta_landing - time:seconds) / 3.
+        local wait_end is wait_time + time:seconds.
+        print "Warping: " + wait_time.
+        do_warp(wait_time - 5).
+        wait until time:seconds > wait_end.
+    }
+
+    print "Adjusting Direction Towards Landing Site".
 
     local normal is vcrs(ship:velocity:orbit, -body:position).
     lock steering to normal.
@@ -242,10 +247,14 @@ function intercept_landing_site
     parameter landing_lat, landing_lng.
 
     local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
-    local wait_time is eta:periapsis - 3 * cancel_dv_time.
+    local wait_time is eta:periapsis - (3 * cancel_dv_time + 30).
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 10).
     wait until time:seconds > wait_end.
+
+    correct_landing_inc(landing_lat,landing_lng, 0, false).
+
+    print("Impacting Landing Site").
 
     lock steering to retrograde.
     wait 10.
