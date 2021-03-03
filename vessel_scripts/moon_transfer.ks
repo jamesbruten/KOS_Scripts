@@ -7,15 +7,15 @@ global target_pe is target_pe_km*1000.
 
 if (ship:body <> kerbin)
 {
-    if (ship:orbit:eccentricity > 0.1) adjust_apsides("a", ship:apoapsis).
+    if (ship:orbit:eccentricity > 0.02) adjust_apsides("a", ship:apoapsis).
 }
 else
 {
 
 // Target Body Orbit Params
-set target to Minmus.
-global next_inc is 38.
-global next_ap_km is 50.
+set target to Mun.
+global next_inc is 0.
+global next_ap_km is 500.
 global next_pe_km is next_ap_km.
 global next_ap is next_ap_km * 1000.
 global next_pe is next_pe_km * 1000.
@@ -30,8 +30,8 @@ set steeringmanager:maxstoppingtime to 0.5.
 adjust_apsides("a", ship:apoapsis).
 
 wait 5.
-// deploy_solar_panels().
-// wait 5.
+deploy_solar_panels().
+wait 5.
 deploy_antenna().
 wait 5.
 
@@ -90,7 +90,10 @@ wait until old_body <> ship:body.
 wait 5.
 adjust_apsides("p", next_ap).
 wait 5.
-adjust_apsides("a", next_pe).
+local diff1 is abs(ship:apoapsis - next_ap).
+local diff2 is abs(ship:periapsis - next_pe).
+if (diff1 < diff2) adjust_apsides("a", next_pe).
+else adjust_apsides("p", next_ap).
 wait 10.
 
 print "In Moon Orbit".

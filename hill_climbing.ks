@@ -123,7 +123,7 @@ function score_moon_midcourse_correction
 
     local mun_pe is mnv:orbit:nextpatch:periapsis.
     local score1 is abs(mun_pe - aimpoint[0]).
-    if (mun_pe < 7500) set score1 to 2 * score1.
+    if (mun_pe < 7500) set score1 to 5 * score1.
 
     local mun_inc is mnv:orbit:nextpatch:inclination.
     local score2 is abs(mun_inc - aimpoint[1]).

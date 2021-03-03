@@ -273,7 +273,7 @@ function intercept_landing_site
             local impact_lng is addons:tr:impactpos:lng.
             local diff_lat is abs(impact_lat - landing_lat).
             set diff_lng to abs(impact_lng - landing_lng).
-            if (landing_lat > 80) set diff_lng to 0.
+            if (abs(landing_lat) > 80) set diff_lng to 0.
             if (diff_lng > 180) set diff_lng to 360 - diff_lng.
             clearscreen.
             print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
