@@ -29,8 +29,8 @@ set steeringmanager:maxstoppingtime to 0.5.
 adjust_apsides("a", ship:apoapsis).
 
 wait 5.
-deploy_solar_panels().
-wait 5.
+// deploy_solar_panels().
+// wait 5.
 deploy_antenna().
 wait 5.
 
