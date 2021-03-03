@@ -7,6 +7,8 @@ function wait_for_landing
     // will wait until landing site within this angle of orbit
     local ang_error is 360 * ship:orbit:period / body:rotationperiod.
     print "ang_error: " + ang_error.
+    set landing_long to landing_long - ang_error.
+    if (landing_long < -180) set landing_long to landing_long + 360.
 
     if (ship:orbit:inclination < 5)
     {
