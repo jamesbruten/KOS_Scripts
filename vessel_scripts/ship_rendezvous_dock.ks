@@ -8,7 +8,13 @@ global target_pe_km is target_pe/1000.
 wait_for_window(target, ship).
 
 // do launch until apoapsis in parking orbit
-launch_to_ap(true).
+if (ship:body = Kerbin) launch_to_ap(true).
+else if (ship:body:atm:height < 100) launch_to_vac().
+else
+{
+    print "WARNING: Launching to Ap With Kerbin Profile".
+    launch_to_ap(true).
+}
 
 lights on.
 
