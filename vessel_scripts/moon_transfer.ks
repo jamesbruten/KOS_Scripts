@@ -5,21 +5,20 @@ global target_inc is 0.
 global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
+// Target Body Orbit Params
+set target to Mun.
+global next_inc is 45.
+global next_ap_km is 50.
+global next_pe_km is next_ap_km.
+global next_ap is next_ap_km * 1000.
+global next_pe is next_pe_km * 1000.
+
 if (ship:body <> kerbin)
 {
     if (ship:orbit:eccentricity > 0.02) adjust_apsides("a", ship:apoapsis).
 }
 else
 {
-
-// Target Body Orbit Params
-set target to Mun.
-global next_inc is 0.
-global next_ap_km is 500.
-global next_pe_km is next_ap_km.
-global next_ap is next_ap_km * 1000.
-global next_pe is next_pe_km * 1000.
-
 // do launch until apoapsis in parking orbit
 launch_to_ap(true).
 
