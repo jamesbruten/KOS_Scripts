@@ -292,6 +292,8 @@ function intercept_landing_site
 
 function final_landing
 {
+    parameter skycrane.
+
     lock steering to srfretrograde.
     wait 5.
     gear on.
@@ -327,16 +329,24 @@ function final_landing
                 print "Final Landing Burn".
                 if (ship:status = "landed" or alt:radar < 3) break.
             }
-            lock throttle to 0.
-            unlock steering.
-            clearscreen.
-            print "Touch Down".
-            print "Throttle Zero".
-            print "Steering Unlocked".
-            break.
+            if (skycrane = false)
+            {
+                lock throttle to 0.
+                unlock steering.
+                clearscreen.
+                print "Touch Down".
+                print "Throttle Zero".
+                print "Steering Unlocked".
+                break.
+            }
+            else
+            {
+                brakes on.
+                print "Decouple Rover".
+                skycrane_decouple().
+            }
         }
     }
-    wait 2.
 }
 
 function distance_to_impact
@@ -355,4 +365,20 @@ function touch_down_throttle
 {
     if (ship:verticalspeed > -0.5) return 0.
     else return stopping_distance() / (alt:radar - 3).
+}
+
+function skycrane_decouple
+{
+    for p in ship:parts
+    {
+        if (p:tag = "rover_dc")
+        {
+            p:getmodule("moduledecouple"):doevent("decouple").
+            wait until ship:apoapsis > alt:radar + 1000.
+            lock throttle to 1.
+            lock steering to lookdirup(v(0, 45), ship:facing:topvector).
+            wait 2.
+            lock throttle to 0.
+        }
+    }
 }

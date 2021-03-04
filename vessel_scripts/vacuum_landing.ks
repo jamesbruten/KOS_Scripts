@@ -1,5 +1,5 @@
-local target_lat is 40.7.
-local target_lng is 142.8.
+local target_lat is 4.2.
+local target_lng is 15.8.
 
 lock steering to retrograde.
 lock throttle to 0.
@@ -19,4 +19,4 @@ correct_landing_inc(target_lat, target_lng, eta_landing, true).
 
 intercept_landing_site(target_lat, target_lng).
 
-final_landing().
+final_landing(true).
