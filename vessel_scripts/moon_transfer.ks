@@ -13,59 +13,60 @@ global next_pe_km is next_ap_km.
 global next_ap is next_ap_km * 1000.
 global next_pe is next_pe_km * 1000.
 
-if (ship:body <> kerbin)
-{
-    if (ship:orbit:eccentricity > 0.02) adjust_apsides("a", ship:apoapsis).
-}
-else
-{
-// do launch until apoapsis in parking orbit
-launch_to_ap(true).
+// if (ship:body <> kerbin)
+// {
+//     if (ship:orbit:eccentricity > 0.02) adjust_apsides("a", ship:apoapsis).
+// }
+// else
+// {
+// // do launch until apoapsis in parking orbit
+// launch_to_ap(true).
 
-lights on.
-set steeringmanager:maxstoppingtime to 0.5.
+// lights on.
+// set steeringmanager:maxstoppingtime to 0.5.
 
-// circularise parking orbit
-adjust_apsides("a", ship:apoapsis).
+// // circularise parking orbit
+// adjust_apsides("a", ship:apoapsis).
 
-wait 5.
+// wait 5.
 // deploy_solar_panels().
 // wait 5.
-deploy_antenna().
-wait 5.
+// // deploy_antenna().
+// // wait 5.
 
-transfer_orbit_moon().
-wait 5.
+// transfer_orbit_moon().
+// wait 5.
 
-deploy_payload("payload").
-lock throttle to 0.
-wait 1.
-list engines in ship_engines.
-for en in ship_engines
-{
-    if not en:ignition en:activate.
-}
-wait 5.
+// deploy_payload("payload").
+// AG1 on.
+// lock throttle to 0.
+// wait 1.
+// list engines in ship_engines.
+// for en in ship_engines
+// {
+//     if not en:ignition en:activate.
+// }
+// wait 5.
 
-print "Doing Mid-Course Correction".
-local wait_time is "x".
-local wait_end is "x".
-local step_sizes is "x".
-if (ship:orbit:hasnextpatch = false or ship:orbit:nextpatch:body <> target)
-{
-    set wait_time to eta:apoapsis/3.
-    set wait_end to time:seconds + wait_time + 15.
-    set step_sizes to list(100, 10, 1, 0.1, 0.01).
-}
-else
-{
-    local time_body is ship:orbit:nextpatcheta.
-    set wait_time to time_body/2 - 120.
-    set wait_end to time:seconds + wait_time + 15.
-    set step_sizes to list(10, 1, 0.1, 0.01).
-}
-do_warp(wait_time).
-wait until time:seconds > wait_end.
+// print "Doing Mid-Course Correction".
+// local wait_time is "x".
+// local wait_end is "x".
+// local step_sizes is "x".
+// if (ship:orbit:hasnextpatch = false or ship:orbit:nextpatch:body <> target)
+// {
+//     set wait_time to eta:apoapsis/3.
+//     set wait_end to time:seconds + wait_time + 15.
+//     set step_sizes to list(100, 10, 1, 0.1, 0.01).
+// }
+// else
+// {
+//     local time_body is ship:orbit:nextpatcheta.
+//     set wait_time to time_body/2 - 120.
+//     set wait_end to time:seconds + wait_time + 15.
+//     set step_sizes to list(10, 1, 0.1, 0.01).
+// }
+// do_warp(wait_time).
+// wait until time:seconds > wait_end.
 
 local step_sizes is list(100, 10, 1, 0.1, 0.01).
 
@@ -97,4 +98,4 @@ wait 10.
 
 print "In Moon Orbit".
 
-}
+// }
