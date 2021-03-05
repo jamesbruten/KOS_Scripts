@@ -296,7 +296,7 @@ function final_landing
 
     lock steering to srfretrograde.
     wait 5.
-    gear on.
+    when (alt:radar < 250) then gear on.
 
     local pct is stopping_distance() / (distance_to_impact() - 50).
     until false
@@ -374,9 +374,9 @@ function skycrane_decouple
         if (p:tag = "rover_dc")
         {
             p:getmodule("moduledecouple"):doevent("decouple").
-            wait until ship:apoapsis > alt:radar + 1000.
             lock throttle to 1.
-            lock steering to lookdirup(v(0, 45), ship:facing:topvector).
+            lock steering to heading(0, 45, 0).
+            wait until ship:apoapsis > alt:radar + 4000.
             wait 2.
             lock throttle to 0.
         }

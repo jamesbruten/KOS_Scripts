@@ -1,5 +1,5 @@
-local target_lat is 4.2.
-local target_lng is 15.8.
+local target_lat is 2.8.
+local target_lng is 81.5.
 
 lock steering to retrograde.
 lock throttle to 0.

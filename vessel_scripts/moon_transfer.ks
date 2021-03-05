@@ -6,7 +6,8 @@ global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
 // Target Body Orbit Params
-set target to Minmus.
+local tbody is Mun.
+set target to tbody.
 global next_inc is 0.
 global next_ap_km is 50.
 global next_pe_km is next_ap_km.
@@ -29,8 +30,8 @@ set steeringmanager:maxstoppingtime to 0.5.
 adjust_apsides("a", ship:apoapsis).
 
 wait 5.
-deploy_solar_panels().
-wait 5.
+// deploy_solar_panels().
+// wait 5.
 // deploy_antenna().
 // wait 5.
 
@@ -38,7 +39,14 @@ transfer_orbit_moon().
 wait 5.
 
 deploy_payload("payload").
-AG1 on.
+if (kuniverse:activevessel <> core:vessel)
+{
+    kuniverse:forcesetactivevessel(core:vessel).
+    unlock steering.
+    set target to tbody.
+    AG1 on.
+}
+wait 2.
 lock throttle to 0.
 wait 1.
 list engines in ship_engines.
@@ -46,6 +54,8 @@ for en in ship_engines
 {
     if not en:ignition en:activate.
 }
+wait 5.
+lock steering to prograde.
 wait 5.
 
 print "Doing Mid-Course Correction".
