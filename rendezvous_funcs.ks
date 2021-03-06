@@ -505,4 +505,38 @@ function closest_approach
     return list(min_time, min_dist).
 }
 
+function moon_midcourse_correction
+{
+    print "Doing Mid-Course Correction".
+    local wait_time is "x".
+    local wait_end is "x".
+    local step_sizes is "x".
+    if (ship:orbit:hasnextpatch = false or ship:orbit:nextpatch:body <> target)
+    {
+        set wait_time to eta:apoapsis/3.
+        set wait_end to time:seconds + wait_time + 15.
+        set step_sizes to list(100, 10, 1, 0.1, 0.01).
+    }
+    else
+    {
+        local time_body is ship:orbit:nextpatcheta.
+        set wait_time to time_body/2 - 120.
+        set wait_end to time:seconds + wait_time + 15.
+        set step_sizes to list(10, 1, 0.1, 0.01).
+    }
+    do_warp(wait_time).
+    wait until time:seconds > wait_end.
 
+    local step_sizes is list(100, 10, 1, 0.1, 0.01).
+
+    local min_start is time:seconds + 120.
+    local params is list(0, 0).
+    set params to converge_on_mnv(params, score_moon_midcourse_correction@, list(10000, next_inc), min_start, step_sizes).
+
+    set mnv to node(min_start, 0, params[0], params[1]).
+    print "Maneuver Burn:".
+    print mnv.
+    add_maneuver(mnv).
+    execute_mnv().
+    wait 5.
+}

@@ -1,5 +1,5 @@
-local target_lat is 2.8.
-local target_lng is 81.5.
+local target_lat is -71.
+local target_lng is -68.
 
 lock steering to retrograde.
 lock throttle to 0.
@@ -10,7 +10,7 @@ for en in ship_engines
     en:activate.
 }
 
-wait_for_landing(target_lat,target_lng, ship).
+// wait_for_landing(target_lat,target_lng, ship).
 
 if (abs(target_lat) > 80) local eta_landing is lower_periapsis_lat(target_lat).
 else local eta_landing is lower_periapsis_lng(target_lng).
