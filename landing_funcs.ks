@@ -373,10 +373,11 @@ function skycrane_decouple
     {
         if (p:tag = "rover_dc")
         {
+            local a is ship:apoapsis.
             p:getmodule("moduledecouple"):doevent("decouple").
             lock throttle to 1.
             lock steering to heading(0, 45, 0).
-            wait until ship:apoapsis > alt:radar + 4000.
+            wait until ship:apoapsis > a + 4000.
             wait 2.
             lock throttle to 0.
         }
