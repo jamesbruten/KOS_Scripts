@@ -77,6 +77,8 @@ else if (target:body:body = ship:body)
 
     moon_transfer_functions().
 
+    set target to t1.
+
     match_inclination().
 
     transfer_orbit().
