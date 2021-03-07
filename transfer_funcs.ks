@@ -207,25 +207,25 @@ function moon_transfer
     local tbody is Mun.
     set target to tbody.
     global next_inc is 0.
-    global next_ap_km is 800.
+    global next_ap_km is 50.
     global next_pe_km is next_ap_km.
     global next_ap is next_ap_km * 1000.
     global next_pe is next_pe_km * 1000.
 
-    // // do launch until apoapsis in parking orbit
-    // launch_to_ap(true).
+    // do launch until apoapsis in parking orbit
+    launch_to_ap(true).
 
-    // lights on.
-    // set steeringmanager:maxstoppingtime to 0.5.
+    lights on.
+    set steeringmanager:maxstoppingtime to 0.5.
 
-    // // circularise parking orbit
-    // adjust_apsides("a", ship:apoapsis).
+    // circularise parking orbit
+    adjust_apsides("a", ship:apoapsis).
 
-    // wait 5.
-    // deploy_payload("payload").
-    // deploy_solar_panels().
-    // deploy_antenna().
-    // deploy_dp_shield().
+    wait 5.
+    deploy_payload("payload").
+    deploy_solar_panels().
+    deploy_antenna().
+    deploy_dp_shield().
 
     activate_engines().
     wait 5.
@@ -239,10 +239,10 @@ function moon_transfer
     //     unlock steering.
     //     set target to tbody.
     //     AG1 on.
+    //     wait 5.
+    //     lock steering to prograde.
+    //     wait 5.
     // }
-    // wait 5.
-    // lock steering to prograde.
-    // wait 5.
 
     moon_midcourse_correction().
     wait 5.

@@ -22,10 +22,10 @@ function deploy_solar_panels
             {
                 print "Extending Solar Panels".
                 panel:doevent("extend solar panel").
-                wait 5.
             }
         }
     }
+    wait 5.
 }
 
 function deploy_antenna
