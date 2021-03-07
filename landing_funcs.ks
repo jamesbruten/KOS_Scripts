@@ -246,7 +246,10 @@ function intercept_landing_site
     do_warp(wait_time - 10).
     wait until time:seconds > wait_end.
 
-    correct_landing_inc(landing_lat,landing_lng, 0, false).
+    correct_landing_inc(landing_lat, landing_lng, 0, false).
+
+    local delta_lng is 360 * eta:periapsis / ship:body:rotationperiod.
+    set landing_lng to landing_lng + delta_lng.
 
     print("Impacting Landing Site").
 
