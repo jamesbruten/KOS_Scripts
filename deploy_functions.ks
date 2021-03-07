@@ -13,40 +13,56 @@ function deploy_fairing
 
 function deploy_solar_panels
 {
-    print "Extending Solar Panels".
     for p in ship:parts
     {
         if p:hasmodule("moduledeployablesolarpanel")
         {
             local panel is p:getmodule("moduledeployablesolarpanel").
-            if panel:hasevent("extend solar panel") panel:doevent("extend solar panel").
+            if panel:hasevent("extend solar panel")
+            {
+                print "Extending Solar Panels".
+                panel:doevent("extend solar panel").
+                wait 5.
+            }
         }
     }
 }
 
 function deploy_antenna
 {
-    print "Extending Antenna".
     for p in ship:parts
     {
         if p:hasmodule("moduledeployableantenna")
         {
             local dish is p:getmodule("moduledeployableantenna").
-            if dish:hasevent("extend antenna") dish:doevent("extend antenna").
+            if dish:hasevent("extend antenna")
+            {
+                print "Extending Antenna".
+                dish:doevent("extend antenna").
+                wait 5.
+            }
         }
     }
 }
 
 function deploy_dp_shield
 {
-    print "Toggling Docking Port Shield".
     for p in ship:parts
     {
         if p:hasmodule("moduleanimategeneric")
         {
+            print "Toggling Docking Port Shield".
             local dp is p:getmodule("moduleanimategeneric").
-            if dp:hasevent("open shield") dp:doevent("open shield").
-            else if dp:hasevent("close shield") dp:doevent("close shield").
+            if dp:hasevent("open shield")
+            {
+                dp:doevent("open shield").
+                wait 5.
+            }
+            else if dp:hasevent("close shield")
+            {
+                dp:doevent("close shield").
+                wait 5.
+            }
         }
     }
 }
@@ -62,6 +78,21 @@ function deploy_payload
         {
             print "Deploying Payload".
             p:getmodule("moduledecouple"):doevent("decouple").
+            wait 5.
         } 
     }
+}
+
+function activate_engines
+{
+    parameter tlimit is 100.
+
+    lock throttle to 0.
+    list engines in ship_engines.
+    for en in ship_engines
+    {
+        if not en:ignition en:activate.
+        set en:thrustlimit to tlimit.
+    }
+    wait 5.
 }
