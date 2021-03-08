@@ -19,4 +19,4 @@ correct_landing_inc(target_lat, target_lng, eta_landing, true).
 
 intercept_landing_site(target_lat, target_lng).
 
-final_landing(true).
+final_landing(false).
