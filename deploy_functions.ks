@@ -28,6 +28,23 @@ function deploy_solar_panels
     wait 5.
 }
 
+function retract_solar_panels
+{
+    for p in ship:parts
+    {
+        if p:hasmodule("moduledeployablesolarpanel")
+        {
+            local panel is p:getmodule("moduledeployablesolarpanel").
+            if panel:hasevent("retract solar panel")
+            {
+                print "Retracting Solar Panels".
+                panel:doevent("retract solar panel").
+            }
+        }
+    }
+    wait 5.
+}
+
 function deploy_antenna
 {
     for p in ship:parts

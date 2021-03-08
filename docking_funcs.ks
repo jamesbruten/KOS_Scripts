@@ -22,6 +22,7 @@ function dock_vessels
 
     move_to_corner(targetport, shipport,steering_vector).
 
+    retract_solar_panels().
     approach_port(targetport, shipport, 100, 2, 2, steering_vector).
     approach_port(targetport, shipport, 20, 2, 0.5, steering_vector).
     approach_port(targetport, shipport, 10, 0.5, 0.1, steering_vector).

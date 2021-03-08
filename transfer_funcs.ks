@@ -189,6 +189,9 @@ function moon_transfer_functions
 
     transfer_orbit_moon().
     wait 5.
+    deploy_payload("payload").
+    activate_engines().
+    wait 5.
     moon_midcourse_correction().
     wait 5.
     capture_next_body().
@@ -222,15 +225,16 @@ function moon_transfer
     adjust_apsides("a", ship:apoapsis).
 
     wait 5.
-    deploy_payload("payload").
     deploy_solar_panels().
     deploy_antenna().
     deploy_dp_shield().
 
-    activate_engines().
-    wait 5.
 
     transfer_orbit_moon().
+    wait 5.
+
+    deploy_payload("payload").
+    activate_engines().
     wait 5.
 
     // if (kuniverse:activevessel <> core:vessel)
