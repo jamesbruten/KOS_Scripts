@@ -1,7 +1,14 @@
 function wait_for_window
 {
-    //  waits for srfpos to be underneat orbitable, at launch give target and ship
+    //  waits for srfpos to be underneath orbitable, at launch give target and ship
     parameter orbitable, srfpos.
+
+    if (orbit:orbit:inclination < 5)
+    {
+        print "Target Orbit Equatorial - No Wait Necessary".
+        wait 5.
+        return.
+    }
 
     local warp_level is 0.
     until false
