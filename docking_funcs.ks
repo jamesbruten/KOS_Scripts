@@ -255,3 +255,33 @@ function kss_tug_move
     unlock steering.
     SAS on.
 }
+
+function undock_leave
+{
+    lock inp to terminal:input:getchar().
+    print "Hit 'l' to Undock".
+    wait until inp = "l".
+
+    local dp is assign_ports("undocker").
+
+    if (dp:state = "ready") return.
+
+    local targetport is dp:partner()
+    dp:undock().
+    if (kuniverse:activevessel <> core:vessel)
+    {
+        kuniverse:forcesetactivevessel(core:vessel).
+    }
+    dp:controlfrom().
+
+    local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
+    lock steering to steering_vector.
+
+    print "Leaving via RCS".
+    SAS off.
+    RCS on.
+    set ship:control:fore to -1.
+    wait 20.
+    RCS off.
+    wait 10.
+}

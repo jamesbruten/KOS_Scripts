@@ -301,10 +301,10 @@ function final_landing
     wait 5.
     when (alt:radar < 250) then gear on.
 
-    local pct is stopping_distance() / (distance_to_impact() - 50).
+    local pct is stopping_distance() / (distance_to_impact() - 65).
     until false
     {
-        set pct to stopping_distance() / (distance_to_impact() - 50).
+        set pct to stopping_distance() / (distance_to_impact() - 65).
         if (pct >= 1.0) break.
         clearscreen.
         print "Throttle Percent: " + pct.
@@ -316,7 +316,7 @@ function final_landing
 
     until false
     {
-        set pct to stopping_distance() / (distance_to_impact() - 50).
+        set pct to stopping_distance() / (distance_to_impact() - 65).
         clearscreen.
         print "Throttle Percent: " + pct.
         print "Initial Landing Burn".
