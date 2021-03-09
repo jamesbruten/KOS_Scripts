@@ -218,12 +218,9 @@ function launch_to_vac
     lock throttle to 1.
     wait 1.
     
-    lock steering to heading(needed_az, 0).
+    lock steering to heading(needed_az, 45).
+    when (alt:radar > 2000) then lock steering to heading(needed_az, 0).
     when (ship:periapsis > 0) then lock steering to prograde.
-    until (alt:radar > 1500)
-    {
-        set needed_az to inst_az(orb_inc).
-    }
     until (ship:apoapsis >= ap_height - 100)
     {
         set needed_az to inst_az(orb_inc).
