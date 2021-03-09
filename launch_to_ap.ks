@@ -187,10 +187,6 @@ function launch_to_vac
 
     set steeringmanager:maxstoppingtime to 0.1.
 
-    lock inp to terminal:input:getchar().
-    print "Hit 'l' to launch".
-    wait until inp = "l".
-
     lock throttle to 0.
     list engines in ship_engines.
     for en in ship_engines
@@ -206,12 +202,13 @@ function launch_to_vac
     until (tminus < 1)
     {
         clearscreen.
-        print "Target Apoapsis: " + ap_heigh.
+        print "Target Apoapsis: " + ap_height/1000.
         print "Target Inclination: " + orb_inc.
         print "t-minus: " + tminus.
+        set tminus to tminus - 1.
     }
     clearscreen.
-        print "Target Apoapsis: " + ap_heigh.
+        print "Target Apoapsis: " + ap_height.
         print "Target Inclination: " + orb_inc.
         print "Liftoff".
 

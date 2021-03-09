@@ -9,9 +9,12 @@ if (target:body = ship:body)
     // wait for target orbit to be above ship
     wait_for_window(target, ship).
 
+    retract_solar_panels().
+    wait 5.
+
     // do launch until apoapsis in parking orbit
     if (ship:body = Kerbin) launch_to_ap(true).
-    else if (ship:body:atm:height < 100) launch_to_vac().
+    else if (ship:body:atm:height < 100) launch_to_vac(target_ap, target_inc).
     else
     {
         print "WARNING: Launching to Ap With Kerbin Profile".
@@ -53,6 +56,8 @@ else if (target:body:body = ship:body)
     local t1 is target.
     local tbody is target:body.
     set target to tbody.
+
+    retract_solar_panels().
 
     // do launch until apoapsis in parking orbit
     if (ship:body = Kerbin) launch_to_ap(true).

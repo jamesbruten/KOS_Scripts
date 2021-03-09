@@ -3,7 +3,7 @@ function wait_for_window
     //  waits for srfpos to be underneath orbitable, at launch give target and ship
     parameter orbitable, srfpos.
 
-    if (orbit:orbit:inclination < 5)
+    if (target:orbit:inclination < 5)
     {
         print "Target Orbit Equatorial - No Wait Necessary".
         wait 5.
