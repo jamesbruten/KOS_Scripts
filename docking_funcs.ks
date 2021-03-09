@@ -266,7 +266,7 @@ function undock_leave
 
     if (dp:state = "ready") return.
 
-    local targetport is dp:partner()
+    local targetport is dp:partner().
     dp:undock().
     if (kuniverse:activevessel <> core:vessel)
     {
