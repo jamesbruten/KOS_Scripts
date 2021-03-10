@@ -272,7 +272,6 @@ function undock_leave
     {
         kuniverse:forcesetactivevessel(core:vessel).
     }
-    dp:controlfrom().
 
     local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
     lock steering to steering_vector.

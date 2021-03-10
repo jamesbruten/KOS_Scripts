@@ -42,7 +42,6 @@ function retract_solar_panels
             }
         }
     }
-    wait 5.
 }
 
 function deploy_antenna

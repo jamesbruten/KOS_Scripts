@@ -3,29 +3,29 @@ function moon_return
     lock throttle to 0.
     lock steering to prograde.
 
-    local ang_vel is vang(ship:velocity:orbit, ship:body:velocity).
-    local target_ang is 180.
-    if (ship:orbit:inclination > 90) set target_ang to 0.
-    local diff is abs(ang_vel - target_ang).
+    local pos_ang is vang(ship:position - ship:body:position, kerbin:position - ship:body:position).
+    local target_ang is 0.
+    if (ship:orbit:inclination > 90) set target_ang to 180.
+    local diff is abs(pos_ang - target_ang).
     local warp_level is 0.
     
     until false
     {
         clearscreen.
         print "Warping to Opposite Kerbin".
-        print "Current: " + ang_vel + "    Diff: " + diff + "   Warp Level: " + warp_level.
-        if (diff < 0.2)
+        print "Current: " + pos_ang + "    Diff: " + diff + "   Warp Level: " + warp_level.
+        if (diff < 5)
         {
             set warp to 0.
             wait until ship:unpacked.
             break.
         }
-        else if (diff < 1)
+        else if (diff < 6)
         {
             set warp to 2.
             set warp_level to 2.
         }
-        else if (diff < 10)
+        else if (diff < 12)
         {
             set warp to 4.
             set warp_level to 4.
@@ -35,10 +35,12 @@ function moon_return
             set warp to 5.
             set warp_level to 5.
         }
+        set pos_ang to vang(ship:position - ship:body:position, kerbin:position - ship:body:position).
+        set diff to abs(pos_ang - target_ang).
     }
 
     wait 10.
-    lock throttle to 0.
+    lock throttle to 1.
     until false
     {
         if (ship:orbit:hasnextpatch)
@@ -47,6 +49,7 @@ function moon_return
         }
     }
     lock throttle to 0.
+    lock steering to retrograde.
 
     print "Warping to Next Body".
     local old_body is ship:body.
@@ -85,6 +88,9 @@ function reentry
     print "Hit 'l' to continue".
     wait until inp = "l".
     AG9 on. 
+    wait 10.
+
+    deploy_dp_shield().
 
     set warp to 4.
     wait until ship:altitude < 70000.
