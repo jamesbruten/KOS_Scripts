@@ -1,5 +1,6 @@
-local target_lat is 1.1.
-local target_lng is -104.2.
+local target_lat is 2.6.
+local target_lng is -58.4.
+local tbody is Mun.
 
 undock_leave().
 
@@ -12,7 +13,7 @@ for en in ship_engines
     en:activate.
 }
 
-if (ship:body = target)
+if (ship:body = tbody)
 {
     if (ship:apoapsis > 100000)
     {

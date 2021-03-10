@@ -258,6 +258,12 @@ function kss_tug_move
 
 function undock_leave
 {
+    lock inp1 to terminal:input:getchar().
+    print "Hit 'u' to undock or 'c' to continue without undocking".
+    wait until inp1 = "c" or inp = "u".
+
+    if (inp1 = "c") return.
+
     lock inp to terminal:input:getchar().
     print "Hit 'l' to Undock".
     wait until inp = "l".
@@ -272,6 +278,7 @@ function undock_leave
     {
         kuniverse:forcesetactivevessel(core:vessel).
     }
+    wait 1.
 
     local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
     lock steering to steering_vector.
