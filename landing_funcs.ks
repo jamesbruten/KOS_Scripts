@@ -334,6 +334,7 @@ function final_landing
             }
             if (skycrane = false)
             {
+                wait 0.5.
                 lock throttle to 0.
                 unlock steering.
                 clearscreen.
@@ -369,7 +370,8 @@ function stopping_distance
 
 function touch_down_throttle
 {
-    if (ship:verticalspeed > -0.5) return 0.
+    //  Returns Throttle needed to stop at +3m or 75% of grav acceleration 
+    if (ship:verticalspeed > -0.5) return 0.75 * (ship:mass * ship:body:mu) / (ship:availablethrust/1000 * ship:body:radius^2).
     else return stopping_distance() / (alt:radar - 3).
 }
 
