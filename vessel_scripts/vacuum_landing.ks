@@ -1,5 +1,5 @@
-local target_lat is 2.6.
-local target_lng is -58.4.
+local target_lat is 4.27.
+local target_lng is 147.9.
 local tbody is Mun.
 
 undock_leave().
@@ -24,7 +24,7 @@ if (ship:body = tbody)
     }
     else if (ship:orbit:eccentricity > 0.002)
     {
-        adjust_apsides("p", ship:periapsis).
+        adjust_apsides("a", ship:apoapsis).
     }
 }
 

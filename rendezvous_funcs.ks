@@ -365,7 +365,7 @@ function closest_approach
     local t is start_time.
     local min_dist is 2^64.
     local min_time is 0.
-    until (t > end_time)
+    until false
     {
         local dist is positionat(ship, t) - positionat(target, t).
         set dist to dist:mag.
@@ -375,6 +375,7 @@ function closest_approach
             set min_dist to dist.
             set min_time to t.
         }
+        if (dist > min_dist + 1) break.
         set t to t + 1.
     }
     return list(min_time, min_dist).

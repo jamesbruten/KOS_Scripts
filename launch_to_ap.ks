@@ -197,6 +197,7 @@ function launch_to_vac
     lock steering to lookdirup(up:forevector, ship:facing:topvector).
 
     local needed_az is inst_az(orb_inc).
+    local last_heading is needed_az.
     
     local tminus is 5.
     until (tminus < 1)
@@ -206,21 +207,27 @@ function launch_to_vac
         print "Target Inclination: " + orb_inc.
         print "t-minus: " + tminus.
         set tminus to tminus - 1.
+        wait 1.
     }
     clearscreen.
-        print "Target Apoapsis: " + ap_height.
-        print "Target Inclination: " + orb_inc.
-        print "Liftoff".
+    print "Target Apoapsis: " + ap_height.
+    print "Target Inclination: " + orb_inc.
+    print "Liftoff".
 
     lock throttle to 1.
     wait 1.
     
     lock steering to heading(needed_az, 45).
-    when (alt:radar > 2000) then lock steering to heading(needed_az, 0).
-    when (ship:periapsis > 0) then lock steering to prograde.
+    gear off.
+    when (alt:radar > 1000) then lock steering to heading(needed_az, 0).
     until (ship:apoapsis >= ap_height - 100)
     {
-        set needed_az to inst_az(orb_inc).
+        if (ship:periapsis < -30000)
+        {
+           set needed_az to inst_az(orb_inc).
+           set last_heading to needed_az.
+        }
+        else set needed_az to last_heading.
     }
     print "Shutdown".
     lock throttle to 0.
