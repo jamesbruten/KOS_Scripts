@@ -463,6 +463,7 @@ function ground_track
 function pid_landing
 {
     activate_engines().
+    lock steering to srfretrograde.
 
     local s_point is 250.
 
