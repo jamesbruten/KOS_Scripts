@@ -24,7 +24,7 @@ function pid_throttle_height
 
     global Kp_height is 0.2.
     global Ki_height is 0.
-    global Kd_height is 0.4.
+    global Kd_height is 0.2.
 
     global pid_height is pidloop(Kp_height, Ki_height, Kd_height, 0, 1).
     set pid_height:setpoint to target_height.

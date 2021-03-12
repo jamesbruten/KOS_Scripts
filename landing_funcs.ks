@@ -371,7 +371,7 @@ function stopping_distance
 function touch_down_throttle
 {
     //  Returns Throttle needed to stop at +3m or 75% of grav acceleration 
-    if (ship:verticalspeed > -0.5) return 0.75 * (ship:mass * ship:body:mu) / (ship:availablethrust/1000 * ship:body:radius^2).
+    if (ship:verticalspeed > -0.5) return 0.75 * (1000 * ship:mass * ship:body:mu) / (ship:availablethrust * ship:body:radius^2).
     else return stopping_distance() / (alt:radar - 3).
 }
 
@@ -458,4 +458,23 @@ function ground_track
 	IF newLNG < - 180 { set newLNG to newLNG + 360. }
 	IF newLNG > 180 { set newLNG to newLNG - 360. }
 	return latlng(posLATLNG:LAT,newLNG).
+}
+
+function pid_landing
+{
+    activate_engines().
+
+    local s_point is 250.
+
+    pid_throttle_height(s_point).
+
+    until false
+    {
+        set thrott_pid to min(1, max(0, thrott_pid + pid_height:update(time:seconds, alt:radar))).
+        if (alt:radar < s_point and s_point > 50)
+        {
+            set s_point to s_point - 25.
+            set pid_height:setpoint to s_point.
+        }
+    }
 }
