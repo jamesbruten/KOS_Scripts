@@ -145,7 +145,7 @@ function prograde_climb
         set needed_az to inst_az(target_inc).
         set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
 
-        if (fairings_deployed = false and alt:radar > 60000)
+        if (fairings_deployed = false and alt:radar > 55000)
         {
             set fairings_deployed to true.
             deploy_fairing().
@@ -176,7 +176,7 @@ function prograde_climb
 
     if (fairings_deployed = false)
     {
-        until (alt:radar > 60000) wait 0.1.
+        until (alt:radar > 55000) wait 0.1.
         deploy_fairing().
     }
 }

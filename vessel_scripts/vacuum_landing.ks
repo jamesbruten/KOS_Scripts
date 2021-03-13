@@ -1,5 +1,5 @@
-local target_lat is 4.27.
-local target_lng is 147.9.
+local target_lat is 1.2.
+local target_lng is -110.2.
 local tbody is Mun.
 
 undock_leave().
