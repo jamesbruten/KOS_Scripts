@@ -1,6 +1,6 @@
-local target_lat is 1.2.
-local target_lng is -110.2.
-local tbody is Mun.
+local target_lat is -69.1.
+local target_lng is -29.9.
+local tbody is Minmus.
 
 undock_leave().
 
@@ -40,6 +40,7 @@ correct_landing_inc(target_lat, target_lng, eta_landing, true).
 
 intercept_landing_site(target_lat, target_lng).
 
-final_landing(false).
+// final_landing(false).
+pid_landing(false).
 
 deploy_solar_panels().

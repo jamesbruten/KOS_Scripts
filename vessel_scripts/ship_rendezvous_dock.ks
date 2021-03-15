@@ -6,34 +6,34 @@ if (target:body = ship:body)
     global target_ap_km is target_ap/1000.
     global target_pe_km is target_pe/1000.
 
-    // wait for target orbit to be above ship
-    wait_for_window(target, ship).
+    // // wait for target orbit to be above ship
+    // wait_for_window(target, ship).
 
-    retract_solar_panels().
-    wait 5.
+    // retract_solar_panels().
+    // wait 5.
 
-    // do launch until apoapsis in parking orbit
-    if (ship:body = Kerbin) launch_to_ap(true).
-    else if (ship:body:atm:height < 100) launch_to_vac(target_ap, target_inc).
-    else
-    {
-        print "WARNING: Launching to Ap With Kerbin Profile".
-        launch_to_ap(true).
-    }
+    // // do launch until apoapsis in parking orbit
+    // if (ship:body = Kerbin) launch_to_ap(true).
+    // else if (ship:body:atm:height < 100) launch_to_vac(target_ap, target_inc).
+    // else
+    // {
+    //     print "WARNING: Launching to Ap With Kerbin Profile".
+    //     launch_to_ap(true).
+    // }
 
-    lights on.
+    // lights on.
 
-    // circularise parking orbit
-    adjust_apsides("a", ship:apoapsis).
+    // // circularise parking orbit
+    // adjust_apsides("a", ship:apoapsis).
 
-    wait 5.
-    // deploy_payload("payload").
-    // activate_engines().
-    deploy_solar_panels().
-    deploy_dp_shield().
-    deploy_antenna().
+    // wait 5.
+    // // deploy_payload("payload").
+    // // activate_engines().
+    // deploy_solar_panels().
+    // deploy_dp_shield().
+    // deploy_antenna().
 
-    match_inclination().
+    // match_inclination().
 
     transfer_orbit().
 

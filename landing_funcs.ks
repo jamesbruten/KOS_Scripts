@@ -314,6 +314,7 @@ function final_landing
 
     lock throttle to max(0, min(pct, 1)).
 
+    when (ship:groundspeed < 0.15) then lock steering to lookdirup(up:forevector, ship:facing:topvector).
     until false
     {
         set pct to stopping_distance() / (distance_to_impact() - 65).
@@ -323,7 +324,6 @@ function final_landing
 
         if (alt:radar < 65 or ship:verticalspeed >= 0 or abs(ship:groundspeed) < 0.2)
         {
-            when (ship:groundspeed < 0.15) then lock steering to lookdirup(up:forevector, ship:facing:topvector).
             until false
             {
                 set pct to touch_down_throttle().
@@ -399,6 +399,70 @@ function skycrane_decouple
             wait until ship:apoapsis > a + 4000.
             wait 2.
             lock throttle to 0.
+        }
+    }
+}
+
+function pid_landing
+{
+    parameter skycrane.
+
+    lock steering to srfretrograde.
+    wait 5.
+    when (alt:radar < 250) then gear on.
+
+    local pct is stopping_distance() / (distance_to_impact() - 65).
+    until false
+    {
+        set pct to stopping_distance() / (distance_to_impact() - 65).
+        if (pct >= 1.0) break.
+        clearscreen.
+        print "Throttle Percent: " + pct.
+        print "Waiting for Landing Burn".
+        wait 0.1.
+    }
+
+    lock throttle to max(0, min(pct, 1)).
+
+    when (ship:groundspeed < 0.15) then lock steering to lookdirup(up:forevector, ship:facing:topvector).
+    until false
+    {
+        set pct to stopping_distance() / (distance_to_impact() - 65).
+        clearscreen.
+        print "Throttle Percent: " + pct.
+        print "Initial Landing Burn".
+
+        if (alt:radar < 65)
+        {
+            pid_throttle_vspeed().
+            when (alt:radar < 15) then set pid_vspeed:setpoint to -2.
+            when (alt:radar < 7) then set pid_vspeed:setpoint to -1.
+            until false
+            {
+                set thrott_pid to min(1, max(0, pid_vspeed:update(time:seconds, ship:verticalspeed))).
+                clearscreen.
+                print "Final Landing Burn".
+                print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2).
+                if (ship:status = "landed" or abs(ship:verticalspeed) < 0.2) break.
+            }
+            if (skycrane = false)
+            {
+                wait 0.5.
+                lock throttle to 0.
+                unlock steering.
+                clearscreen.
+                print "Touch Down".
+                print "Throttle Zero".
+                print "Steering Unlocked".
+                break.
+            }
+            else
+            {
+                brakes on.
+                print "Decouple Rover".
+                skycrane_decouple().
+                break.
+            }
         }
     }
 }
