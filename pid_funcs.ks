@@ -41,7 +41,7 @@ function pid_throttle_vspeed
     global Kd_vspeed is 0.05.
 
     global pid_vspeed is pidloop(Kp_vspeed, Ki_vspeed, Kd_vspeed, 0, 1).
-    set pid_vspeed:setpoint to -7.5.
+    set pid_vspeed:setpoint to ship:verticalspeed.
 
     global thrott_pid is 0.
     lock throttle to thrott_pid.

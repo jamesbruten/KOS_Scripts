@@ -434,6 +434,7 @@ function pid_landing
 
         if (alt:radar < 65)
         {
+            local params is landing_vspeed().
             pid_throttle_vspeed().
             when (alt:radar < 15) then set pid_vspeed:setpoint to -2.
             when (alt:radar < 7) then set pid_vspeed:setpoint to -1.
@@ -465,4 +466,9 @@ function pid_landing
             }
         }
     }
+}
+
+function landing_vspeed
+{
+
 }
