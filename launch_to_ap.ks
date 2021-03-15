@@ -128,7 +128,7 @@ function prograde_climb
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
     set needed_az to inst_az(target_inc).
 
-    lock steering to heading(needed_az, prograde_pitch).
+    lock steering to heading(needed_az, current_pitch).
 
     when (alt:radar > 27000) then set pid_gforce:setpoint to 3.0.
     when (alt:radar > 60000) then set min_pitch to 8.

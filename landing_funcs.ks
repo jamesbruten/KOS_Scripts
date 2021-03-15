@@ -434,12 +434,11 @@ function pid_landing
 
         if (alt:radar < 65)
         {
-            local params is landing_vspeed().
+            // local params is landing_vspeed().
             pid_throttle_vspeed().
-            when (alt:radar < 15) then set pid_vspeed:setpoint to -2.
-            when (alt:radar < 7) then set pid_vspeed:setpoint to -1.
             until false
             {
+                set pid_vspeed:setpoint to min(6.2 - 4.3 * ln(alt:radar), -1).
                 set thrott_pid to min(1, max(0, pid_vspeed:update(time:seconds, ship:verticalspeed))).
                 clearscreen.
                 print "Final Landing Burn".
@@ -470,5 +469,11 @@ function pid_landing
 
 function landing_vspeed
 {
-
+    local a1 is alt:radar.
+    local a2 is 7.
+    local v1 is ship:verticalspeed.
+    local v2 is -1.
+    local m is (v2 - v1) / (a2 - a1).
+    local c is v1 - m * a1.
+    return list(m, c).
 }
