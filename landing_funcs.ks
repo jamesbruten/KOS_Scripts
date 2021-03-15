@@ -434,7 +434,6 @@ function pid_landing
 
         if (alt:radar < 65)
         {
-            // local params is landing_vspeed().
             pid_throttle_vspeed().
             until false
             {
@@ -465,15 +464,4 @@ function pid_landing
             }
         }
     }
-}
-
-function landing_vspeed
-{
-    local a1 is alt:radar.
-    local a2 is 7.
-    local v1 is ship:verticalspeed.
-    local v2 is -1.
-    local m is (v2 - v1) / (a2 - a1).
-    local c is v1 - m * a1.
-    return list(m, c).
 }
