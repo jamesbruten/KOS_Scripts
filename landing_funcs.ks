@@ -37,12 +37,12 @@ function wait_for_landing
             wait until ship:unpacked.
             break.
         }
-        else if (diff < 0.5)
+        else if (diff < 0.35)
         {
             set warp to 2.
             set warp_level to 2.
         }
-        else if (diff < 5)
+        else if (diff < 1.3)
         {
             set warp to 4.
             set warp_level to 4.
@@ -184,7 +184,7 @@ function correct_landing_inc
 {
     parameter landing_lat, landing_lng, eta_landing, warp_mode.
 
-    set landing_lng to landing_lng + 360 * eta:periapsis / body:rotationperiod.
+    // set landing_lng to landing_lng + 360 * eta:periapsis / body:rotationperiod.
 
     if (warp_mode = true)
     {
@@ -276,7 +276,7 @@ function intercept_landing_site
             print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
             print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
             print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
-            set tot_diff_new to diff_lat + diff_lng.
+            set tot_diff_new to diff_lng.
             if (tot_diff_new > tot_diff_old and diff_lng < 0.5 and diff_lat < 1.0)
             {
                 lock throttle to 0.
