@@ -438,10 +438,11 @@ function pid_landing
         {
             local params is line_params(ship:verticalspeed, -7.5, alt:radar, 20).
             when (alt:radar < 20) then set params to line_params(-7.5, -1, 20, 5).
+            when (alt:radar < 5) then set params to list(0, -1).
             pid_throttle_vspeed().
             until false
             {
-                set pid_vspeed:setpoint to min(params[0] * alt:radar + params[1], -1).
+                set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
                 set thrott_pid to min(1, max(0, pid_vspeed:update(time:seconds, ship:verticalspeed))).
                 clearscreen.
                 print "Final Landing Burn".
