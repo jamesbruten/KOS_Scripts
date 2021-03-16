@@ -184,6 +184,8 @@ function correct_landing_inc
 {
     parameter landing_lat, landing_lng, eta_landing, warp_mode.
 
+    set landing_lng to landing_lng + 360 * eta:periapsis / body:rotationperiod.
+
     if (warp_mode = true)
     {
         local wait_time is 2 * (eta_landing - time:seconds) / 3.
