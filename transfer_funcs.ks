@@ -209,7 +209,7 @@ function moon_transfer
     // Target Body Orbit Params
     local tbody is Minmus.
     set target to tbody.
-    global next_inc is 25.
+    global next_inc is 60.
     global next_ap_km is 50.
     global next_pe_km is next_ap_km.
     global next_ap is next_ap_km * 1000.
@@ -237,16 +237,16 @@ function moon_transfer
     activate_engines().
     wait 5.
 
-    // if (kuniverse:activevessel <> core:vessel)
-    // {
-    //     kuniverse:forcesetactivevessel(core:vessel).
-    //     unlock steering.
-    //     set target to tbody.
-    //     AG1 on.
-    //     wait 5.
-    //     lock steering to prograde.
-    //     wait 5.
-    // }
+    if (kuniverse:activevessel <> core:vessel)
+    {
+        kuniverse:forcesetactivevessel(core:vessel).
+        unlock steering.
+        set target to tbody.
+        AG1 on.
+        wait 5.
+        lock steering to prograde.
+        wait 5.
+    }
 
     moon_midcourse_correction().
     wait 5.
