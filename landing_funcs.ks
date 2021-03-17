@@ -70,10 +70,10 @@ function lower_periapsis_lng
     local transfer_t is 2*constant:pi*sqrt(transfer_semimajor^3 / body:mu). // orbital period of transfer orbit.
     local body_rot is  360 * 0.5 * transfer_t / body:rotationperiod.
 
+    set landing_lng to landing_lng + body_rot.
+    if (landing_lng > 180) set landing_lng to landing_lng - 360.
     local burn_lng is landing_lng - 180.
     if (burn_lng < -180) set burn_lng to burn_lng + 360.
-    set burn_lng to burn_lng + body_rot.
-    if (burn_lng > 180) set burn_lng to burn_lng - 360.
 
     local a1 is burn_lng + 180.
     if (a1 >= 360) set a1 to a1 - 360.
