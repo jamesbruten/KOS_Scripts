@@ -7,7 +7,8 @@ function wait_for_landing
     // will wait until landing site within this angle of orbit
     local ang_error is 360 * ship:orbit:period / body:rotationperiod.
     print "ang_error: " + ang_error.
-    set landing_long to landing_long - ang_error.
+    wait 5.
+    set landing_long to landing_long + ang_error.
     if (landing_long < -180) set landing_long to landing_long + 360.
 
     if (ship:orbit:inclination < 5)
@@ -56,7 +57,7 @@ function wait_for_landing
         print "Warping to " + 90 + " Deg Normal Angle".
         print round(ang, 2) + "      " + round(diff, 2) + "      " + warp_level.
     }
-    wait 3.
+    wait 1.
 }
 
 function lower_periapsis_lng
@@ -128,9 +129,18 @@ function lower_periapsis_lng
 function lower_periapsis_lat
 {
     // waits until opposite landing site then lowers periapsis to 9000m
-    parameter landing_lat.
+    parameter landing_lat, landing_lng.
 
     local p_val is 1.15 * body:radius - body:radius.
+    until false
+    {
+        if (p_val - latlng(landing_lat,landing_lng):terrainheight < 7000) set p_val to p_val + 1000.
+        else break.
+    }
+    print p_val.
+
+    set landing_lng to landing_lng + 360*ship:orbit:period/body:rotationperiod.
+    if (landing_lng > 180) set landing_lng to landing_lng - 360.
 
     local burn_lat is -1 * landing_lat.
 
@@ -140,11 +150,14 @@ function lower_periapsis_lat
     {
         local a2 is ship:geoposition:lat.
         local diff is abs(a1 - a2).
+        local lng is ship:geoposition:lng + 180.
+        local diff_lng is abs(landing_lng - lng).
+        if (diff_lng > 180) set diff_lng to diff_lng - 180.
         clearscreen.
         print "Warping to Latitude: " + burn_lat.
-        print round(ship:geoposition:lat, 2) + "     " + round(diff, 2) + "     " + warp_level.
+        print round(ship:geoposition:lat, 2) + "     " + round(diff, 2) + "     " + round(diff_lng, 2) + "     " + warp_level.
 
-        if (diff < 1)
+        if (diff < 1 and diff_lng > 0)
         {
             set warp to 0.
             wait until ship:unpacked.
@@ -184,8 +197,6 @@ function correct_landing_inc
 {
     parameter landing_lat, landing_lng, eta_landing, warp_mode.
 
-    // set landing_lng to landing_lng + 360 * eta:periapsis / body:rotationperiod.
-
     if (warp_mode = true)
     {
         local wait_time is 2 * (eta_landing - time:seconds) / 3.
@@ -200,6 +211,9 @@ function correct_landing_inc
     local normal is vcrs(ship:velocity:orbit, -body:position).
     lock steering to normal.
     wait 10.
+    
+    set landing_lng to landing_lng + 360 * (eta_landing - time:seconds) / body:rotationperiod.
+    if (landing_lng > 180) set landing_lng to landing_lng - 360.
 
     local vel_vect is vxcl(up:vector, ship:velocity:orbit).
     local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
@@ -240,18 +254,15 @@ function correct_landing_inc
 
 function intercept_landing_site
 {
-    parameter landing_lat, landing_lng.
+    parameter landing_lat, landing_lng, eta_landing.
 
     local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
-    local wait_time is eta:periapsis - (3 * cancel_dv_time + 45).
+    local wait_time is eta:periapsis - (3 * cancel_dv_time + 120).
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 5).
     wait until time:seconds > wait_end.
 
-    correct_landing_inc(landing_lat, landing_lng, 0, false).
-
-    // local delta_lng is 360 * eta:periapsis / ship:body:rotationperiod.
-    // set landing_lng to landing_lng + delta_lng.
+    correct_landing_inc(landing_lat, landing_lng, eta_landing, false).
 
     print("Impacting Landing Site").
 
@@ -277,7 +288,7 @@ function intercept_landing_site
             print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
             print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
             set tot_diff_new to diff_lng.
-            if (tot_diff_new > tot_diff_old and diff_lng < 0.5 and diff_lat < 1.0)
+            if (tot_diff_new > tot_diff_old and diff_lat < 0.25)
             {
                 lock throttle to 0.
                 wait 0.5.
@@ -295,18 +306,28 @@ function intercept_landing_site
     wait 5.
 }
 
-function final_landing
+
+function pid_landing
 {
-    parameter skycrane.
+    parameter skycrane, landing_lat, landing_lng.
 
     lock steering to srfretrograde.
     wait 5.
     when (alt:radar < 250) then gear on.
 
     local pct is stopping_distance() / (distance_to_impact() - 65).
+    local check is false.
     until false
     {
         set pct to stopping_distance() / (distance_to_impact() - 65).
+        if (pct > 0.08 and check = false)
+        {
+            local impact_data is impact_UTs().
+            local time_to_impact is impact_data["time"].
+            correct_landing_inc(landing_lat, landing_lng, time_to_impact, false).
+            lock steering to srfretrograde.
+            set check to true.
+        }
         if (pct >= 1.0) break.
         clearscreen.
         print "Throttle Percent: " + pct.
@@ -324,15 +345,21 @@ function final_landing
         print "Throttle Percent: " + pct.
         print "Initial Landing Burn".
 
-        if (alt:radar < 65 or ship:verticalspeed >= 0 or abs(ship:groundspeed) < 0.2)
+        if (alt:radar < 65)
         {
+            local params is line_params(ship:verticalspeed, -7.5, alt:radar, 20).
+            when (alt:radar < 20) then set params to line_params(-7.5, -1, 20, 5).
+            when (alt:radar < 5) then set params to list(0, -1).
+            pid_throttle_vspeed().
             until false
             {
-                set pct to touch_down_throttle().
+                set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
+                set thrott_pid to min(1, max(0, pid_vspeed:update(time:seconds, ship:verticalspeed))).
                 clearscreen.
-                print "Throttle Percent: " + pct.
                 print "Final Landing Burn".
-                if (ship:status = "landed" or alt:radar < 3) break.
+                print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2).
+                print "m: " + round(params[0], 2) + "  c: " + params[1].
+                if (ship:status = "landed" or abs(ship:verticalspeed) < 0.2) break.
             }
             if (skycrane = false)
             {
@@ -405,72 +432,7 @@ function skycrane_decouple
     }
 }
 
-function pid_landing
-{
-    parameter skycrane.
 
-    lock steering to srfretrograde.
-    wait 5.
-    when (alt:radar < 250) then gear on.
-
-    local pct is stopping_distance() / (distance_to_impact() - 65).
-    until false
-    {
-        set pct to stopping_distance() / (distance_to_impact() - 65).
-        if (pct >= 1.0) break.
-        clearscreen.
-        print "Throttle Percent: " + pct.
-        print "Waiting for Landing Burn".
-        wait 0.1.
-    }
-
-    lock throttle to max(0, min(pct, 1)).
-
-    when (ship:groundspeed < 0.15) then lock steering to lookdirup(up:forevector, ship:facing:topvector).
-    until false
-    {
-        set pct to stopping_distance() / (distance_to_impact() - 65).
-        clearscreen.
-        print "Throttle Percent: " + pct.
-        print "Initial Landing Burn".
-
-        if (alt:radar < 65)
-        {
-            local params is line_params(ship:verticalspeed, -7.5, alt:radar, 20).
-            when (alt:radar < 20) then set params to line_params(-7.5, -1, 20, 5).
-            when (alt:radar < 5) then set params to list(0, -1).
-            pid_throttle_vspeed().
-            until false
-            {
-                set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
-                set thrott_pid to min(1, max(0, pid_vspeed:update(time:seconds, ship:verticalspeed))).
-                clearscreen.
-                print "Final Landing Burn".
-                print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2).
-                print "m: " + round(params[0], 2) + "  c: " + params[1].
-                if (ship:status = "landed" or abs(ship:verticalspeed) < 0.2) break.
-            }
-            if (skycrane = false)
-            {
-                wait 0.5.
-                lock throttle to 0.
-                unlock steering.
-                clearscreen.
-                print "Touch Down".
-                print "Throttle Zero".
-                print "Steering Unlocked".
-                break.
-            }
-            else
-            {
-                brakes on.
-                print "Decouple Rover".
-                skycrane_decouple().
-                break.
-            }
-        }
-    }
-}
 
 function line_params
 {
