@@ -66,6 +66,11 @@ function lower_periapsis_lng
     parameter landing_lng.
 
     local p_val is 1.15 * body:radius - body:radius.
+    until false
+    {
+        if (p_val - latlng(landing_lat,landing_lng):terrainheight < 7000) set p_val to p_val + 1000.
+        else break.
+    }
 
     local transfer_semimajor is (ship:orbit:semimajoraxis + p_val + body:radius) / 2.
     local transfer_t is 2*constant:pi*sqrt(transfer_semimajor^3 / body:mu). // orbital period of transfer orbit.
@@ -116,7 +121,7 @@ function lower_periapsis_lng
     print "Pointing Retrograde".
     lock steering to retrograde.
     wait 15.
-    print "Retrograde Burn".
+    print "Retrograde Burn until: " + p_val.
     lock throttle to 0.25.
     wait until ship:periapsis < p_val+100.
     lock throttle to 0.
@@ -137,7 +142,6 @@ function lower_periapsis_lat
         if (p_val - latlng(landing_lat,landing_lng):terrainheight < 7000) set p_val to p_val + 1000.
         else break.
     }
-    print p_val.
 
     set landing_lng to landing_lng + 360*ship:orbit:period/body:rotationperiod.
     if (landing_lng > 180) set landing_lng to landing_lng - 360.
@@ -183,7 +187,7 @@ function lower_periapsis_lat
     print "Pointing Retrograde".
     lock steering to retrograde.
     wait 10.
-    print "Retrograde Burn".
+    print "Retrograde Burn until: " + p_val.
     lock throttle to 0.25.
     wait until ship:periapsis < p_val+100.
     lock throttle to 0.
@@ -345,11 +349,11 @@ function pid_landing
         print "Throttle Percent: " + pct.
         print "Initial Landing Burn".
 
-        if (alt:radar < 65)
+        if (alt:radar < 65 or pct < 0 or pct > 1.4)
         {
-            local params is line_params(ship:verticalspeed, -7.5, alt:radar, 20).
-            when (alt:radar < 20) then set params to line_params(-7.5, -1, 20, 5).
-            when (alt:radar < 5) then set params to list(0, -1).
+            local params is line_params(ship:verticalspeed, -7.5, alt:radar, 30).
+            when (alt:radar < 20) then set params to line_params(-7.5, -1, 20, 15).
+            when (alt:radar < 15) then set params to list(0, -1).
             pid_throttle_vspeed().
             until false
             {
@@ -431,7 +435,6 @@ function skycrane_decouple
         }
     }
 }
-
 
 
 function line_params
