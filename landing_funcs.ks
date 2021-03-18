@@ -352,7 +352,7 @@ function pid_landing
         if (alt:radar < 65 or pct < 0 or pct > 1.4)
         {
             local params is line_params(ship:verticalspeed, -7.5, alt:radar, 30).
-            when (alt:radar < 20) then set params to line_params(-7.5, -1, 20, 15).
+            when (alt:radar < 30) then set params to line_params(-7.5, -1, 30, 15).
             when (alt:radar < 15) then set params to list(0, -1).
             pid_throttle_vspeed().
             until false
@@ -362,7 +362,6 @@ function pid_landing
                 clearscreen.
                 print "Final Landing Burn".
                 print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2).
-                print "m: " + round(params[0], 2) + "  c: " + params[1].
                 if (ship:status = "landed" or abs(ship:verticalspeed) < 0.2) break.
             }
             if (skycrane = false)
