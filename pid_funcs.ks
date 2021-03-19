@@ -36,7 +36,7 @@ function pid_throttle_height
 
 function pid_throttle_vspeed
 {
-    global Kp_vspeed is 1.0.
+    global Kp_vspeed is 0.4.
     global Ki_vspeed is 0.
     global Kd_vspeed is 0.05.
 

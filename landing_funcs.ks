@@ -306,31 +306,84 @@ function initial_landing_burn
     lock steering to srfretrograde.
 
     local time_of_closest is calc_closest_approach(landing_lat, landing_lng).
-    local time_to_closest is time_of_closest - time:seconds.
 
+    // until false
+    // {
+    //     local time_to_closest is time_of_closest - time:seconds.
+    //     local speed is ship:velocity:surface:mag.
+    //     local burn_time is calc_burn_time(speed).
+    //     if (time_to_closest - burn_time < 1) break.
+    //     clearscreen.
+    //     print "Delta T: " + round(time_to_closest-burn_time,2) + "    Tclose: " + round(time_to_closest,2) + "    BT: " + round(burn_time,2).
+    // }
     until false
     {
         local speed is ship:velocity:surface:mag.
         local burn_time is calc_burn_time(speed).
-        if (time_to_closest - burn_time < 1) break.
+        local time_to_closest is time_of_closest - time:seconds.
+        local dclose is ship:velocity:surface:mag * time_to_closest.
+        local dstop is dist_during_burn(burn_time, ship:groundspeed, ship:groundspeed).
+        if (dclose - dstop < 2500) break.
         clearscreen.
-        print "Delta T: " + round(time_to_closest - burn_time, 2) + "    Tclose: " + round(time_to_closest,2) + "    BT: " + burn_time.
+        print "Diff: " + round(dclose-dstop, 2) + "    Dclose: " + round(dclose, 2) + "    Dstop: " + round(dstop, 2).
     }
 
     lock throttle to 1.
-    wait until ship:velocity:surface:mag < 15.
+    until false
+    {
+        clearscreen.
+        print "Surface Vel: " + round(ship:velocity:surface:mag, 2).    
+        if (ship:velocity:surface:mag < 20) break.
+    }
+    lock throttle to 0.
+    wait 0.01.
 }
 
 function final_landing_burn
 {
     parameter landing_lat, landing_lng.
 
+    local landing_spot is latlng(landing_lat, landing_lng).
+
     pid_throttle_vspeed().
-    set pid_vspeed:setpoint to 0.
+    when (ship:groundspeed < 0.5) then lock steering to lookdirup(up:forevector, ship:facing:topvector).
+    when (alt:radar < 250) then gear on.
     until false
     {
+        local params is landing_speed_params().
+        set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
         set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
+        clearscreen.
+        print "Final Landing Burn".
+        print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2) + "   Target: " + round(pid_vspeed:setpoint, 2).
+        print "TDist: " + round(landing_spot:position:mag, 2).
+        clearvecdraws().
+        vecdraw(v(0,0,0), landing_spot:position, RGB(1,0,0), "Tgt", 1, True, 0.2, True, True).
+        if (ship:status = "landed" or abs(ship:verticalspeed) < 0.2) break.
     }
+    wait 0.5.
+    lock throttle to 0.
+    unlock steering.
+    clearscreen.
+    print "Touch Down".
+    print "Throttle Zero".
+    print "Steering Unlocked".
+}
+
+function landing_speed_params
+{
+    if (alt:radar < 15) return list(0, -1).
+    if (alt:radar < 30) return line_params(-7.5, -1, 30, 15).
+    if (alt:radar < 80) return line_params(-20, -7.5, 80, 30).
+    if (alt:radar < 500) return list(0, -20).
+    return list(0, -50).
+}
+
+function dist_during_burn
+{
+    parameter burn_time, burn_dv, speed.
+    local mean_acc is burn_dv / burn_time.
+    return speed * burn_time - 0.5 * mean_acc * burn_time * burn_time.
 }
 
 function calc_closest_approach
@@ -342,19 +395,22 @@ function calc_closest_approach
     local landing_spot is latlng(landing_lat, landing_lng).
     local min_dist is 2^50.
     local min_time is 0.
+    local min_pos is 0.
 
     until false
     {
-        local dist is positionat(ship, t_calc)  - positionat(landing_spot, t_calc).
+        local ship_pos is positionat(ship, t_calc).
+        local dist is ship_pos  - landing_spot:position.
         if (dist:mag < min_dist)
         {
             set min_dist to dist:mag.
-            set min:time to t_calc.
+            set min_time to t_calc.
+            set min_pos to ship_pos.
         }
         else break.
         set t_calc to t_calc - 1.
     }
-    return t_calc.
+    return min_time.
 }
 
 
