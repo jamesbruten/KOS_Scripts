@@ -273,41 +273,88 @@ function intercept_landing_site
     lock steering to retrograde.
     wait 10.
     lock throttle to 1.
-    local tot_diff_old is 1000.
-    local tot_diff_new is 1000.
-    local diff_lng is 100.
-    when (diff_lng < 2) then lock throttle to 0.5.
+    wait until addons:tr:hasimpact = True.
+    wait 1.
     until false
     {
-        if addons:tr:hasimpact
+        local impact_lat is addons:tr:impactpos:lat.
+        local impact_lng is addons:tr:impactpos:lng.
+
+        local diff_lat is abs(impact_lat - landing_lat).
+        local diff_lng is abs(impact_lng - landing_lng).
+        if (diff_lng > 180) set diff_lng to 360 - diff_lng.
+
+        if (diff_lat < 5)
         {
-            local impact_lat is addons:tr:impactpos:lat.
-            local impact_lng is addons:tr:impactpos:lng.
-            local diff_lat is abs(impact_lat - landing_lat).
-            set diff_lng to abs(impact_lng - landing_lng).
-            if (abs(landing_lat) > 80) set diff_lng to 0.
-            if (diff_lng > 180) set diff_lng to 360 - diff_lng.
-            clearscreen.
-            print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
-            print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
-            print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
-            set tot_diff_new to diff_lng.
-            if (tot_diff_new > tot_diff_old and diff_lat < 0.25)
-            {
-                lock throttle to 0.
-                wait 0.5.
-                break.
-            }
-            if (ship:groundspeed < 20)
-            {
-                lock throttle to 0.
-                wait 0.5.
-                break.
-            }
-            set tot_diff_old to tot_diff_new.
+            if (diff_lng < 5) break.
+            else if abs(landing_lat > 80) break.
         }
+        
+        clearscreen.
+        print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
+        print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
+        print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
     }
-    wait 5.
+    lock throttle to 0.
+    wait 3.
+}
+
+function initial_landing_burn
+{
+    parameter landing_lat, landing_lng.
+
+    lock steering to srfretrograde.
+
+    local time_of_closest is calc_closest_approach(landing_lat, landing_lng).
+    local time_to_closest is time_of_closest - time:seconds.
+
+    until false
+    {
+        local speed is ship:velocity:surface:mag.
+        local burn_time is calc_burn_time(speed).
+        if (time_to_closest - burn_time < 1) break.
+        clearscreen.
+        print "Delta T: " + round(time_to_closest - burn_time, 2) + "    Tclose: " + round(time_to_closest,2) + "    BT: " + burn_time.
+    }
+
+    lock throttle to 1.
+    wait until ship:velocity:surface:mag < 15.
+}
+
+function final_landing_burn
+{
+    parameter landing_lat, landing_lng.
+
+    pid_throttle_vspeed().
+    set pid_vspeed:setpoint to 0.
+    until false
+    {
+        set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
+    }
+}
+
+function calc_closest_approach
+{
+    parameter landing_lat, landing_lng.
+
+    local search_start is addons:tr:timetillimpact + time:seconds.
+    local t_calc is search_start.
+    local landing_spot is latlng(landing_lat, landing_lng).
+    local min_dist is 2^50.
+    local min_time is 0.
+
+    until false
+    {
+        local dist is positionat(ship, t_calc)  - positionat(landing_spot, t_calc).
+        if (dist:mag < min_dist)
+        {
+            set min_dist to dist:mag.
+            set min:time to t_calc.
+        }
+        else break.
+        set t_calc to t_calc - 1.
+    }
+    return t_calc.
 }
 
 
@@ -434,7 +481,6 @@ function skycrane_decouple
         }
     }
 }
-
 
 function line_params
 {

@@ -42,7 +42,8 @@ correct_landing_inc(target_lat, target_lng, eta_landing, true).
 
 intercept_landing_site(target_lat, target_lng, eta_landing).
 
-// final_landing(false).
-pid_landing(false, target_lat, target_lng).
+initial_landing_burn(target_lat, target_lng).
+
+final_landing_burn(target_lat, target_lng).
 
 deploy_solar_panels().
