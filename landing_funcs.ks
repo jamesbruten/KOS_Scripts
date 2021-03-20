@@ -171,7 +171,7 @@ function intercept_landing_site
     parameter landing_lat, landing_lng, eta_landing.
 
     local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
-    local wait_time is eta_landing - (3 * cancel_dv_time + 60).
+    local wait_time is eta_landing - (3 * cancel_dv_time + 60) - time:seconds.
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 5).
     wait until time:seconds > wait_end.
@@ -381,7 +381,7 @@ function lspot_closest
 {
     parameter landing_lat, landing_lng.
 
-    local search_start is eta:periapsis * 2.
+    local search_start is eta:periapsis * 2 + time:seconds.
     if (addons:tr:hasimpact = true) set search_start to addons:tr:timetillimpact + time:seconds.
     local t_calc is search_start.
     local landing_spot is latlng(landing_lat, landing_lng).
