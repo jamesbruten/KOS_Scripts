@@ -1,5 +1,5 @@
-local target_lat is 10.723.
-local target_lng is -28.663.
+local target_lat is 10.73.
+local target_lng is -28.64.
 local tbody is Minmus.
 
 undock_leave().
