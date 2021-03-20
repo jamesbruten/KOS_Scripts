@@ -307,15 +307,6 @@ function initial_landing_burn
 
     local time_of_closest is calc_closest_approach(landing_lat, landing_lng).
 
-    // until false
-    // {
-    //     local time_to_closest is time_of_closest - time:seconds.
-    //     local speed is ship:velocity:surface:mag.
-    //     local burn_time is calc_burn_time(speed).
-    //     if (time_to_closest - burn_time < 1) break.
-    //     clearscreen.
-    //     print "Delta T: " + round(time_to_closest-burn_time,2) + "    Tclose: " + round(time_to_closest,2) + "    BT: " + round(burn_time,2).
-    // }
     until false
     {
         local speed is ship:velocity:surface:mag.
@@ -353,13 +344,16 @@ function final_landing_burn
         local params is landing_speed_params().
         set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
         set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
+        if (ship:status = "landed" or abs(ship:verticalspeed) < 0.2) break.
+
+
         clearscreen.
         print "Final Landing Burn".
         print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2) + "   Target: " + round(pid_vspeed:setpoint, 2).
         print "TDist: " + round(landing_spot:position:mag, 2).
         clearvecdraws().
         vecdraw(v(0,0,0), landing_spot:position, RGB(1,0,0), "Tgt", 1, True, 0.2, True, True).
-        if (ship:status = "landed" or abs(ship:verticalspeed) < 0.2) break.
+        vecdraw(v(0,0,0), landing_spot:position+alt:radar*up:vector, RGB(0,1,0), "H", 1, True, 0.2, True, True).
     }
     wait 0.5.
     lock throttle to 0.
