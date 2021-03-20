@@ -86,7 +86,7 @@ function lower_periapsis
         if (mode = 0)
         {
             set diff to dlat.
-            if (dlng > body_rot) set diff to max(0.28, dlat).
+            if (dlng > body_rot) set diff to max(1.1, dlat).
             set warp_level to warp_at_level(1, 2, 10, diff).
         }
         else
