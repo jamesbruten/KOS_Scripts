@@ -224,7 +224,6 @@ function moon_transfer
     // circularise parking orbit
     adjust_apsides("a", ship:apoapsis).
 
-    wait 5.
     deploy_solar_panels().
     deploy_antenna().
     deploy_dp_shield().

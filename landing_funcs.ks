@@ -227,7 +227,7 @@ function initial_landing_burn
         local time_to_closest is time_of_closest - time:seconds.
         local dclose is ship:velocity:surface:mag * time_to_closest.
         local dstop is dist_during_burn(burn_time, ship:groundspeed, ship:groundspeed).
-        if (dclose - dstop < 2500) break.
+        if (dclose - dstop < dstop/6) break.
         clearscreen.
         print "Diff: " + round(dclose-dstop) + "    Dc: " + round(dclose) + "    Ds: " + round(dstop).
     }
@@ -315,7 +315,7 @@ function align_landing_spot
     parameter landing_spot.
 
     // Max angle where ship can maintain vspeed=0,  max of 75 deg
-    local max_ang is arccos(body:mu * ship:mass / (body:radius * body:radius * ship:availablethrust/1000)).
+    local max_ang is arccos((body:mu * ship:mass) / (body:radius * body:radius * ship:availablethrust)).
     set max_ang to min(max_ang, 75).
     // Max decel assuming for max_ang vspeed of 0 less 25% for potential vertical deceleration
     local max_hdecel is 0.75 * sin(max_ang) * ship:availablethrust / (1000 * ship:mass).
@@ -341,30 +341,33 @@ function align_landing_spot
     else local acc_rec is (vel_targ - vh_spot) / th_spot.
 
     // set acceleration to be maximum of acc due to gravity - limits pitch to 45 deg
-    // local acc_tgt is acc_rec:normalized * min(min(acc_rec:mag, ship:sensors:grav:mag), sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
-    local acc_tgt is acc_rec.
+    local acc_tgt is 3*acc_rec:normalized * min(min(acc_rec:mag, ship:sensors:grav:mag), sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
     // velocity perpendicular to target
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
     local acc_side is -vside / 2.  // acceleration to cancel sideways velocity in 2 secs
     local acc_vec is acc_tgt + acc_side - ship:sensors:grav.
-
-    local up_ang is vang(acc_vec, up:vector).
-    if (up_ang > max_ang)
-    {
-        local frac is max_ang / up_ang.
-        set acc_vec to acc_vec * frac.
-    }
 
     return list(acc_vec, dh_spot, vh_spot).
 }
 
 function landing_speed_params
 {
-    if (alt:radar < 15) return list(0, -1).
-    if (alt:radar < 40) return line_params(-8, -1, 40, 15).
-    if (alt:radar < 100) return line_params(-20, -8, 100, 40).
-    if (alt:radar < 500) return line_params(-50, -20, 500, 100).
-    return list(0, -50).
+    if (body = Mun)
+    {
+        if (alt:radar < 15) return list(0, -1).
+        if (alt:radar < 40) return line_params(-8, -1, 40, 15).
+        if (alt:radar < 100) return line_params(-20, -8, 100, 40).
+        if (alt:radar < 500) return line_params(-50, -20, 500, 100).
+        return list(0, -50).
+    }
+    else
+    {
+        if (alt:radar < 15) return list(0, -1).
+        if (alt:radar < 40) return line_params(-8, -1, 40, 15).
+        if (alt:radar < 100) return line_params(-20, -8, 100, 40).
+        if (alt:radar < 200) return line_params(-30, -20, 200, 100).
+        return list(0, -30).
+    }
 }
 
 function dist_during_burn
@@ -378,7 +381,7 @@ function calc_closest_approach
 {
     parameter landing_lat, landing_lng.
 
-    local search_start is time:seconds + 20.
+    local search_start is eta:periapsis * 2.
     if (addons:tr:hasimpact = true) set search_start to addons:tr:timetillimpact + time:seconds.
     local t_calc is search_start.
     local landing_spot is latlng(landing_lat, landing_lng).
@@ -395,8 +398,7 @@ function calc_closest_approach
             set min_time to t_calc.
         }
         else break.
-        if (addons:tr:hasimpact = true) set t_calc to t_calc - 1.
-        else set t_calc to t_calc + 1.
+        set t_calc to t_calc - 1.
     }
     return min_time.
 }
