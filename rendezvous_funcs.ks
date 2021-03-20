@@ -17,27 +17,11 @@ function wait_for_window
         local body_normal is srfpos:body:position - srfpos:position.
         local ang is vang(orbit_normal, body_normal).
         local diff is abs(90 - ang).
-        if (diff < 0.5)
-        {
-            set warp to 0.
-            wait until ship:unpacked.
-            break.
-        }
-        else if (diff < 2)
-        {
-            set warp to 2.
-            set warp_level to 2.
-        }
-        else if (diff < 15)
-        {
-            set warp to 4.
-            set warp_level to 4.
-        }
-        else
-        {
-            set warp to 5.
-            set warp_level to 5.
-        }
+
+        set warp_level to warp_at_level(0.5, 2, 15, diff).
+
+        if (warp_level = 0) break.
+        
         clearscreen.
         print "Warping to Window".
         print round(ang, 2) + "      " + round(diff, 2) + "      " + warp_level.
@@ -190,30 +174,13 @@ function transfer_orbit
         local current_pa is get_phase_angle().
         local diff is abs(transfer_angle - current_pa).
 
-        if (diff <= 0.28)
-        {
-            set warp to 0.
-            wait until ship:unpacked.
-            break.
-        }
-        else if (diff < 1.0)
-        {
-            set warp to 2.
-            set warp_level to 2.
-        }
-        else if (diff < 10)
-        {
-            set warp to 4.
-            set warp_level to 4.
-        }
-        else
-        {
-            set warp to 5.
-            set warp_level to 5.
-        }
+        set warp_level to warp_at_level(0.28, 1, 10, diff).
+
+        if (warp_level = 0) break.
+
         clearscreen.
         print "Warping to Transfer Angle".
-        print "TA: " + round(transfer_angle, 2) + "    PA: " + round(current_pa, 2) + "    Diff:" + round(diff, 2).
+        print "TA: " + round(transfer_angle, 2) + "    PA: " + round(current_pa, 2) + "    Diff:" + round(diff, 2) + "   WL: " + warp_level.
     }
 
     local vinit is ship:velocity:orbit:mag.

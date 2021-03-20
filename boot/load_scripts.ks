@@ -41,3 +41,34 @@ function do_warp
         wait until ship:unpacked.
     }
 }
+
+function warp_at_level
+{
+    parameter diff0, diff2, diff4, diff.
+
+    local warp_level is 0.
+
+    if (diff < diff0)
+    {
+        set warp to 0.
+        set warp_level to 0.
+        wait until ship:unpacked.
+    }
+    else if (diff < diff2)
+    {
+        set warp to 2.
+        set warp_level to 2.
+    }
+    else if (diff < diff4)
+    {
+        set warp to 4.
+        set warp_level to 4.
+    }
+    else
+    {
+        set warp to 5.
+        set warp_level to 5.
+    }
+
+    return warp_level.
+}
