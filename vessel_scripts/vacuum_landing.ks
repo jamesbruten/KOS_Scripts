@@ -33,9 +33,11 @@ wait_for_landing(target_lat,target_lng, ship).
 retract_solar_panels().
 wait 5.
 
-local eta_landing is lower_periapsis(target_lat, target_lng).
+lower_periapsis(target_lat, target_lng).
 
-correct_landing_inc(target_lat, target_lng, eta_landing, true).
+correct_landing_inc(target_lat, target_lng).
+
+local eta_landing is calc_closest_approach(target_lat, target_lng).
 
 intercept_landing_site(target_lat, target_lng, eta_landing).
 

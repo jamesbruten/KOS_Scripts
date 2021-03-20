@@ -113,22 +113,17 @@ function lower_periapsis
     lock throttle to 0.
     print "Shutdown".
     wait 2.
-
-    return eta:periapsis + time:seconds.
 }
 
 function correct_landing_inc
 {
-    parameter landing_lat, landing_lng, eta_landing, warp_mode.
+    parameter landing_lat, landing_lng.
 
-    if (warp_mode = true)
-    {
-        local wait_time is 2 * (eta_landing - time:seconds) / 3.
-        local wait_end is wait_time + time:seconds.
-        print "Warping: " + wait_time.
-        do_warp(wait_time - 5).
-        wait until time:seconds > wait_end.
-    }
+    local wait_time is 2 * eta:periapsis / 3.
+    local wait_end is wait_time + time:seconds.
+    print "Warping: " + wait_time.
+    do_warp(wait_time - 2).
+    wait until time:seconds > wait_end.
 
     print "Adjusting Direction Towards Landing Site".
 
@@ -136,7 +131,7 @@ function correct_landing_inc
     lock steering to normal.
     wait 10.
     
-    set landing_lng to landing_lng + 360 * (eta_landing - time:seconds) / body:rotationperiod.
+    set landing_lng to landing_lng + 360 * eta:periapsis / body:rotationperiod.
     if (landing_lng > 180) set landing_lng to landing_lng - 360.
 
     local vel_vect is vxcl(up:vector, ship:velocity:orbit).
@@ -181,7 +176,7 @@ function intercept_landing_site
     parameter landing_lat, landing_lng, eta_landing.
 
     local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
-    local wait_time is eta:periapsis - (3 * cancel_dv_time + 60).
+    local wait_time is eta_landing - (3 * cancel_dv_time + 60).
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 5).
     wait until time:seconds > wait_end.
@@ -319,6 +314,12 @@ function align_landing_spot
 {
     parameter landing_spot.
 
+    // Max angle where ship can maintain vspeed=0,  max of 75 deg
+    local max_ang is arccos(body:mu * ship:mass / (body:radius * body:radius * ship:availablethrust/1000)).
+    set max_ang to min(max_ang, 75).
+    // Max decel assuming for max_ang vspeed of 0 less 25% for potential vertical deceleration
+    local max_hdecel is 0.75 * sin(max_ang) * ship:availablethrust / (1000 * ship:mass).
+
     // current velocity towards landing spot
     local vh_spot is heading(landing_spot:heading, 0):vector * vdot(heading(landing_spot:heading,0):vector, ship:velocity:surface).
     set vh_spot to vxcl(up:vector, vh_spot).
@@ -336,15 +337,23 @@ function align_landing_spot
     local vel_targ is min(dh_spot/7.5, 30) * heading(landing_spot:heading, 0):vector.
 
     // acceleration to reach target velocity in 2 seconds
-    if (dh_spot > 10) local acc_rec is (vel_targ - vh_spot) / 0.5.
+    if (dh_spot > 10) local acc_rec is (vel_targ - vh_spot) / 2.
     else local acc_rec is (vel_targ - vh_spot) / th_spot.
 
     // set acceleration to be maximum of acc due to gravity - limits pitch to 45 deg
-    local acc_tgt is acc_rec:normalized * min(min(acc_rec:mag, ship:sensors:grav:mag), 2*sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
+    // local acc_tgt is acc_rec:normalized * min(min(acc_rec:mag, ship:sensors:grav:mag), sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
+    local acc_tgt is acc_rec.
     // velocity perpendicular to target
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
     local acc_side is -vside / 2.  // acceleration to cancel sideways velocity in 2 secs
     local acc_vec is acc_tgt + acc_side - ship:sensors:grav.
+
+    local up_ang is vang(acc_vec, up:vector).
+    if (up_ang > max_ang)
+    {
+        local frac is max_ang / up_ang.
+        set acc_vec to acc_vec * frac.
+    }
 
     return list(acc_vec, dh_spot, vh_spot).
 }
@@ -369,12 +378,12 @@ function calc_closest_approach
 {
     parameter landing_lat, landing_lng.
 
-    local search_start is addons:tr:timetillimpact + time:seconds.
+    local search_start is time:seconds + 20.
+    if (addons:tr:hasimpact = true) set search_start to addons:tr:timetillimpact + time:seconds.
     local t_calc is search_start.
     local landing_spot is latlng(landing_lat, landing_lng).
     local min_dist is 2^50.
     local min_time is 0.
-    local min_pos is 0.
 
     until false
     {
@@ -384,10 +393,10 @@ function calc_closest_approach
         {
             set min_dist to dist:mag.
             set min_time to t_calc.
-            set min_pos to ship_pos.
         }
         else break.
-        set t_calc to t_calc - 1.
+        if (addons:tr:hasimpact = true) set t_calc to t_calc - 1.
+        else set t_calc to t_calc + 1.
     }
     return min_time.
 }
