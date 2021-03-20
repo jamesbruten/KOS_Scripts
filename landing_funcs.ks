@@ -128,36 +128,31 @@ function correct_landing_inc
     print "Adjusting Direction Towards Landing Site".
 
     local normal is vcrs(ship:velocity:orbit, -body:position).
-    lock steering to normal.
-    wait 10.
     
     set landing_lng to landing_lng + 360 * eta:periapsis / body:rotationperiod.
     if (landing_lng > 180) set landing_lng to landing_lng - 360.
 
     local vel_vect is vxcl(up:vector, ship:velocity:orbit).
     local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
-    local ang_init is vang(vel_vect, target_vect).
-    local ang is ang_init.
+    local ang is vang(vel_vect, target_vect).
+
+    local t1 is vang(target_vect, normal).
+    local t2 is vang(target_vect, -1*normal).
+    lock steering to normal.
+    if (t2 < t1) lock steering to -1 * normal.
+    wait 10.
 
     local t_val is 0.5.
     lock throttle to t_val.
     when (ang < 0.5) then set t_val to 0.25.
-    wait 0.1.
     until false
     {
         set vel_vect to vxcl(up:vector, ship:velocity:orbit).
         set target_vect to vxcl(up:vector, latlng(landing_lat, landing_lng):position).
         set ang to vang(vel_vect, target_vect).
-        if (ang > ang_init)
-        {
-            lock throttle to 0.
-            lock steering to -1 * normal.
-            wait 10.
-            set ang_init to 500.
-            lock throttle to t_val.
-        }
         if (ang < 0.025) break.
         set normal to vcrs(ship:velocity:orbit, -body:position).
+
         clearscreen.
         print "Targeting Landing Site      Difference: " + round(ang, 2).
     }
@@ -218,7 +213,7 @@ function initial_landing_burn
 
     lock steering to srfretrograde.
 
-    local time_of_closest is calc_closest_approach(landing_lat, landing_lng).
+    local time_of_closest is lspot_closest(landing_lat, landing_lng).
 
     until false
     {
@@ -237,6 +232,11 @@ function initial_landing_burn
     {
         clearscreen.
         print "Surface Vel: " + round(ship:velocity:surface:mag, 2).    
+
+        local vel_vect is vxcl(up:vector, ship:velocity:orbit).
+        local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
+        local ang is vang(vel_vect, target_vect).
+        if (ship:velocity:surface:mag < 70 and ang < 80) break.
         if (ship:velocity:surface:mag < 20) break.
     }
     lock throttle to 0.
@@ -377,7 +377,7 @@ function dist_during_burn
     return speed * burn_time - 0.5 * mean_acc * burn_time * burn_time.
 }
 
-function calc_closest_approach
+function lspot_closest
 {
     parameter landing_lat, landing_lng.
 
