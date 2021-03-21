@@ -174,7 +174,7 @@ function transfer_orbit
         local current_pa is get_phase_angle().
         local diff is abs(transfer_angle - current_pa).
 
-        set warp_level to warp_at_level(0.28, 1, 10, diff).
+        set warp_level to warp_at_level(0.28, 0.55, 3, diff).
 
         if (warp_level = 0) break.
 

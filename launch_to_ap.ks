@@ -232,4 +232,5 @@ function launch_to_vac
     print "Shutdown".
     lock throttle to 0.
     lock steering to prograde.
+    wait 5.
 }

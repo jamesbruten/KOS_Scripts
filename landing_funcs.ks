@@ -172,6 +172,7 @@ function intercept_landing_site
 
     local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
     local wait_time is eta_landing - (3 * cancel_dv_time + 120) - time:seconds.
+    print "Wait Time: " + wait_time.
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 5).
     wait until time:seconds > wait_end.
@@ -237,7 +238,7 @@ function initial_landing_burn
         if (ship:velocity:surface:mag < 20) break.
 
         clearscreen.
-        print "Surface Vel: " + round(ship:velocity:surface:mag, 2) + "   TAng: " + ang.
+        print "Surface Vel: " + round(ship:velocity:surface:mag, 2) + "   TAng: " + round(ang, 2).
     }
     lock throttle to 0.
     wait 0.01.
@@ -256,7 +257,7 @@ function final_landing_burn
     lock steering to lookdirup(steer, ship:facing:topvector).
 
     pid_throttle_vspeed().
-    when (alt:radar < 250) then gear on.
+    // when (alt:radar < 250) then gear on.
     local pause is true.
     local pause_alt is 100.
     local status is "Final Landing Burn".
@@ -288,7 +289,7 @@ function final_landing_burn
         clearscreen.
         print status.
         print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2) + "   TgtVspeed: " + round(pid_vspeed:setpoint, 2).
-        print "HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot, 2).
+        print "HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
     }
     wait 0.5.
     lock throttle to 0.

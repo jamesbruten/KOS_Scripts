@@ -165,8 +165,8 @@ function move_to_corner
         translate(move_vector:normalized * speed - relative_vel).
         clearscreen.
         print "Moving to Nearest Approach Corner".
-        print move_vector:mag.
-        if (move_vector:mag < 1) break.
+        print round(move_vector:mag, 2).
+        if (move_vector:mag < 2) break.
         wait 0.01.
     }
     translate(V(0,0,0)).
@@ -189,8 +189,8 @@ function approach_port
         local dvect is targetport:position - shipport:position.
         clearscreen.
         print "Approaching Target Port + " + distance + " at Speed: " + init_speed.
-        print move_vector:mag.
-        print vang(shipport:portfacing:vector, dvect).
+        print round(move_vector:mag, 2).
+        print round(vang(shipport:portfacing:vector, dvect), 2).
         if (move_vector:mag < dist_error and vang(shipport:portfacing:vector, dvect) < 2) break.
         wait 0.01.
     }
@@ -258,9 +258,11 @@ function kss_tug_move
 
 function undock_leave
 {
+    parameter leave_time is 20, wait_time is 10.
+
     lock inp1 to terminal:input:getchar().
     print "Hit 'u' to undock or 'c' to continue without undocking".
-    wait until inp1 = "c" or inp = "u".
+    wait until inp1 = "c" or inp1 = "u".
 
     if (inp1 = "c") return.
 
@@ -287,7 +289,7 @@ function undock_leave
     SAS off.
     RCS on.
     set ship:control:fore to -1.
-    wait 20.
+    wait leave_time.
     RCS off.
-    wait 10.
+    wait wait_time.
 }
