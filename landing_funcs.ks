@@ -288,7 +288,7 @@ function final_landing_burn
         clearscreen.
         print status.
         print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2) + "   TgtVspeed: " + round(pid_vspeed:setpoint, 2).
-        print "HDist: " + round(dh_spot, 2).
+        print "HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot, 2).
     }
     wait 0.5.
     lock throttle to 0.
