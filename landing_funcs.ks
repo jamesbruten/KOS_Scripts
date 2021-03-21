@@ -171,7 +171,7 @@ function intercept_landing_site
     parameter landing_lat, landing_lng, eta_landing.
 
     local cancel_dv_time is calc_burn_time(ship:velocity:orbit:mag).
-    local wait_time is eta_landing - (3 * cancel_dv_time + 60) - time:seconds.
+    local wait_time is eta_landing - (3 * cancel_dv_time + 120) - time:seconds.
     local wait_end is wait_time + time:seconds.
     do_warp(wait_time - 5).
     wait until time:seconds > wait_end.
@@ -229,15 +229,15 @@ function initial_landing_burn
 
     lock throttle to 1.
     until false
-    {
-        clearscreen.
-        print "Surface Vel: " + round(ship:velocity:surface:mag, 2).    
-
+    {    
         local vel_vect is vxcl(up:vector, ship:velocity:orbit).
         local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
         local ang is vang(vel_vect, target_vect).
         if (ship:velocity:surface:mag < 70 and ang < 80) break.
         if (ship:velocity:surface:mag < 20) break.
+
+        clearscreen.
+        print "Surface Vel: " + round(ship:velocity:surface:mag, 2) + "   TAng: " + ang.
     }
     lock throttle to 0.
     wait 0.01.
@@ -259,10 +259,21 @@ function final_landing_burn
     when (alt:radar < 250) then gear on.
     local pause is true.
     local pause_alt is 100.
+    local status is "Final Landing Burn".
     until false
     {
-        local params is landing_speed_params().
-        set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
+        if (alt:radar < pause_alt and pause = true)
+        {
+            set pid_vspeed:setpoint to 0.
+            set status to "Pausing Vspeed to Translate".
+        }
+        else
+        {
+            local params is landing_speed_params().
+            set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
+            set status to "Final Landing Burn".
+        }
+
         set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
         
         set dir_params to align_landing_spot(landing_spot).
@@ -272,34 +283,12 @@ function final_landing_burn
 
         if (dh_spot < 5 and vh_spot:mag < 1) set pause to false.
 
-        if (alt:radar < pause_alt and pause = true)
-        {
-            set pid_vspeed:setpoint to 0.
-            until false
-            {
-                set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
-                
-                set dir_params to align_landing_spot(landing_spot).
-                set steer to dir_params[0].
-                set dh_spot to dir_params[1].
-                set vh_spot to dir_params[2].
-                
-                if (dh_spot < 5 and vh_spot:mag < 1) break.
-
-                clearscreen.
-                print "Pausing to Translate".
-                print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2) + "   Target: " + round(pid_vspeed:setpoint, 2).
-                print "TDist: " + round(dh_spot, 2).
-            }
-            set pause to false.
-        }
-
         if (ship:status = "landed") break.
 
         clearscreen.
-        print "Final Landing Burn".
-        print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2) + "   Target: " + round(pid_vspeed:setpoint, 2).
-        print "TDist: " + round(dh_spot, 2).
+        print status.
+        print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2) + "   TgtVspeed: " + round(pid_vspeed:setpoint, 2).
+        print "HDist: " + round(dh_spot, 2).
     }
     wait 0.5.
     lock throttle to 0.
@@ -308,19 +297,14 @@ function final_landing_burn
     print "Touch Down".
     print "Throttle Zero".
     print "Steering Unlocked".
+    print "Hdist: " + round(dh_spot, 2).
 }
 
 function align_landing_spot
 {
     parameter landing_spot.
 
-    // Max angle where ship can maintain vspeed=0,  max of 75 deg
-    local max_ang is arccos((body:mu * ship:mass) / (body:radius * body:radius * ship:availablethrust)).
-    set max_ang to min(max_ang, 75).
-    // Max decel assuming for max_ang vspeed of 0 less 25% for potential vertical deceleration
-    local max_hdecel is 0.75 * sin(max_ang) * ship:availablethrust / (1000 * ship:mass).
-
-    // current velocity towards landing spot
+    // current horizontal velocity towards landing spot
     local vh_spot is heading(landing_spot:heading, 0):vector * vdot(heading(landing_spot:heading,0):vector, ship:velocity:surface).
     set vh_spot to vxcl(up:vector, vh_spot).
     local sh_spot is vh_spot:mag.
@@ -345,6 +329,7 @@ function align_landing_spot
     // velocity perpendicular to target
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
     local acc_side is -vside / 2.  // acceleration to cancel sideways velocity in 2 secs
+    // Total Acceleration needed to cancel sideways and gravity and move towards target
     local acc_vec is acc_tgt + acc_side - ship:sensors:grav.
 
     return list(acc_vec, dh_spot, vh_spot).
