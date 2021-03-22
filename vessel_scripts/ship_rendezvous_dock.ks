@@ -92,5 +92,5 @@ else if (target:body:body = ship:body)
     final_rendezvous().
     wait 5.
 
-    // dock_vessels().
+    dock_vessels().
 }

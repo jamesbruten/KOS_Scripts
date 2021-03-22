@@ -1,19 +1,8 @@
-local target_lat is 3.288333.
-local target_lng is -155.5936.
+local target_lat is 3.276111.
+local target_lng is -155.5533.
 local tbody is Mun.
 
-set steeringmanager:maxstoppingtime to 2.0.
-
 undock_leave().
-
-lock steering to retrograde.
-lock throttle to 0.
-list engines in ship_engines.
-for en in ship_engines
-{
-    set en:thrustlimit to 100.
-    en:activate.
-}
 
 if (ship:body = tbody)
 {
@@ -44,9 +33,7 @@ local eta_landing is lspot_closest(target_lat, target_lng).
 intercept_landing_site(target_lat, target_lng, eta_landing).
 
 deploy_payload("payload").
-activate_engines().
-wait 5.
-
+wait 2.
 if (kuniverse:activevessel <> core:vessel)
 {
     kuniverse:forcesetactivevessel(core:vessel).
@@ -55,6 +42,7 @@ if (kuniverse:activevessel <> core:vessel)
     AG1 on.
     wait 10.
 }
+activate_engines().
 set steeringmanager:maxstoppingtime to 0.5.
 
 initial_landing_burn(target_lat, target_lng).
@@ -66,4 +54,7 @@ deploy_solar_panels().
 
 
 
-// Mun Base 3 17 18N  155 35 37W            3.288333  -155.5936
+// Mun Base          3 17 18N  155 35 37W            3.288333  -155.5936
+// Landing Pad 1       3 21 07N  155 29 52W            3.351944  -155.4978
+// Landing Pad 2       3 14 18N  155 37 06W            3.238333  -155.6183
+// Landing Pad 2       3 16 34N  155 33 12W            3.276111  -155.5533

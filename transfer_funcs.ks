@@ -225,27 +225,23 @@ function moon_transfer
     adjust_apsides("a", ship:apoapsis).
 
     // deploy_solar_panels().
-    deploy_antenna().
-    deploy_dp_shield().
-
+    // deploy_antenna().
+    // deploy_dp_shield().
 
     transfer_orbit_moon().
     wait 5.
 
     // deploy_payload("payload").
-    // activate_engines().
-    // wait 5.
-
+    // wait 2.
     // if (kuniverse:activevessel <> core:vessel)
     // {
     //     kuniverse:forcesetactivevessel(core:vessel).
     //     unlock steering.
     //     set target to tbody.
     //     AG1 on.
-    //     wait 5.
-    //     lock steering to prograde.
-    //     wait 5.
+    //     wait 10.
     // }
+    // activate_engines().
 
     moon_midcourse_correction().
     wait 5.

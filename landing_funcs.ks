@@ -248,6 +248,16 @@ function final_landing_burn
 {
     parameter landing_lat, landing_lng.
 
+    local skycrane is false.
+    for p in ship:parts
+    {
+        if (p:tag = "rover_dc")
+        {
+            set skycrane to true.
+            break.
+        }
+    }
+
     local landing_spot is latlng(landing_lat, landing_lng).
 
     local dir_params is align_landing_spot(landing_spot).
@@ -257,10 +267,11 @@ function final_landing_burn
     lock steering to lookdirup(steer, ship:facing:topvector).
 
     pid_throttle_vspeed().
-    // when (alt:radar < 250) then gear on.
+    when (alt:radar < 250) then gear on.
     local pause is true.
     local pause_alt is 100.
     local status is "Final Landing Burn".
+    // when (dh_spot < 50) then lock steering to srfretrograde.
     until false
     {
         if (alt:radar < pause_alt and pause = true)
@@ -288,17 +299,26 @@ function final_landing_burn
 
         clearscreen.
         print status.
-        print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(pid_vspeed:setpoint, 2) + "   TgtVspeed: " + round(pid_vspeed:setpoint, 2).
+        print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(ship:verticalspeed, 2) + "   TgtVsp: " + round(pid_vspeed:setpoint, 2).
         print "HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
     }
-    wait 0.5.
-    lock throttle to 0.
-    unlock steering.
-    clearscreen.
-    print "Touch Down".
-    print "Throttle Zero".
-    print "Steering Unlocked".
-    print "Hdist: " + round(dh_spot, 2).
+    if (skycrane = false)
+    {
+        wait 0.5.
+        lock throttle to 0.
+        unlock steering.
+        clearscreen.
+        print "Touch Down".
+        print "Throttle Zero".
+        print "Steering Unlocked".
+        print "Hdist: " + round(dh_spot, 2).
+    }
+    else
+    {
+        print "Hdist: " + round(dh_spot, 2).
+        print "Skycrane Decouple".
+        skycrane_decouple().
+    }
 }
 
 function align_landing_spot
@@ -391,6 +411,7 @@ function lspot_closest
 
 function skycrane_decouple
 {
+    brakes on.
     for p in ship:parts
     {
         if (p:tag = "rover_dc")
