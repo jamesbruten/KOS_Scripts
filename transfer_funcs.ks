@@ -219,13 +219,13 @@ function moon_transfer
     launch_to_ap(true).
 
     lights on.
-    set steeringmanager:maxstoppingtime to 0.5.
+    set steeringmanager:maxstoppingtime to 1.0.
 
     // circularise parking orbit
     adjust_apsides("a", ship:apoapsis).
 
     // deploy_solar_panels().
-    // deploy_antenna().
+    deploy_antenna().
     // deploy_dp_shield().
 
     transfer_orbit_moon().

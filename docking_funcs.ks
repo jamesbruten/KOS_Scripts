@@ -264,7 +264,11 @@ function undock_leave
     print "Hit 'u' to undock or 'c' to continue without undocking".
     wait until inp1 = "c" or inp1 = "u".
 
-    if (inp1 = "c") return.
+    if (inp1 = "c")
+    {
+        activate_engines().
+        return.
+    }
 
     lock inp to terminal:input:getchar().
     print "Hit 'l' to Undock".
@@ -292,4 +296,5 @@ function undock_leave
     wait leave_time.
     RCS off.
     wait wait_time.
+    activate_engines().
 }
