@@ -13,11 +13,13 @@ function impact_UTs
 	local ap is ship:apoapsis.
 	local pe is ship:periapsis.
 	local impactUTs is time_betwene_two_ta(ecc, orbitPeriod, craftTA, alt_to_ta(sma, ecc, ship:body, max(min(impact_UTs_impactHeight, ap-1), pe+1))[1]) + startTime.
-	local newImpactHeight is ground_track(positionat(ship,impactUTs), impactUTs):terrainheight.
+	local impact_pos is ground_track(positionat(ship,impactUTs), impactUTs).
+	local newImpactHeight is impact_pos:terrainheight.
 	set impact_UTs_impactHeight to (impact_UTs_impactHeight + newImpactHeight) / 2.
 	return LEX("time", impactUTs, //the UTs of the ship's impact
 	"impactHeight", impact_UTs_impactHeight, //the aprox altitude of the ship's impact
-	"converged", ((abs(impact_UTs_impactHeight - newImpactHeight) * 2) < min_error)). //will be true when the change in impactHeight between runs is less than the minError
+	"converged", ((abs(impact_UTs_impactHeight - newImpactHeight) * 2) < min_error),
+	"point", impact_pos). //will be true when the change in impactHeight between runs is less than the minError
 }
 
 function alt_to_ta

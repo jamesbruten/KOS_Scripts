@@ -182,12 +182,14 @@ function intercept_landing_site
     lock steering to retrograde.
     wait 10.
     lock throttle to 1.
-    wait until addons:tr:hasimpact = True.
-    wait 1.
+    wait until ship:periapsis < 0.
+    wait 0.5.
     until false
     {
-        local impact_lat is addons:tr:impactpos:lat.
-        local impact_lng is addons:tr:impactpos:lng.
+        local impact_params is impact_UTs().
+        local impact_pos is impact_params["point"].
+        local impact_lat is impact_pos:lat.
+        local impact_lng is impact_pos:lng.
 
         local diff_lat is abs(impact_lat - landing_lat).
         local diff_lng is abs(impact_lng - landing_lng).
@@ -388,7 +390,11 @@ function lspot_closest
     parameter landing_lat, landing_lng.
 
     local search_start is eta:periapsis * 2 + time:seconds.
-    if (addons:tr:hasimpact = true) set search_start to addons:tr:timetillimpact + time:seconds.
+    if (ship:periapsis < 0)
+    {
+        local impact_params is impact_UTs().
+        set search_start to impact_params["time"].
+    }
     local t_calc is search_start.
     local landing_spot is latlng(landing_lat, landing_lng).
     local min_dist is 2^50.
