@@ -266,7 +266,7 @@ function undock_leave
 
     if (inp1 = "c")
     {
-        activate_engines().
+        // activate_engines().
         return.
     }
 

@@ -72,6 +72,8 @@ function create_apside_mnv
 
 function execute_mnv
 {
+    clearscreen.
+    
     set mnv to nextnode.
     lock np to lookdirup(mnv:deltav, ship:facing:topvector). //points to node, keeping roll the same.
     lock steering to np.

@@ -1,11 +1,11 @@
-// local target_lat is 3.276111.
-// local target_lng is -155.5333.
-// local tbody is Mun.
-
-set target to "Mun Pad 3".
-local target_lat is target:latitude.
-local target_lng is target:longitude.
+local target_lat is 85.
+local target_lng is -121.75.
 local tbody is Mun.
+
+// set target to "Mun Pad 3".
+// local target_lat is target:latitude.
+// local target_lng is target:longitude.
+// local tbody is Mun.
 
 undock_leave().
 
@@ -37,18 +37,17 @@ local eta_landing is lspot_closest(target_lat, target_lng).
 
 intercept_landing_site(target_lat, target_lng, eta_landing).
 
-deploy_payload("payload").
-wait 2.
-if (kuniverse:activevessel <> core:vessel)
-{
-    kuniverse:forcesetactivevessel(core:vessel).
-    unlock steering.
-    set target to tbody.
-    AG1 on.
-    wait 10.
-}
-activate_engines().
-set steeringmanager:maxstoppingtime to 0.5.
+// deploy_payload("payload").
+// wait 2.
+// if (kuniverse:activevessel <> core:vessel)
+// {
+//     kuniverse:forcesetactivevessel(core:vessel).
+//     unlock steering.
+//     set target to tbody.
+//     AG1 on.
+//     wait 10.
+// }
+// activate_engines().
 
 initial_landing_burn(target_lat, target_lng).
 

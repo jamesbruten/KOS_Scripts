@@ -50,7 +50,7 @@ function lower_periapsis
     local mode is 0.
     if (ship:orbit:inclination < 5) set mode to 1.
 
-    local p_val is 1.15 * body:radius - body:radius.
+    local p_val is 1.1 * body:radius - body:radius.
     until false
     {
         if (p_val - latlng(landing_lat,landing_lng):terrainheight < 7000) set p_val to p_val + 1000.
@@ -86,7 +86,7 @@ function lower_periapsis
         if (mode = 0)
         {
             set diff to dlat.
-            if (dlng > body_rot) set diff to max(1.1, dlat).
+            if (dlng > body_rot and abs(landing_lat) < 80) set diff to max(1.1, dlat).
             set warp_level to warp_at_level(1, 2, 10, diff).
         }
         else
@@ -225,7 +225,7 @@ function initial_landing_burn
         local time_to_closest is time_of_closest - time:seconds.
         local dclose is ship:velocity:surface:mag * time_to_closest.
         local dstop is dist_during_burn(burn_time, ship:groundspeed, ship:groundspeed).
-        if (dclose - dstop < dstop/6) break.
+        if (dclose - dstop < dstop/4) break.
         clearscreen.
         print "Diff: " + round(dclose-dstop) + "    Dc: " + round(dclose) + "    Ds: " + round(dstop).
     }
@@ -271,7 +271,7 @@ function final_landing_burn
     pid_throttle_vspeed().
     when (alt:radar < 250) then gear on.
     local pause is true.
-    local pause_alt is 100.
+    local pause_alt is 1000.
     local status is "Final Landing Burn".
     // when (dh_spot < 50) then lock steering to srfretrograde.
     until false
@@ -341,14 +341,14 @@ function align_landing_spot
     if (th_spot < 0) set th_spot to dh_spot / 0.5.      // if moving away from target set time to time assuming velocity of 0.5m/s
 
     // wanted velocity towards landing spot - min of distance/7.5 or 30
-    local vel_targ is min(dh_spot/7.5, 30) * heading(landing_spot:heading, 0):vector.
+    local vel_targ is min(dh_spot/7.5, 15) * heading(landing_spot:heading, 0):vector.
 
     // acceleration to reach target velocity in 2 seconds
-    if (dh_spot > 10) local acc_rec is (vel_targ - vh_spot) / 2.
+    if (dh_spot > 10) local acc_rec is (vel_targ - vh_spot) / 2.5.
     else local acc_rec is (vel_targ - vh_spot) / th_spot.
 
     // set acceleration to be maximum of acc due to gravity - limits pitch to 45 deg
-    local acc_tgt is 3*acc_rec:normalized * min(min(acc_rec:mag, ship:sensors:grav:mag), sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
+    local acc_tgt is 2*acc_rec:normalized * min(min(acc_rec:mag, ship:sensors:grav:mag), sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
     // velocity perpendicular to target
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
     local acc_side is -vside / 2.  // acceleration to cancel sideways velocity in 2 secs
