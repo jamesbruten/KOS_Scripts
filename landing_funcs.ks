@@ -86,7 +86,7 @@ function lower_periapsis
         if (mode = 0)
         {
             set diff to dlat.
-            if (dlng > body_rot and abs(landing_lat) < 80) set diff to max(1.1, dlat).
+            if (dlng > 1.1*body_rot and abs(landing_lat) < 80) set diff to max(1.1, dlat).
             set warp_level to warp_at_level(1, 2, 10, diff).
         }
         else
@@ -272,7 +272,7 @@ function final_landing_burn
     pid_throttle_vspeed().
     when (alt:radar < 250) then gear on.
     local pause is true.
-    local pause_alt is 1000.
+    local pause_alt is 250.
     local sit is "Final Landing Burn".
     // when (dh_spot < 50) then lock steering to srfretrograde.
     until false
@@ -292,7 +292,7 @@ function final_landing_burn
             if (ship_alt > init_height and t_desc < min_t_target + 20)
             {
                 local need_vspeed is ship_alt / (min_t_target + 20).
-                set pid_vspeed:setpoint to need_vspeed.
+                set pid_vspeed:setpoint to -1 * need_vspeed.
             }
             else set pid_vspeed:setpoint to params[0] * ship_alt + params[1].
             set sit to "Final Landing Burn".
@@ -313,7 +313,7 @@ function final_landing_burn
         clearscreen.
         print sit.
         print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(ship:verticalspeed, 2) + "   TgtVsp: " + round(pid_vspeed:setpoint, 2).
-        print "VDist: " + round(ship_alt, 2) + "HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
+        print "VDist: " + round(ship_alt, 2) + "   HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
     }
     if (skycrane = false)
     {

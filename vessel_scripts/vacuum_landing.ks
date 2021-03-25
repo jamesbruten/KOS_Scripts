@@ -1,5 +1,5 @@
-local target_lat is 85.
-local target_lng is -121.75.
+local target_lat is 21.42334.
+local target_lng is -49.795532.
 local tbody is Mun.
 
 // set target to "Mun Pad 3".
@@ -7,35 +7,35 @@ local tbody is Mun.
 // local target_lng is target:longitude.
 // local tbody is Mun.
 
-undock_leave().
+// undock_leave().
 
-if (ship:body = tbody)
-{
-    if (ship:apoapsis > 75000)
-    {
-        print "Lowering Orbit to 50km".
-        adjust_apsides("a", 50000).
-        wait 5.
-        adjust_apsides("p", ship:periapsis).
-    }
-    else if (ship:orbit:eccentricity > 0.002)
-    {
-        adjust_apsides("a", ship:apoapsis).
-    }
-}
+// if (ship:body = tbody)
+// {
+//     if (ship:apoapsis > 75000)
+//     {
+//         print "Lowering Orbit to 50km".
+//         adjust_apsides("a", 50000).
+//         wait 5.
+//         adjust_apsides("p", ship:periapsis).
+//     }
+//     else if (ship:orbit:eccentricity > 0.002)
+//     {
+//         adjust_apsides("a", ship:apoapsis).
+//     }
+// }
 
-wait_for_landing(target_lat,target_lng, ship).
+// wait_for_landing(target_lat,target_lng, ship).
 
-retract_solar_panels().
-wait 5.
+// retract_solar_panels().
+// wait 5.
 
-lower_periapsis(target_lat, target_lng).
+// lower_periapsis(target_lat, target_lng).
 
-correct_landing_inc(target_lat, target_lng).
+// correct_landing_inc(target_lat, target_lng).
 
-local eta_landing is lspot_closest(target_lat, target_lng).
+// local eta_landing is lspot_closest(target_lat, target_lng).
 
-intercept_landing_site(target_lat, target_lng, eta_landing).
+// intercept_landing_site(target_lat, target_lng, eta_landing).
 
 // deploy_payload("payload").
 // wait 2.
@@ -49,7 +49,7 @@ intercept_landing_site(target_lat, target_lng, eta_landing).
 // }
 // activate_engines().
 
-initial_landing_burn(target_lat, target_lng).
+// initial_landing_burn(target_lat, target_lng).
 
 final_landing_burn(target_lat, target_lng).
 
