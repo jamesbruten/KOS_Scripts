@@ -266,26 +266,36 @@ function final_landing_burn
     local steer is dir_params[0].
     local dh_spot is dir_params[1].
     local vh_spot is dir_params[2].
+    local min_t_target is dh_spot / 15.      // time to target assuming travelling at max_speed of 15m/s
     lock steering to lookdirup(steer, ship:facing:topvector).
 
     pid_throttle_vspeed().
     when (alt:radar < 250) then gear on.
     local pause is true.
     local pause_alt is 1000.
-    local status is "Final Landing Burn".
+    local sit is "Final Landing Burn".
     // when (dh_spot < 50) then lock steering to srfretrograde.
     until false
     {
-        if (alt:radar < pause_alt and pause = true)
+        local ship_alt is ship:altitude - landing_spot:terrainheight.
+        if (ship_alt < pause_alt and pause = true)
         {
             set pid_vspeed:setpoint to 0.
-            set status to "Pausing Vspeed to Translate".
+            set sit to "Pausing Vspeed to Translate".
         }
         else
         {
             local params is landing_speed_params().
-            set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
-            set status to "Final Landing Burn".
+            local init_height is 500.
+            if (body = Minmus) set init_height to 200.
+            local t_desc is ship_alt / params[1].
+            if (ship_alt > init_height and t_desc < min_t_target + 20)
+            {
+                local need_vspeed is ship_alt / (min_t_target + 20).
+                set pid_vspeed:setpoint to need_vspeed.
+            }
+            else set pid_vspeed:setpoint to params[0] * ship_alt + params[1].
+            set sit to "Final Landing Burn".
         }
 
         set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
@@ -294,15 +304,16 @@ function final_landing_burn
         set steer to dir_params[0].
         set dh_spot to dir_params[1].
         set vh_spot to dir_params[2].
+        set min_t_target to dh_spot / 15.
 
         if (dh_spot < 5 and vh_spot:mag < 1) set pause to false.
 
         if (ship:status = "landed") break.
 
         clearscreen.
-        print status.
+        print sit.
         print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(ship:verticalspeed, 2) + "   TgtVsp: " + round(pid_vspeed:setpoint, 2).
-        print "HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
+        print "VDist: " + round(ship_alt, 2) + "HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
     }
     if (skycrane = false)
     {
