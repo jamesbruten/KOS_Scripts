@@ -271,6 +271,7 @@ function final_landing_burn
     local vh_spot is dir_params[2].
     local min_t_target is dh_spot / 15.      // time to target assuming travelling at max_speed of 15m/s
     lock steering to lookdirup(steer, ship:facing:topvector).
+    local param_vel is 1.
 
     pid_throttle_vspeed().
     when (alt:radar < 100) then gear on.
@@ -290,13 +291,14 @@ function final_landing_burn
         {
             local params is landing_speed_params().
             if (params[1] = 0) set params[1] to 0.00001.
+            set param_vel to params[0] * ship_alt + params[1].
             local t_desc is ship_alt / params[1].
             if (t_desc < min_t_target + 20)
             {
                 local need_vspeed is ship_alt / (min_t_target + 20).
                 set pid_vspeed:setpoint to -1 * need_vspeed.
             }
-            else set pid_vspeed:setpoint to params[0] * ship_alt + params[1].
+            else set pid_vspeed:setpoint to param_vel.
             set sit to "Final Landing Burn".
         }
 
@@ -306,7 +308,7 @@ function final_landing_burn
         set steer to dir_params[0].
         set dh_spot to dir_params[1].
         set vh_spot to dir_params[2].
-        set min_t_target to dh_spot / 30.
+        set min_t_target to dh_spot / param_vel.
 
         if (dh_spot < 2 and vh_spot:mag < 0.3) set pause to false.
 
