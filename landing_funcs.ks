@@ -306,7 +306,7 @@ function final_landing_burn
         set steer to dir_params[0].
         set dh_spot to dir_params[1].
         set vh_spot to dir_params[2].
-        set min_t_target to dh_spot / 15.
+        set min_t_target to dh_spot / 30.
 
         if (dh_spot < 2 and vh_spot:mag < 0.3) set pause to false.
 
