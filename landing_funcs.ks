@@ -270,9 +270,9 @@ function final_landing_burn
     lock steering to lookdirup(steer, ship:facing:topvector).
 
     pid_throttle_vspeed().
-    when (alt:radar < 250) then gear on.
+    when (alt:radar < 100) then gear on.
     local pause is true.
-    local pause_alt is 250.
+    local pause_alt is 200.
     local sit is "Final Landing Burn".
     // when (dh_spot < 50) then lock steering to srfretrograde.
     until false
@@ -286,10 +286,8 @@ function final_landing_burn
         else
         {
             local params is landing_speed_params().
-            local init_height is 500.
-            if (body = Minmus) set init_height to 200.
             local t_desc is ship_alt / params[1].
-            if (ship_alt > init_height and t_desc < min_t_target + 20)
+            if (t_desc < min_t_target + 20)
             {
                 local need_vspeed is ship_alt / (min_t_target + 20).
                 set pid_vspeed:setpoint to -1 * need_vspeed.
@@ -306,7 +304,7 @@ function final_landing_burn
         set vh_spot to dir_params[2].
         set min_t_target to dh_spot / 15.
 
-        if (dh_spot < 5 and vh_spot:mag < 1) set pause to false.
+        if (dh_spot < 2 and vh_spot:mag < 0.3) set pause to false.
 
         if (ship:status = "landed") break.
 
@@ -352,21 +350,21 @@ function align_landing_spot
     if (th_spot < 0) set th_spot to dh_spot / 0.5.      // if moving away from target set time to time assuming velocity of 0.5m/s
 
     // wanted velocity towards landing spot - min of distance/7.5 or 30
-    local vel_targ is min(dh_spot/7.5, 15) * heading(landing_spot:heading, 0):vector.
+    local vel_targ is min(dh_spot/15, 30) * heading(landing_spot:heading, 0):vector.
 
-    // acceleration to reach target velocity in 2 seconds
+    // acceleration to reach target velocity in 2.5 seconds
     if (dh_spot > 10) local acc_rec is (vel_targ - vh_spot) / 2.5.
     else local acc_rec is (vel_targ - vh_spot) / th_spot.
 
-    // set acceleration to be maximum of acc due to gravity - limits pitch to 45 deg
-    local acc_tgt is 2*acc_rec:normalized * min(min(acc_rec:mag, ship:sensors:grav:mag), sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
     // velocity perpendicular to target
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
     local acc_side is -vside / 2.  // acceleration to cancel sideways velocity in 2 secs
-    // Total Acceleration needed to cancel sideways and gravity and move towards target
-    local acc_vec is acc_tgt + acc_side - ship:sensors:grav.
+    // Total Acceleration needed to cancel sideways velocity and gravity, and move towards target
+    local acc_vec is acc_rec + acc_side - ship:sensors:grav.
+    // set acceleration to be maximum of acc due to gravity - limits pitch to 45 deg
+    local acc_tgt is 2*acc_vec:normalized * min(min(acc_vec:mag, ship:sensors:grav:mag), sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
 
-    return list(acc_vec, dh_spot, vh_spot).
+    return list(acc_tgt, dh_spot, vh_spot).
 }
 
 function landing_speed_params
