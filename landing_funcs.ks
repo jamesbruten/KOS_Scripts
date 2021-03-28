@@ -218,6 +218,9 @@ function initial_landing_burn
 
     local time_of_closest is lspot_closest(landing_lat, landing_lng).
 
+    local break_speed is -50.
+    if (body = Minmus) set break_speed to -30.
+
     until false
     {
         local speed is ship:velocity:surface:mag.
@@ -237,7 +240,7 @@ function initial_landing_burn
         local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
         local ang is vang(vel_vect, target_vect).
         if (ship:velocity:surface:mag < 70 and ang < 60) break.
-        if (ship:verticalspeed < -50) break.
+        if (ship:verticalspeed < break_speed) break.
 
         clearscreen.
         print "Surface Vel: " + round(ship:velocity:surface:mag, 2) + "   TAng: " + round(ang, 2).
