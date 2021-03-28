@@ -236,8 +236,8 @@ function initial_landing_burn
         local vel_vect is vxcl(up:vector, ship:velocity:orbit).
         local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
         local ang is vang(vel_vect, target_vect).
-        if (ship:velocity:surface:mag < 70 and ang < 80) break.
-        if (ship:velocity:surface:mag < 20) break.
+        if (ship:velocity:surface:mag < 70 and ang < 60) break.
+        if (ship:verticalspeed < -50) break.
 
         clearscreen.
         print "Surface Vel: " + round(ship:velocity:surface:mag, 2) + "   TAng: " + round(ang, 2).
