@@ -289,6 +289,7 @@ function final_landing_burn
         else
         {
             local params is landing_speed_params().
+            if (params[1] = 0) set params[1] to 0.00001.
             local t_desc is ship_alt / params[1].
             if (t_desc < min_t_target + 20)
             {
