@@ -215,11 +215,8 @@ function initial_landing_burn
     parameter landing_lat, landing_lng.
 
     lock steering to srfretrograde.
-
     local time_of_closest is lspot_closest(landing_lat, landing_lng).
-
-    local break_speed is -50.
-    if (body = Minmus) set break_speed to -30.
+    local landing_spot is latlng(landing_lat, landing_lng).
 
     until false
     {
@@ -228,9 +225,9 @@ function initial_landing_burn
         local time_to_closest is time_of_closest - time:seconds.
         local dclose is ship:velocity:surface:mag * time_to_closest.
         local dstop is dist_during_burn(burn_time, ship:groundspeed, ship:groundspeed).
-        if (dclose - dstop < dstop/4) break.
+        if (dclose - dstop < dstop/6) break.
         clearscreen.
-        print "Diff: " + round(dclose-dstop) + "    Dc: " + round(dclose) + "    Ds: " + round(dstop).
+        print "Diff: " + round(dclose-dstop - dstop/6) + "    Dc: " + round(dclose) + "    Ds: " + round(dstop).
     }
 
     lock throttle to 1.
@@ -239,13 +236,13 @@ function initial_landing_burn
         local vel_vect is vxcl(up:vector, ship:velocity:orbit).
         local target_vect is vxcl(up:vector, latlng(landing_lat, landing_lng):position).
         local ang is vang(vel_vect, target_vect).
+
         if (ship:velocity:surface:mag < 70 and ang < 60) break.
-        if (ship:verticalspeed < break_speed) break.
+        if (ship:velocity:surface:mag < 20) break.
 
         clearscreen.
         print "Surface Vel: " + round(ship:velocity:surface:mag, 2) + "   TAng: " + round(ang, 2).
     }
-    lock throttle to 0.
     wait 0.01.
 }
 
@@ -269,18 +266,28 @@ function final_landing_burn
     local steer is dir_params[0].
     local dh_spot is dir_params[1].
     local vh_spot is dir_params[2].
-    local min_t_target is dh_spot / 15.      // time to target assuming travelling at max_speed of 15m/s
-    lock steering to lookdirup(steer, ship:facing:topvector).
+    local hspeed is dir_params[3].
+    local min_t_target is dh_spot / hspeed.
     local param_vel is 1.
 
+    lock steering to lookdirup(steer, ship:facing:topvector).
+
     pid_throttle_vspeed().
-    when (alt:radar < 100) then gear on.
     local pause is true.
-    local pause_alt is 200.
+    when (pause = false) then gear on.
+    local pause_alt is 70.
     local sit is "Final Landing Burn".
     // when (dh_spot < 50) then lock steering to srfretrograde.
     until false
     {
+        set dir_params to align_landing_spot(landing_spot).
+        set steer to dir_params[0].
+        set dh_spot to dir_params[1].
+        set vh_spot to dir_params[2].
+        set hspeed to dir_params[3].
+        set min_t_target to dh_spot / hspeed.
+        if (dh_spot < 1 and vh_spot:mag < 0.1) set pause to false.
+
         local ship_alt is ship:altitude - landing_spot:terrainheight.
         if (ship_alt < pause_alt and pause = true)
         {
@@ -290,27 +297,12 @@ function final_landing_burn
         else
         {
             local params is landing_speed_params().
-            if (params[1] = 0) set params[1] to 0.00001.
-            set param_vel to params[0] * ship_alt + params[1].
-            local t_desc is ship_alt / params[1].
-            if (t_desc < min_t_target + 20)
-            {
-                local need_vspeed is ship_alt / (min_t_target + 20).
-                set pid_vspeed:setpoint to -1 * need_vspeed.
-            }
-            else set pid_vspeed:setpoint to param_vel.
+            if (pause = true) set pid_vspeed:setpoint to min(-10, -1 * ship_alt / (min_t_target + 20)).
+            else set pid_vspeed:setpoint to params[0] * ship_alt + params[1].
             set sit to "Final Landing Burn".
         }
 
         set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
-        
-        set dir_params to align_landing_spot(landing_spot).
-        set steer to dir_params[0].
-        set dh_spot to dir_params[1].
-        set vh_spot to dir_params[2].
-        set min_t_target to dh_spot / param_vel.
-
-        if (dh_spot < 2 and vh_spot:mag < 0.3) set pause to false.
 
         if (ship:status = "landed") break.
 
@@ -356,7 +348,10 @@ function align_landing_spot
     if (th_spot < 0) set th_spot to dh_spot / 0.5.      // if moving away from target set time to time assuming velocity of 0.5m/s
 
     // wanted velocity towards landing spot - min of distance/7.5 or 30
-    local vel_targ is min(dh_spot/15, 30) * heading(landing_spot:heading, 0):vector.
+    local hspeed is 30.
+    if (dh_spot < 450) set hspeed to dh_spot / 15.
+    if (dh_spot < 100) set hspeed to min(hspeed, dh_spot/6).
+    local vel_targ is hspeed * heading(landing_spot:heading, 0):vector.
 
     // acceleration to reach target velocity in 2.5 seconds
     if (dh_spot > 10) local acc_rec is (vel_targ - vh_spot) / 2.5.
@@ -370,7 +365,7 @@ function align_landing_spot
     // set acceleration to be maximum of acc due to gravity - limits pitch to 45 deg
     local acc_tgt is 2*acc_vec:normalized * min(min(acc_vec:mag, ship:sensors:grav:mag), sqrt((ship:maxthrust/ship:mass)^2-ship:sensors:grav:mag^2)).
 
-    return list(acc_tgt, dh_spot, vh_spot).
+    return list(acc_tgt, dh_spot, vh_spot, hspeed).
 }
 
 function landing_speed_params
