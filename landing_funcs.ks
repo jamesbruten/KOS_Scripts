@@ -246,6 +246,43 @@ function initial_landing_burn
     wait 0.01.
 }
 
+function dist_during_burn
+{
+    parameter burn_time, burn_dv, speed.
+    local mean_acc is burn_dv / burn_time.
+    return speed * burn_time - 0.5 * mean_acc * burn_time * burn_time.
+}
+
+function lspot_closest
+{
+    parameter landing_lat, landing_lng.
+
+    local search_start is eta:periapsis * 2 + time:seconds.
+    if (ship:periapsis < 0)
+    {
+        local impact_params is impact_UTs().
+        set search_start to impact_params["time"].
+    }
+    local t_calc is search_start.
+    local landing_spot is latlng(landing_lat, landing_lng).
+    local min_dist is 2^50.
+    local min_time is 0.
+
+    until false
+    {
+        local ship_pos is positionat(ship, t_calc).
+        local dist is ship_pos  - landing_spot:position.
+        if (dist:mag < min_dist)
+        {
+            set min_dist to dist:mag.
+            set min_time to t_calc.
+        }
+        else break.
+        set t_calc to t_calc - 1.
+    }
+    return min_time.
+}
+
 function final_landing_burn
 {
     parameter landing_lat, landing_lng.
@@ -388,43 +425,6 @@ function landing_speed_params
     }
 }
 
-function dist_during_burn
-{
-    parameter burn_time, burn_dv, speed.
-    local mean_acc is burn_dv / burn_time.
-    return speed * burn_time - 0.5 * mean_acc * burn_time * burn_time.
-}
-
-function lspot_closest
-{
-    parameter landing_lat, landing_lng.
-
-    local search_start is eta:periapsis * 2 + time:seconds.
-    if (ship:periapsis < 0)
-    {
-        local impact_params is impact_UTs().
-        set search_start to impact_params["time"].
-    }
-    local t_calc is search_start.
-    local landing_spot is latlng(landing_lat, landing_lng).
-    local min_dist is 2^50.
-    local min_time is 0.
-
-    until false
-    {
-        local ship_pos is positionat(ship, t_calc).
-        local dist is ship_pos  - landing_spot:position.
-        if (dist:mag < min_dist)
-        {
-            set min_dist to dist:mag.
-            set min_time to t_calc.
-        }
-        else break.
-        set t_calc to t_calc - 1.
-    }
-    return min_time.
-}
-
 function skycrane_decouple
 {
     brakes on.
@@ -453,126 +453,11 @@ function line_params
     return list(m, c).
 }
 
-
-
-
-function final_landing_burn_pid
+function initial_burn2
 {
     parameter landing_lat, landing_lng.
 
-    local skycrane is false.
-    for p in ship:parts
-    {
-        if (p:tag = "rover_dc")
-        {
-            set skycrane to true.
-            break.
-        }
-    }
+    local lspot is geoposition(landing_lat, landing_lng).
 
-    local landing_spot is latlng(landing_lat, landing_lng).
-    local pause is true.
-    local pause_alt is 100.
-    local sit is "Final Landing Burn".
-
-    pid_translate_pitch().
-    pid_throttle_vspeed().
-
-    local dir_params is align_landing_spot_pid(landing_spot).
-    local compass is dir_params[0].
-    local dh_spot is dir_params[1].
-    local vh_spot is dir_params[2].
-    lock steering to lookdirup(heading(compass, abs(pitch_set)) , ship:facing:topvector).
-
-    when (alt:radar < 250) then gear on.
-    // when (dh_spot < 50) then lock steering to srfretrograde.
-    until false
-    {
-        if (alt:radar < pause_alt and pause = true)
-        {
-            set pid_vspeed:setpoint to 0.
-            set sit to "Pausing Vspeed to Translate".
-        }
-        else
-        {
-            local params is landing_speed_params().
-            set pid_vspeed:setpoint to params[0] * alt:radar + params[1].
-            set sit to "Final Landing Burn".
-        }
-
-        set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
-        set pitch_set to pid_pitch:update(time:seconds, dh_spot).
-        
-        set dir_params to align_landing_spot_pid(landing_spot).
-        set compass to dir_params[0].
-        set dh_spot to dir_params[1].
-        set vh_spot to dir_params[2].
-
-        if (dh_spot < 5 and vh_spot:mag < 1) set pause to false.
-
-        if (ship:status = "landed") break.
-
-        clearscreen.
-        print sit.
-        print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(ship:verticalspeed, 2) + "   TgtVsp: " + round(pid_vspeed:setpoint, 2).
-        print "HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
-    }
-    if (skycrane = false)
-    {
-        wait 0.5.
-        lock throttle to 0.
-        unlock steering.
-        clearscreen.
-        print "Touch Down".
-        print "Throttle Zero".
-        print "Steering Unlocked".
-        print "Hdist: " + round(dh_spot, 2).
-    }
-    else
-    {
-        print "Hdist: " + round(dh_spot, 2).
-        print "Skycrane Decouple".
-        skycrane_decouple().
-    }
-}
-
-function align_landing_spot_pid
-{
-    parameter landing_spot.
-
-    // current horizontal velocity towards landing spot
-    local vh_spot is heading(landing_spot:heading, 0):vector * vdot(heading(landing_spot:heading,0):vector, ship:velocity:surface).
-    set vh_spot to vxcl(up:vector, vh_spot).
-
-    // current horizontal distance to landing spot
-    local dh_spot is landing_spot:position + alt:radar*up:vector.
-    
-    // velocity perpendicular to target
-    local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
-    // Total Acceleration needed to cancel sideways and gravity and move towards target
-    local acc_vec is dh_spot - vside - ship:sensors:grav.
-    set acc_vec to vxcl(up:vector, acc_vec).
-    local compass is compass_for_vec(acc_vec).
-
-    if (pitch_set < 0)
-    {
-        set compass to compass - 180.
-        if (compass < 0) set compass to compass + 360.
-    }
-
-    return list(compass, dh_spot:mag, vh_spot).
-}
-
-function compass_for_vec
-{
-    parameter input_vector.
-
-    local east_unit_vec is vcrs(ship:up:vector, ship:north:vector).
-    local east_vel is vdot(input_vector, east_unit_vec). 
-    local north_vel is vdot(input_vector, ship:north:vector).
-
-    // inverse trig to take north and east components and make an angle:
-    set compass to arctan2(east_vel, north_vel).
-    if (compass < 0) set compass to compass + 360.
-    return compass.
+    // Vector of Point 500 before landing spot, at current ship alt
 }
