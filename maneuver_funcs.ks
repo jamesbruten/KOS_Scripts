@@ -16,7 +16,7 @@ function calc_burn_time
 {
     // calculate fuel flow rate
     // calculate burn time for required dv
-    parameter burn_dv.
+    parameter burn_dv is 0.
 
     if (burn_dv = 0)
     {

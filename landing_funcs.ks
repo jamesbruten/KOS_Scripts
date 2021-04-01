@@ -246,43 +246,6 @@ function initial_landing_burn
     wait 0.01.
 }
 
-function dist_during_burn
-{
-    parameter burn_time, burn_dv, speed.
-    local mean_acc is burn_dv / burn_time.
-    return speed * burn_time - 0.5 * mean_acc * burn_time * burn_time.
-}
-
-function lspot_closest
-{
-    parameter landing_lat, landing_lng.
-
-    local search_start is eta:periapsis * 2 + time:seconds.
-    if (ship:periapsis < 0)
-    {
-        local impact_params is impact_UTs().
-        set search_start to impact_params["time"].
-    }
-    local t_calc is search_start.
-    local landing_spot is latlng(landing_lat, landing_lng).
-    local min_dist is 2^50.
-    local min_time is 0.
-
-    until false
-    {
-        local ship_pos is positionat(ship, t_calc).
-        local dist is ship_pos  - landing_spot:position.
-        if (dist:mag < min_dist)
-        {
-            set min_dist to dist:mag.
-            set min_time to t_calc.
-        }
-        else break.
-        set t_calc to t_calc - 1.
-    }
-    return min_time.
-}
-
 function final_landing_burn
 {
     parameter landing_lat, landing_lng.
@@ -377,7 +340,7 @@ function align_landing_spot
     local sh_spot is vh_spot:mag.
 
     // current horizontal distance to landing spot
-    local dh_spot is landing_spot:position + alt:radar*up:vector.
+    local dh_spot is landing_spot:position + (ship:altitude - landing_spot:terrainheight)*up:vector.
     set dh_spot to dh_spot:mag.
 
     // time to spot at current vel
@@ -453,11 +416,119 @@ function line_params
     return list(m, c).
 }
 
-function initial_burn2
+function initial_landing_burn2
 {
     parameter landing_lat, landing_lng.
 
-    local lspot is geoposition(landing_lat, landing_lng).
+    local lspot is latlng(landing_lat, landing_lng).
+    local dist_off is 400.
+    lock steering to srfretrograde.
 
-    // Vector of Point 500 before landing spot, at current ship alt
+    local t_close is lspot_closest(landing_lat, landing_lng).
+
+    until false
+    {
+        local pos_close is positionat(ship, t_close).
+        local frac is dist_off / pos_close:mag.
+        set pos_close to pos_close * (1 - frac).
+        local stopping_time is calc_burn_time(ship:groundspeed-70).
+        local stopping_dist is dist_during_burn(stopping_time, ship:groundspeed-70, ship:groundspeed).
+
+        local diff is pos_close:mag - stopping_dist.
+        if (diff < 100) break.
+
+        clearscreen.
+        print "Waiting For Initial Landing Burn".
+        print "Gspeed: " + round(ship:groundspeed, 2) + "  Pdist: " + round(pos_close:mag, 2).
+        print "Sdist: " + round(stopping_dist, 2) + "  Diff: " + round(diff, 2).
+        clearvecdraws().
+        vecdraw(v(0,0,0), pos_close, RGB(1,0,0), "Pos", 2, True, 0.2, True, True).
+    }
+    // wait 10.
+
+    local c_head is initial_burn_steering(lspot).
+    lock steering to lookdirup(heading(c_head, 0):vector, ship:facing:topvector).
+    lock throttle to 1.
+    
+    until false
+    {
+        set c_head to initial_burn_steering(lspot).
+
+        if (ship:groundspeed < 70) break.
+
+        local pos_close is positionat(ship, t_close).
+        local frac is dist_off / pos_close:mag.
+        set pos_close to pos_close * (1 - frac).
+        clearvecdraws().
+        vecdraw(v(0,0,0), pos_close, RGB(1,0,0), "Pos", 2, True, 0.2, True, True).
+        clearscreen.
+        print "Initial Landing Burn".
+        print "Heading: " + round(c_head, 2) + "     GSpeed: " + round(ship:groundspeed, 2).
+        print round(pos_close:mag, 2).
+    }
+    clearvecdraws().
+}
+
+function dist_during_burn
+{
+    parameter burn_time, burn_dv, speed.
+
+    local isp is calc_current_isp().
+    local dfuel is ship:availablethrust / (constant:g0 * isp).
+    
+    return speed*burn_time + ship:availablethrust * ((burn_time - dfuel/ship:mass)*ln(abs(dfuel*burn_time/ship:mass - 1))-burn_time).
+}
+
+function lspot_closest
+{
+    parameter landing_lat, landing_lng.
+
+    local search_start is eta:periapsis * 2 + time:seconds.
+    if (ship:periapsis < 0)
+    {
+        local impact_params is impact_UTs().
+        set search_start to impact_params["time"].
+    }
+    local t_calc is search_start.
+    local min_dist is 2^50.
+    local min_time is 0.
+
+    until false
+    {
+        local landing_spot is latlng(landing_lat, landing_lng + 360*(t_calc-time:seconds)/body:rotationperiod).
+        local ship_pos is positionat(ship, t_calc).
+        local dist is ship_pos  - landing_spot:position.
+        if (dist:mag < min_dist)
+        {
+            set min_dist to dist:mag.
+            set min_time to t_calc.
+        }
+        else break.
+        set t_calc to t_calc - 1.
+    }
+    return min_time.
+}
+
+function initial_burn_steering
+{
+    parameter landing_spot.
+
+    // current horizontal velocity towards landing spot
+    local vh_spot is heading(landing_spot:heading, 0):vector * vdot(heading(landing_spot:heading,0):vector, ship:velocity:surface).
+    set vh_spot to vxcl(up:vector, vh_spot).
+    set vh_spot to -1 * vh_spot.
+
+    // velocity perpendicular to target
+    local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
+    set vside to -1 * vside.
+
+    set vec_tot to vxcl(up:vector, vh_spot + vside).
+
+    local east_unit_vec is vcrs(up:vector, north:vector).
+    local east_vel is vdot(vec_tot, east_unit_vec).
+    local north_vel is vdot(vec_tot, north:vector).
+    local compass is arctan2(east_vel, north_vel).
+    if (compass < 0) set compass to compass + 360.
+
+    return compass.
 }
