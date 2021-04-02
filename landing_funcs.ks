@@ -241,7 +241,7 @@ function initial_landing_burn
         print "Sdist: " + round(stopping_dist, 2) + "  Diff: " + round(diff, 2).
     }
 
-    local pitch_ang is 90 - vang(ship:up:forevector, ship:facing:forevector).
+    local pitch_ang is 5.//90 - vang(ship:up:forevector, ship:facing:forevector).
     local c_head is initial_burn_steering(lspot).
     lock steering to lookdirup(heading(c_head, pitch_ang):vector, ship:facing:topvector).
     lock throttle to 1.
@@ -369,7 +369,7 @@ function final_landing_burn
         set hspeed to dir_params[3].
         set min_t_target to dh_spot / hspeed.
         if (dh_spot < 1 and vh_spot:mag < 0.1) set pause to false.
-        if (dh_spot < 1.6 and vh_spot:mag < 0.05) set pause to false.
+        if (dh_spot < 1.9 and vh_spot:mag < 0.05) set pause to false.
 
         if (pause = true) set ship_alt to ship:altitude - landing_spot:terrainheight.
         else set ship_alt to alt:radar.
@@ -391,7 +391,8 @@ function final_landing_burn
         if (ship:status = "landed") break.
 
         clearscreen.
-        print sit + "    Skycrane: " + skycrane.
+        print sit.
+        print "Skycrane: " + skycrane + "          Pause: " + pause.
         print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(ship:verticalspeed, 2) + "   TgtVsp: " + round(pid_vspeed:setpoint, 2).
         print "VDist: " + round(ship_alt, 2) + "   HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
     }

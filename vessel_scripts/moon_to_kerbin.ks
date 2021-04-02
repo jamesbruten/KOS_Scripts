@@ -1,7 +1,7 @@
 @lazyglobal off.
 runpath("0:/boot/load_scripts.ks").
 
-global target_ap is 30000.
+global target_ap is 15000.
 global target_pe is target_ap.
 global target_inc is ship:latitude.
 global target_ap_km is target_ap/1000.

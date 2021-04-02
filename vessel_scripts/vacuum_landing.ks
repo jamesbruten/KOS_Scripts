@@ -1,12 +1,13 @@
-local target_lat is 0.351563.
-local target_lng is -5.185547.
-local tbody is Minmus.
+// local target_lat is 0.351563.
+// local target_lng is -5.185547.
+// local tbody is Minmus.
 
-// set target to "Mun Pad 3".
-// local target_lat is target:latitude.
-// local target_lng is target:longitude.
-// local tbody is Mun.
+set target to "Mun Pad 1".
+local target_lat is target:latitude.
+local target_lng is target:longitude.
+local tbody is Mun.
 
+set steeringmanager:maxstoppingtime to 2.
 undock_leave().
 
 if (ship:body = tbody)
@@ -47,6 +48,8 @@ if (kuniverse:activevessel <> core:vessel)
     wait 10.
 }
 activate_engines().
+
+set steeringmanager:maxstoppingtime to 0.75.
 
 initial_landing_burn(target_lat, target_lng).
 

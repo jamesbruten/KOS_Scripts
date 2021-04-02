@@ -214,12 +214,13 @@ function launch_to_vac
     print "Target Inclination: " + orb_inc.
     print "Liftoff".
 
+    lock throttle to 0.5.
+    wait 2.
     lock throttle to 1.
-    wait 1.
     
     lock steering to heading(needed_az, 45).
     gear off.
-    when (alt:radar > 1000) then lock steering to heading(needed_az, 0).
+    when (alt:radar > 500) then lock steering to heading(needed_az, 5).
     until (ship:apoapsis >= ap_height - 100)
     {
         if (ship:periapsis < -30000)

@@ -207,7 +207,7 @@ function moon_transfer
     global target_pe is target_pe_km*1000.
 
     // Target Body Orbit Params
-    local tbody is Minmus.
+    local tbody is Mun.
     set target to tbody.
     global next_inc is 0.
     global next_ap_km is 50.
@@ -215,21 +215,21 @@ function moon_transfer
     global next_ap is next_ap_km * 1000.
     global next_pe is next_pe_km * 1000.
 
-    // // do launch until apoapsis in parking orbit
-    // launch_to_ap(true).
+    // do launch until apoapsis in parking orbit
+    launch_to_ap(true).
 
-    // lights on.
-    // set steeringmanager:maxstoppingtime to 0.75.
+    lights on.
+    set steeringmanager:maxstoppingtime to 2.
 
-    // // circularise parking orbit
-    // adjust_apsides("a", ship:apoapsis).
+    // circularise parking orbit
+    adjust_apsides("a", ship:apoapsis).
 
-    // deploy_solar_panels().
-    // deploy_antenna().
-    // deploy_dp_shield().
+    deploy_solar_panels().
+    deploy_antenna().
+    deploy_dp_shield().
 
-    // transfer_orbit_moon().
-    // wait 5.
+    transfer_orbit_moon().
+    wait 5.
 
     // deploy_payload("payload").
     // wait 2.
