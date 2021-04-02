@@ -8,35 +8,33 @@ function moon_return
     if (ship:orbit:inclination > 90) set target_ang to 180.
     local diff is abs(pos_ang - target_ang).
     local warp_level is 0.
+
+    if (ship:body = Minmus)
+    {
+        until false
+        {
+            local lat_minmus is ship:body:latitude.
+
+            set warp_level to warp_at_level(0.229, 0.23, 0.27, abs(lat_minmus), 6).
+            if (warp_level = 0) break.
+
+            clearscreen.
+            print "Warping to 0 Latitude Kerbin".
+            print "Lat: " + lat_minmus.
+        }
+    }
     
     until false
     {
+        set pos_ang to vang(ship:position - ship:body:position, kerbin:position - ship:body:position).
+        set diff to abs(pos_ang - target_ang).
+
+        set warp_level to warp_at_level(5, 6, 12, diff).
+        if (warp_level = 0) break.
+
         clearscreen.
         print "Warping to Opposite Kerbin".
         print "Current: " + pos_ang + "    Diff: " + diff + "   Warp Level: " + warp_level.
-        if (diff < 5)
-        {
-            set warp to 0.
-            wait until ship:unpacked.
-            break.
-        }
-        else if (diff < 6)
-        {
-            set warp to 2.
-            set warp_level to 2.
-        }
-        else if (diff < 12)
-        {
-            set warp to 4.
-            set warp_level to 4.
-        }
-        else
-        {
-            set warp to 5.
-            set warp_level to 5.
-        }
-        set pos_ang to vang(ship:position - ship:body:position, kerbin:position - ship:body:position).
-        set diff to abs(pos_ang - target_ang).
     }
 
     wait 10.

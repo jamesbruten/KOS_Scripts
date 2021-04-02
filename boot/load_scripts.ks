@@ -44,7 +44,7 @@ function do_warp
 
 function warp_at_level
 {
-    parameter diff0, diff2, diff4, diff.
+    parameter diff0, diff2, diff4, diff, max_speed is 5.
 
     local warp_level is 0.
 
@@ -66,7 +66,7 @@ function warp_at_level
     }
     else
     {
-        set warp to 5.
+        set warp to max_speed.
         set warp_level to 5.
     }
 

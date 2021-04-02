@@ -18,14 +18,17 @@ function calc_burn_time
     // calculate burn time for required dv
     parameter burn_dv is 0.
 
+    local thrust is ship:availablethrust * 1000.
+    local m0 is ship:mass * 1000.
+
     if (burn_dv = 0)
     {
         local mnv is nextnode.
         set burn_dv to mnv:deltav:mag.
     }
     local isp is calc_current_isp().
-    local dfuel is ship:availablethrust / (constant:g0 * isp).
-    local burn_time is (ship:mass / dfuel) * (1 - constant:e^(-(abs(burn_dv) / (isp*constant:g0)))).
+    local dfuel is thrust / (constant:g0 * isp).
+    local burn_time is (m0 / dfuel) * (1 - constant:e^(-(abs(burn_dv) / (isp*constant:g0)))).
 
     return burn_time.
 }
