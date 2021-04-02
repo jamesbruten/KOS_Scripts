@@ -195,10 +195,19 @@ function intercept_landing_site
         local diff_lng is abs(impact_lng - landing_lng).
         if (diff_lng > 180) set diff_lng to 360 - diff_lng.
 
-        if (diff_lat < 5)
+        if (abs(landing_lat) <= 85)
         {
-            if (diff_lng < 5) break.
-            else if abs(landing_lat > 80) break.
+            if (diff_lat < 5)
+            {
+                if (diff_lng < 5) break.
+                else if (abs(landing_lat) > 80) break.
+            }
+        }
+        else
+        {
+            local tlat is abs(landing_lat) + 5 - 90.
+            if (landing_lat < 0) set tlat to -1 * tlat.
+            if (abs(impact_lat - tlat) < 0.5) break.
         }
         
         clearscreen.
