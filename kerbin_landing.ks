@@ -48,6 +48,7 @@ function moon_return
     }
     lock throttle to 0.
     lock steering to retrograde.
+    wait 5.
 
     print "Warping to Next Body".
     local old_body is ship:body.

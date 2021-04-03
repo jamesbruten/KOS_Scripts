@@ -241,7 +241,7 @@ function initial_landing_burn
         print "Sdist: " + round(stopping_dist, 2) + "  Diff: " + round(diff, 2).
     }
 
-    local pitch_ang is 5.//90 - vang(ship:up:forevector, ship:facing:forevector).
+    local pitch_ang is 90 - vang(ship:up:forevector, ship:facing:forevector).
     local c_head is initial_burn_steering(lspot).
     lock steering to lookdirup(heading(c_head, pitch_ang):vector, ship:facing:topvector).
     lock throttle to 1.
@@ -484,7 +484,7 @@ function skycrane_decouple
             local a is ship:apoapsis.
             p:getmodule("moduledecouple"):doevent("decouple").
             lock throttle to 1.
-            lock steering to heading(0, 45, 0).
+            lock steering to heading(90, 45, 0).
             wait until ship:apoapsis > a + 4000.
             wait 2.
             lock throttle to 0.
