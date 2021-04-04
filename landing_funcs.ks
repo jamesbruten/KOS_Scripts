@@ -9,7 +9,7 @@ function wait_for_landing
     set landing_long to landing_long + ang_error.
     if (landing_long < -180) set landing_long to landing_long + 360.
 
-    if (ship:orbit:inclination < 7)
+    if (ship:orbit:inclination < 7 or ship:orbit:inclination > 173)
     {
         print "Aligned with landing".
         wait 5.
@@ -48,7 +48,7 @@ function lower_periapsis
     parameter landing_lat, landing_lng.
 
     local mode is 0.
-    if (ship:orbit:inclination < 7) set mode to 1.
+    if (ship:orbit:inclination < 7 or ship:orbit:inclination > 173) set mode to 1.
 
     local p_val is 1.1 * body:radius - body:radius.
     until false
@@ -80,7 +80,7 @@ function lower_periapsis
         local lat2 is ship:geoposition:lat.
         
         local dlat is abs(lat1 - lat2).
-        local dlng is lng1 - lng2.
+        local dlng is abs(lng1 - lng2).
         if (dlng < 0) set dlng to dlng + 360.
 
         if (mode = 0)
@@ -393,7 +393,7 @@ function final_landing_burn
         print "Skycrane: " + skycrane + "          Pause: " + pause.
         print "Throttle: " + round(thrott_pid, 2).
         print "VDist: " + round(ship_alt, 2) + "   Vsp: " + round(ship:verticalspeed, 2) + "   TVsp: " + round(pid_vspeed:setpoint, 2).
-        print "HDist: " + round(dh_spot, 2) + "   HSp: " + round(vh_spot:mag, 2) + "THsp: " + round(hspeed, 2).
+        print "HDist: " + round(dh_spot, 2) + "   HSp: " + round(vh_spot:mag, 2) + "   THsp: " + round(hspeed, 2).
     }
     if (skycrane = false)
     {
@@ -438,8 +438,8 @@ function align_landing_spot
     if (dh_spot < 100) set hspeed to min(hspeed, dh_spot/4).
     local vel_targ is hspeed * heading(landing_spot:heading, 0):vector.
 
-    // acceleration to reach target velocity in 0.5 seconds
-    local acc_rec is (vel_targ - vh_spot) / 0.5.
+    // acceleration to reach target velocity in 2 seconds
+    local acc_rec is (vel_targ - vh_spot) / 2.
     // else local acc_rec is (vel_targ - vh_spot) / th_spot.
 
     // velocity perpendicular to target
