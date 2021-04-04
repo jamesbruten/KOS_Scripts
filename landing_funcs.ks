@@ -230,7 +230,7 @@ function initial_landing_burn
     {
         local vect_lspot is vxcl(up:vector, lspot:position).
         local stopping_time is calc_burn_time(ship:groundspeed).
-        local stopping_dist is dist_during_burn(stopping_time, ship:groundspeed, ship:groundspeed).
+        local stopping_dist is dist_during_burn(stopping_time, ship:groundspeed).
 
         local diff is vect_lspot:mag - stopping_dist.
         if (diff < 1200) break.
@@ -261,7 +261,7 @@ function initial_landing_burn
 
 function dist_during_burn
 {
-    parameter burn_time, burn_dv, ispeed.
+    parameter burn_time, ispeed.
 
     local thrust is ship:availablethrust * 1000.
     local m0 is ship:mass * 1000.
@@ -348,18 +348,16 @@ function final_landing_burn
     local vh_spot is dir_params[2].
     local hspeed is dir_params[3].
     local min_t_target is dh_spot / hspeed.
-    local param_vel is 1.
     local ship_alt is ship:altitude - landing_spot:terrainheight.
     local init_vspeed is ship:verticalspeed.
 
     lock steering to lookdirup(steer, ship:facing:topvector).
-
     pid_throttle_vspeed().
     local pause is true.
     when (pause = false) then gear on.
     local pause_alt is 70.
     local sit is "Final Landing Burn".
-    // when (dh_spot < 50) then lock steering to srfretrograde.
+
     until false
     {
         set dir_params to align_landing_spot(landing_spot).
@@ -393,8 +391,9 @@ function final_landing_burn
         clearscreen.
         print sit.
         print "Skycrane: " + skycrane + "          Pause: " + pause.
-        print "Throttle: " + round(thrott_pid, 2) + "   Vspeed: " + round(ship:verticalspeed, 2) + "   TgtVsp: " + round(pid_vspeed:setpoint, 2).
-        print "VDist: " + round(ship_alt, 2) + "   HDist: " + round(dh_spot, 2) + "     HSpeed: " + round(vh_spot:mag, 2).
+        print "Throttle: " + round(thrott_pid, 2).
+        print "VDist: " + round(ship_alt, 2) + "   Vsp: " + round(ship:verticalspeed, 2) + "   TVsp: " + round(pid_vspeed:setpoint, 2).
+        print "HDist: " + round(dh_spot, 2) + "   HSp: " + round(vh_spot:mag, 2) + "THsp: " + round(hspeed, 2).
     }
     if (skycrane = false)
     {
@@ -439,9 +438,9 @@ function align_landing_spot
     if (dh_spot < 100) set hspeed to min(hspeed, dh_spot/4).
     local vel_targ is hspeed * heading(landing_spot:heading, 0):vector.
 
-    // acceleration to reach target velocity in 2.5 seconds
-    if (dh_spot > 10) local acc_rec is (vel_targ - vh_spot) / 2.5.
-    else local acc_rec is (vel_targ - vh_spot) / th_spot.
+    // acceleration to reach target velocity in 0.5 seconds
+    local acc_rec is (vel_targ - vh_spot) / 0.5.
+    // else local acc_rec is (vel_targ - vh_spot) / th_spot.
 
     // velocity perpendicular to target
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
