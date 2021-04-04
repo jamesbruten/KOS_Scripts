@@ -483,9 +483,8 @@ function skycrane_decouple
             local a is ship:apoapsis.
             p:getmodule("moduledecouple"):doevent("decouple").
             lock throttle to 1.
-            lock steering to heading(90, 45, 0).
+            lock steering to lookdirup(heading(90, 45):vector, ship:facing:topvector).
             wait until ship:apoapsis > a + 4000.
-            wait 2.
             lock throttle to 0.
         }
     }
