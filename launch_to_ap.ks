@@ -214,7 +214,7 @@ function launch_to_vac
     print "Target Inclination: " + orb_inc.
     print "Liftoff".
 
-    lock throttle to 0.5.
+    lock throttle to 0.4.
     wait 2.
     lock throttle to 1.
     

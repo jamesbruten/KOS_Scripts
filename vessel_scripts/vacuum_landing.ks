@@ -37,16 +37,16 @@ local eta_landing is lspot_closest(target_lat, target_lng).
 
 intercept_landing_site(target_lat, target_lng, eta_landing).
 
-deploy_payload("payload").
-wait 2.
-if (kuniverse:activevessel <> core:vessel)
-{
-    kuniverse:forcesetactivevessel(core:vessel).
-    unlock steering.
-    AG1 on.
-    wait 10.
-}
-activate_engines().
+// deploy_payload("payload").
+// wait 2.
+// if (kuniverse:activevessel <> core:vessel)
+// {
+//     kuniverse:forcesetactivevessel(core:vessel).
+//     unlock steering.
+//     AG1 on.
+//     wait 10.
+// }
+// activate_engines().
 
 set steeringmanager:maxstoppingtime to 0.75.
 

@@ -171,7 +171,7 @@ function capture_next_body
     print "Warping to Next Body".
     local old_body is ship:body.
     do_warp(ship:orbit:nextpatcheta).
-    wait until old_body <> ship:body.
+    wait until ship:body <> old_body.
 
     wait 5.
     adjust_apsides("p", next_ap).
