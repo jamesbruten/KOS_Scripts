@@ -20,7 +20,7 @@ function moon_return
 
             clearscreen.
             print "Warping to 0 Latitude Kerbin".
-            print "Lat: " + lat_minmus.
+            print "Lat: " + round(lat_minmus, 2) + "   Warp Level: " + warp_level.
         }
     }
     
@@ -34,7 +34,7 @@ function moon_return
 
         clearscreen.
         print "Warping to Opposite Kerbin".
-        print "Current: " + pos_ang + "    Diff: " + diff + "   Warp Level: " + warp_level.
+        print "Current: " + round(pos_ang, 2) + "    Diff: " + round(diff, 2) + "   Warp Level: " + warp_level.
     }
 
     wait 10.

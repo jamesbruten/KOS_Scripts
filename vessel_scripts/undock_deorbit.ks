@@ -1,6 +1,6 @@
 runpath("0:/boot/load_scripts.ks").
 
-if (inp = "u") undock_leave().
+undock_leave().
 
 activate_engines().
 

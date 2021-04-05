@@ -366,8 +366,8 @@ function final_landing_burn
         set vh_spot to dir_params[2].
         set hspeed to dir_params[3].
         set min_t_target to dh_spot / hspeed.
-        if (dh_spot < 1 and vh_spot:mag < 0.1) set pause to false.
-        if (dh_spot < 1.9 and vh_spot:mag < 0.05) set pause to false.
+        if (dh_spot < 1 and vh_spot:mag < 0.2) set pause to false.
+        if (dh_spot < 2 and vh_spot:mag < 0.1) set pause to false.
 
         if (pause = true) set ship_alt to ship:altitude - landing_spot:terrainheight.
         else set ship_alt to alt:radar.

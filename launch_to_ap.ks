@@ -161,6 +161,12 @@ function prograde_climb
     lock steering to prograde.
     print "Engine Shutdown".
 
+    if (fairings_deployed = false)
+    {
+        until (alt:radar > 55000) wait 0.1.
+        deploy_fairing().
+    }
+
     for p in ship:parts
     {
         if (p:tag = "stage1")
@@ -172,12 +178,6 @@ function prograde_climb
             stage.
             wait 5.
         }
-    }
-
-    if (fairings_deployed = false)
-    {
-        until (alt:radar > 55000) wait 0.1.
-        deploy_fairing().
     }
 }
 
@@ -214,16 +214,15 @@ function launch_to_vac
     print "Target Inclination: " + orb_inc.
     print "Liftoff".
 
-    lock throttle to 0.4.
-    wait 2.
     lock throttle to 1.
+    wait 1.
     
     lock steering to heading(needed_az, 45).
     gear off.
     when (alt:radar > 500) then lock steering to heading(needed_az, 5).
     until (ship:apoapsis >= ap_height - 100)
     {
-        if (ship:periapsis < -30000)
+        if (ship:periapsis < -40000)
         {
            set needed_az to inst_az(orb_inc).
            set last_heading to needed_az.

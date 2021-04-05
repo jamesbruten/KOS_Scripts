@@ -17,7 +17,7 @@ function dock_vessels
     leave_keepout(targetport, 2).
 
     print "Aligning Steering".
-    local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
+    local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:topvector).
     lock steering to steering_vector.
 
     move_to_corner(targetport, shipport,steering_vector).

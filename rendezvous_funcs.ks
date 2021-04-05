@@ -6,7 +6,7 @@ function wait_for_window
     if (target:orbit:inclination < 5)
     {
         print "Target Orbit Equatorial - No Wait Necessary".
-        wait 5.
+        wait 2.
         return.
     }
 
