@@ -72,3 +72,15 @@ function warp_at_level
 
     return warp_level.
 }
+
+
+local mun_a is list(3.323333, -155.5653).
+local mun_b is list(3.269167, -155.5603).
+local mun_c is list(3.251389, -155.6219).
+local mun_d is list(3.259722, -155.635).
+
+global mun_pads is lexicon().
+mun_pads:add("Mun LC A", mun_a).
+mun_pads:add("Mun LC B", mun_b).
+mun_pads:add("Mun LC C", mun_c).
+mun_pads:add("Mun LC D", mun_d).
