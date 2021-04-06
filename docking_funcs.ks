@@ -258,7 +258,7 @@ function kss_tug_move
 
 function undock_leave
 {
-    parameter leave_time is 20, wait_time is 10.
+    parameter leave_time is 10, wait_time is 10.
 
     lock inp1 to terminal:input:getchar().
     print "Hit 'u' to undock or 'c' to continue without undocking".
@@ -284,16 +284,19 @@ function undock_leave
     {
         kuniverse:forcesetactivevessel(core:vessel).
     }
-    wait 1.
-
-    local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
-    lock steering to steering_vector.
+    lock steering to lookdirup(ship:facing:forevector, ship:facing:topvector).
+    wait 0.5.
 
     print "Leaving via RCS".
     SAS off.
     RCS on.
-    set ship:control:fore to -1.
-    wait leave_time.
+    local rcs_vect is -1 * targetport:portfacing:vector.
+    local t0 is time:seconds.
+    until false
+    {
+        translate(rcs_vect).
+        if (time:seconds > t0 + leave_time) break.
+    }
     RCS off.
     wait wait_time.
     activate_engines().
