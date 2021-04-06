@@ -368,6 +368,7 @@ function final_landing_burn
         set min_t_target to dh_spot / hspeed.
         if (dh_spot < 1 and vh_spot:mag < 0.2) set pause to false.
         if (dh_spot < 2 and vh_spot:mag < 0.1) set pause to false.
+        if (AG5) set pause to false.
 
         if (pause = true) set ship_alt to ship:altitude - landing_spot:terrainheight.
         else set ship_alt to alt:radar.
@@ -457,7 +458,7 @@ function landing_speed_params
 {
     if (body = Mun)
     {
-        if (alt:radar < 15) return list(0, -1).
+        if (alt:radar < 25) return list(0, -1).
         if (alt:radar < 40) return line_params(-8, -1, 40, 15).
         if (alt:radar < 100) return line_params(-20, -8, 100, 40).
         if (alt:radar < 500) return line_params(-50, -20, 500, 100).

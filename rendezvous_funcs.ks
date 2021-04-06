@@ -120,6 +120,7 @@ function match_inclination
     print mnv.
     add_maneuver(mnv).
     execute_mnv().
+    wait 2.
 }
 
 function eccentricity_anom
@@ -180,7 +181,7 @@ function transfer_orbit
 
         clearscreen.
         print "Warping to Transfer Angle".
-        print "TA: " + round(transfer_angle, 2) + "    PA: " + round(current_pa, 2) + "    Diff:" + round(diff, 2) + "   WL: " + warp_level.
+        print "TA: " + round(transfer_angle, 2) + "    PA: " + round(current_pa, 2) + "    Diff: " + round(diff, 2) + "   WL: " + warp_level.
     }
 
     local vinit is ship:velocity:orbit:mag.

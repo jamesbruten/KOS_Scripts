@@ -290,7 +290,7 @@ function undock_leave
     print "Leaving via RCS".
     SAS off.
     RCS on.
-    local rcs_vect is -1 * targetport:portfacing:vector.
+    local rcs_vect is targetport:portfacing:vector.
     local t0 is time:seconds.
     until false
     {
