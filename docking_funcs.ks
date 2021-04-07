@@ -153,7 +153,7 @@ function move_to_corner
         }
     }
 
-    local init_speed is 2.
+    local init_speed is 4.
     lock steering to steering_vector.
 
     until false
@@ -202,6 +202,7 @@ function set_speed
     parameter vector, speed.
     if (speed <= 0.5) return 0.5.
     
+    if (vector:mag < 150) set speed to 2.
     if (vector:mag < 10) set speed to 0.5.
     else if (vector:mag < 20) set speed to 1.
     

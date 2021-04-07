@@ -271,10 +271,10 @@ function final_rendezvous
         local vel_diff is velocityat(ship, min_time):orbit - velocityat(target, min_time):orbit.
         local killdv_time is calc_burn_time(vel_diff:mag).
 
-        print "Burn in: " + time_until_burn.
-        print "Burn DV: " + vel_diff:mag.
-        print "Burn Time: " + killdv_time.
-        print "Min Sep: " + min_dist.
+        print "Burn in: " + round(time_until_burn, 2).
+        print "Burn DV: " + round(vel_diff:mag, 2).
+        print "Burn Time: " + round(killdv_time, 2).
+        print "Min Sep: " + round(min_dist, 2).
         print "    ".
         local mnv is node(min_time, vel_diff:mag, 0, 0).
         add_maneuver(mnv).

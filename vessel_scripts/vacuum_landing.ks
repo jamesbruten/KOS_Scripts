@@ -5,15 +5,15 @@
 // Mun LC D     3.259722    -155.635
 
 
-local target_lat is 3.295.
-local target_lng is -155.5861.
-local tbody is Mun.
-
-// local pad is "Mun LC B".
-// local coords is mun_pads[pad].
-// local target_lat is coords[0].
-// local target_lng is coords[1].
+// local target_lat is 3.295.
+// local target_lng is -155.5861.
 // local tbody is Mun.
+
+local pad is "Mun LC D".
+local coords is mun_pads[pad].
+local target_lat is coords[0].
+local target_lng is coords[1].
+local tbody is Mun.
 
 set steeringmanager:maxstoppingtime to 2.
 undock_leave().
