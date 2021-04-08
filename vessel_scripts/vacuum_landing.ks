@@ -9,7 +9,7 @@
 // local target_lng is -155.5861.
 // local tbody is Mun.
 
-local pad is "Mun LC D".
+local pad is "Mun LC C".
 local coords is mun_pads[pad].
 local target_lat is coords[0].
 local target_lng is coords[1].

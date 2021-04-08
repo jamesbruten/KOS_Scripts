@@ -81,7 +81,7 @@ function reentry
     }
 
     lock steering to retrograde.
-    wait 10.
+    wait 3.
     print "Set Decouple to AG 9".
     lock inp to terminal:input:getchar().
     print "Hit 'l' to continue".
