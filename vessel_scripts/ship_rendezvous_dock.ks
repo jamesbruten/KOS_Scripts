@@ -40,6 +40,7 @@ if (target:body = ship:body)
 
     final_rendezvous().
     wait 5.
+    deploy_payload("payload").
 
     dock_vessels().
 }
