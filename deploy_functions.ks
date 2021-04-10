@@ -13,6 +13,7 @@ function deploy_fairing
 
 function deploy_solar_panels
 {
+    local check is false.
     for p in ship:parts
     {
         if p:hasmodule("moduledeployablesolarpanel")
@@ -20,16 +21,21 @@ function deploy_solar_panels
             local panel is p:getmodule("moduledeployablesolarpanel").
             if panel:hasevent("extend solar panel")
             {
-                print "Extending Solar Panels".
                 panel:doevent("extend solar panel").
+                set check to true.
             }
         }
     }
-    wait 5.
+    if (check = true)
+    {
+        print "Extending Solar Panels".
+        wait 5.
+    }
 }
 
 function retract_solar_panels
 {
+    local check is false.
     for p in ship:parts
     {
         if p:hasmodule("moduledeployablesolarpanel")
@@ -37,10 +43,15 @@ function retract_solar_panels
             local panel is p:getmodule("moduledeployablesolarpanel").
             if panel:hasevent("retract solar panel")
             {
-                print "Retracting Solar Panels".
                 panel:doevent("retract solar panel").
+                set check to true.
             }
         }
+    }
+    if (check = true)
+    {
+        print "Retracting Solar Panels".
+        wait 5.
     }
 }
 

@@ -9,7 +9,6 @@ global target_pe_km is target_pe/1000.
 
 
 retract_solar_panels().
-wait 5.
 
 launch_to_vac(target_ap, target_inc).
 
