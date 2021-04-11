@@ -350,6 +350,7 @@ function final_landing_burn
     local min_t_target is dh_spot / hspeed.
     local ship_alt is ship:altitude - landing_spot:terrainheight.
     local init_vspeed is ship:verticalspeed.
+    local tgt_vspd is init_vspeed.
 
     lock steering to lookdirup(steer, ship:facing:topvector).
     pid_throttle_vspeed().
@@ -365,7 +366,7 @@ function final_landing_burn
         set dh_spot to dir_params[1].
         set vh_spot to dir_params[2].
         set hspeed to dir_params[3].
-        set min_t_target to dh_spot / hspeed.
+        set min_t_target to dh_spot / vh_spot:mag.
         if (dh_spot < 1 and vh_spot:mag < 0.2) set pause to false.
         if (dh_spot < 2 and vh_spot:mag < 0.1) set pause to false.
         if (AG5) set pause to false.
@@ -374,17 +375,17 @@ function final_landing_burn
         else set ship_alt to alt:radar.
         if (ship_alt < pause_alt and pause = true)
         {
-            set pid_vspeed:setpoint to 0.
+            set tgt_vspd to 0.
             set sit to "Pausing Vspeed to Translate".
         }
         else
         {
             local params is landing_speed_params().
-            if (pause = true) set pid_vspeed:setpoint to max(init_vspeed, min(-10, -1 * ship_alt / (min_t_target + 20))).
-            else set pid_vspeed:setpoint to params[0] * ship_alt + params[1].
+            set tgt_vspd to wanted_vspeed(min_t_target, ship_alt, init_vspeed, params).
             set sit to "Final Landing Burn".
         }
 
+        set pid_vspeed:setpoint to tgt_vspd.
         set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
 
         if (ship:status = "landed") break.
@@ -413,6 +414,19 @@ function final_landing_burn
         print "Skycrane Decouple".
         skycrane_decouple().
     }
+}
+
+function wanted_vspeed
+{
+    parameter min_t_target, ship_alt, init_vspeed, params.
+
+    local min_val is -20.
+    if (ship_alt < 85) set min_val to -10.
+
+    local v1 is max(init_vspeed, min(min_val, -1 * ship_alt/min_t_target)).
+    local v2 is params[0] * ship_alt + params[1].
+
+    return max(v1, v2).
 }
 
 function align_landing_spot
