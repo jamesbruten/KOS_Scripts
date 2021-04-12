@@ -380,8 +380,7 @@ function final_landing_burn
         }
         else
         {
-            local params is landing_speed_params().
-            set tgt_vspd to wanted_vspeed(min_t_target, ship_alt, init_vspeed, params).
+            set tgt_vspd to wanted_vspeed(min_t_target, ship_alt, init_vspeed).
             set sit to "Final Landing Burn".
         }
 
@@ -418,7 +417,9 @@ function final_landing_burn
 
 function wanted_vspeed
 {
-    parameter min_t_target, ship_alt, init_vspeed, params.
+    parameter min_t_target, ship_alt, init_vspeed.
+
+    local params is landing_speed_params().
 
     local min_val is -20.
     if (ship_alt < 85) set min_val to -10.
@@ -476,7 +477,8 @@ function landing_speed_params
         if (alt:radar < 40) return line_params(-8, -1, 40, 15).
         if (alt:radar < 100) return line_params(-20, -8, 100, 40).
         if (alt:radar < 500) return line_params(-50, -20, 500, 100).
-        return list(0, -50).
+        if (alt:radar < 1000) return list(0, -50).
+        return -200.
     }
     else
     {
