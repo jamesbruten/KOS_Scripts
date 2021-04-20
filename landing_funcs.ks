@@ -478,7 +478,7 @@ function landing_speed_params
         if (alt:radar < 100) return line_params(-20, -8, 100, 40).
         if (alt:radar < 500) return line_params(-50, -20, 500, 100).
         if (alt:radar < 1000) return list(0, -50).
-        return -200.
+        return list(0, -200).
     }
     else
     {

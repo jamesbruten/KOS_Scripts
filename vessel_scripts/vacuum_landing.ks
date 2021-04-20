@@ -63,7 +63,7 @@ local tbody is Mun.
 //     }
 // }
 
-// set steeringmanager:maxstoppingtime to 0.75.
+set steeringmanager:maxstoppingtime to 0.75.
 
 initial_landing_burn(target_lat, target_lng).
 
