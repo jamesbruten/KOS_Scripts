@@ -316,6 +316,7 @@ function closest_approach
     // Function that will calculate closest approach distance and time
     // If closest approach less than wanted distance will get time to wanted distance
     parameter wanted_min, search_param.
+    print search_param.
 
     // start and end times for searching for closest approach
     local start_time is 0.
