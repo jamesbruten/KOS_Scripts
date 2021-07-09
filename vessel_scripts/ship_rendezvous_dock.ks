@@ -39,8 +39,8 @@ if (target:body = ship:body)
     transfer_orbit().
 
     final_rendezvous().
-    wait 5.
-    deploy_payload("payload").
+    // wait 5.
+    // deploy_payload("payload").
 
     dock_vessels().
 }

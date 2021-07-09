@@ -300,6 +300,7 @@ function final_rendezvous
         lock throttle to 1.
         local app_vel is 5.
         if (dist:mag < 500) set app_vel to 2.5.
+        if (dist:mag > 2000) set app_vel to 8.
         until false
         {
             set current_vel to ship:velocity:orbit - target:velocity:orbit.

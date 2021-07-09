@@ -76,6 +76,12 @@ function create_apside_mnv
 function execute_mnv
 {
     clearscreen.
+
+    local stage1_check is false.
+    for p in ship:parts
+    {
+        if (p:tag = "stage1") set stage1_check to true.
+    }
     
     set mnv to nextnode.
     lock np to lookdirup(mnv:deltav, ship:facing:topvector). //points to node, keeping roll the same.
