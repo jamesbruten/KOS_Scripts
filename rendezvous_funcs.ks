@@ -316,7 +316,6 @@ function closest_approach
     // Function that will calculate closest approach distance and time
     // If closest approach less than wanted distance will get time to wanted distance
     parameter wanted_min, search_param.
-    print search_param.
 
     // start and end times for searching for closest approach
     local start_time is 0.
@@ -329,7 +328,8 @@ function closest_approach
     else
     {
         set start_time to time:seconds + 2.
-        set end_time to time:seconds + 300.
+        set end_time to min(1.2*(ship:position-target:position):mag, 0.5*ship:orbit:period).
+        set end_time to end_time + time:seconds.
     }
 
     local t is start_time.
@@ -345,8 +345,9 @@ function closest_approach
             set min_dist to dist.
             set min_time to t.
         }
-        if (dist > min_dist + 1) break.
+        // if (dist > min_dist + 1) break.
         set t to t + 1.
+        if (t > end_time) break.
     }
     return list(min_time, min_dist).
 }

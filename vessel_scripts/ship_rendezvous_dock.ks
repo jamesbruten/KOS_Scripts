@@ -28,8 +28,8 @@ if (target:body = ship:body)
     adjust_apsides("a", ship:apoapsis).
 
     wait 5.
-    // deploy_payload("payload").
-    // activate_engines().
+    deploy_payload("payload").
+    activate_engines().
     deploy_solar_panels().
     deploy_dp_shield().
     deploy_antenna().
@@ -40,7 +40,7 @@ if (target:body = ship:body)
 
     final_rendezvous().
     // wait 5.
-    // deploy_payload("payload").
+    // deploy_payload("docker").
 
     dock_vessels().
 }

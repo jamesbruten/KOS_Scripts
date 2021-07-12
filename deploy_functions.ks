@@ -104,7 +104,8 @@ function deploy_payload
         if (p:tag = dname)
         {
             print "Deploying Payload".
-            p:getmodule("moduledecouple"):doevent("decouple").
+            if (p:hasmodule("moduledecouple")) p:getmodule("moduledecouple"):doevent("decouple").
+            else p:undock.
             wait 5.
         } 
     }
