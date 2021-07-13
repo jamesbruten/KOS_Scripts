@@ -136,33 +136,6 @@ function mean_anom
     return (ea - e*sin(ea))*constant:pi/180.
 }
 
-function time_to_pa
-{
-    // returns the time until the given target phase angle
-    // Assumes moving prograde and that PA is getting smaller over time
-
-    parameter target_angle.
-
-    local ang1 is get_phase_angle().
-    local t1 is time:seconds.
-    wait 10.
-    local ang2 is get_phase_angle().
-    if (ang2 > ang1) set ang1 to ang1 + 360.
-    local t2 is time:seconds.
-
-    local rate_change is (ang1 - ang2) /(t2 - t1).
-
-    local angle_left is "x".
-    local phase_angle is get_phase_angle().
-    local tcalc is time:seconds.
-    set phase_angle to phase_angle - target_angle.
-    if (phase_angle < 2) set phase_angle to phase_angle + 360.
-
-    local time_left is phase_angle / rate_change.
-
-    return time_left. 
-}
-
 function transfer_orbit
 {
     local t_semi_major is (ship:orbit:semimajoraxis + target:orbit:semimajoraxis)/2.
@@ -191,7 +164,6 @@ function transfer_orbit
 
     local mnv is node(timespan(30), 0, 0, dv).
     add_maneuver(mnv).
-        
     execute_mnv().
 }
 
