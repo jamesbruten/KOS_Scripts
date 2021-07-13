@@ -293,12 +293,11 @@ function final_rendezvous
         for en in ship_engines
         {
             if (en:ignition = true and dist:mag < 2000) set en:thrustlimit to 10.
-            else if (en:ignition = true and dist:mag < 2000) set en:thrustlimit to 25.
+            else if (en:ignition = true and dist:mag > 2000) set en:thrustlimit to 25.
         }
 
         lock np to lookdirup(target:position, ship:facing:topvector).
         lock steering to np.    
-        lock steering to np.
         wait until abs(np:pitch - facing:pitch) < 0.15 and abs(np:yaw - facing:yaw) < 0.15.
         lock throttle to 1.
         local app_vel is 5.
