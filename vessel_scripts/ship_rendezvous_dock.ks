@@ -27,9 +27,9 @@ if (target:body = ship:body)
     // circularise parking orbit
     adjust_apsides("a", ship:apoapsis).
 
-    wait 5.
-    deploy_payload("payload").
-    activate_engines().
+    // wait 5.
+    // deploy_payload("payload").
+    // activate_engines().
     deploy_solar_panels().
     deploy_dp_shield().
     deploy_antenna().

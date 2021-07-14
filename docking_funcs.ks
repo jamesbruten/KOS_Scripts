@@ -275,7 +275,7 @@ function undock_leave
     print "Hit 'l' to Undock".
     wait until inp = "l".
 
-    local dp is assign_ports("undocker").
+    local dp is assign_ports("undocker1").
 
     if (dp:state = "ready") return.
 
@@ -300,5 +300,4 @@ function undock_leave
     }
     RCS off.
     wait wait_time.
-    activate_engines().
 }
