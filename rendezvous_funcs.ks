@@ -256,7 +256,13 @@ function final_rendezvous
         wait until time:seconds >= min_time - killdv_time / 2.
         remove_maneuver(mnv).
         lock throttle to 1.
-        wait until time:seconds >= min_time + killdv_time / 2.
+        when (vel_diff:mag < 1.5) then lock throttle to 0.5.
+        until false
+        {
+            set vel_diff to ship:velocity:orbit - target:velocity:orbit.
+            if (vel_diff:mag < 0.25) break.
+        }
+        lock throttle to 0.
         lock throttle to 0.
         set dist to ship:position - target:position.
         if (dist:mag < 400) break.
