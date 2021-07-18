@@ -1,5 +1,7 @@
 function dock_vessels
 {
+    parameter port_name.
+
     print "Docking Vessels".
 
     list engines in ship_engines.
@@ -9,9 +11,10 @@ function dock_vessels
     }
     RCS on.
     
-    local targetport is get_target_port("target_dp").
+    local targetport is get_target_port(port_name).
     local shipport is assign_ports("docker").
     shipport:controlfrom().
+    set target to targetport.
 
     kill_relative_velocity(targetport).
     leave_keepout(targetport, 2).

@@ -64,7 +64,7 @@ function kerbin_deorbit
     lock steering to retrograde.
     wait 10.
     lock throttle to 1.
-    wait until ship:periapsis < 30000.
+    wait until ship:periapsis < 20000.
     lock throttle to 0.
 
     reentry().
@@ -82,11 +82,26 @@ function reentry
 
     lock steering to retrograde.
     wait 3.
-    print "Set Decouple to AG 9".
-    lock inp to terminal:input:getchar().
-    print "Hit 'l' to continue".
-    wait until inp = "l".
-    AG9 on. 
+    local check is false.
+    for p in ship:parts
+    {
+        if (p:tag = "reentry")
+        {
+            print "Decoupling for Reentry".
+            wait 5.
+            if (p:hasmodule("moduledecouple")) p:getmodule("moduledecouple"):doevent("decouple").
+            set check to true.
+            break.
+        }
+    }
+    if (check = false)
+    {
+        print "Set Decouple to AG 9".
+        lock inp to terminal:input:getchar().
+        print "Hit 'l' to continue".
+        wait until inp = "l".
+        AG9 on. 
+    }
     wait 10.
 
     deploy_dp_shield().
