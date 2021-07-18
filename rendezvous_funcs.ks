@@ -18,7 +18,7 @@ function wait_for_window
         local ang is vang(orbit_normal, body_normal).
         local diff is abs(90 - ang).
 
-        set warp_level to warp_at_level(0.5, 2, 15, diff).
+        set warp_level to warp_at_level(0.5, 1, 15, diff).
 
         if (warp_level = 0) break.
         
