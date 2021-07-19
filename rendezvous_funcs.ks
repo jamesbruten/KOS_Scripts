@@ -18,7 +18,8 @@ function wait_for_window
         local ang is vang(orbit_normal, body_normal).
         local diff is abs(90 - ang).
 
-        set warp_level to warp_at_level(0.5, 1, 15, diff).
+        if (ship:latitude < 45) set warp_level to warp_at_level(0.5, 1, 15, diff).
+        else set warp_level to warp_at_level(0.5, 0.8, 8, diff).
 
         if (warp_level = 0) break.
         
@@ -253,6 +254,7 @@ function final_rendezvous
 
         lock steering to lookdirup(-1*vel_diff, north:vector).
         do_warp(mnv:eta-60-killdv_time/2).
+        local max_time is min_time + 1.5*killdv_time.
         wait until time:seconds >= min_time - killdv_time / 2.
         remove_maneuver(mnv).
         lock throttle to 1.
@@ -260,7 +262,9 @@ function final_rendezvous
         until false
         {
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
-            if (vel_diff:mag < 0.25) break.
+            lock steering to lookdirup(-1*vel_diff, north:vector).
+            if (vel_diff:mag < 0.2) break.
+            if (time:seconds > max_time) break.
         }
         lock throttle to 0.
         lock throttle to 0.
@@ -276,7 +280,7 @@ function final_rendezvous
 
         lock np to lookdirup(target:position, ship:facing:topvector).
         lock steering to np.    
-        wait until abs(np:pitch - facing:pitch) < 0.15 and abs(np:yaw - facing:yaw) < 0.15.
+        wait until abs(np:pitch - facing:pitch) < 0.5 and abs(np:yaw - facing:yaw) < 0.5.
         lock throttle to 1.
         local app_vel is 5.
         if (dist:mag < 500) set app_vel to 2.5.
