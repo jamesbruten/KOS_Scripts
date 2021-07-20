@@ -22,7 +22,7 @@ function dock_vessels
     local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:topvector).
     lock steering to steering_vector.
 
-    move_to_radius(targetport, shipport,steering_vector).
+    move_to_radius(targetport, steering_vector).
     set target to targetport.
 
     retract_solar_panels().
@@ -102,8 +102,7 @@ function assign_ports
 
 function leave_keepout
 {
-    parameter speed is 2.
-
+    parameter speed is 4.
 
     print "Leaving 200m Keep Out Sphere".
     local target_radius is 200.
@@ -117,6 +116,7 @@ function leave_keepout
         set relative_vel to ship:velocity:orbit - target:velocity:orbit.
         translate(move_vector:normalized * speed - relative_vel).
         if (dist:mag > target_radius) break.
+        if (dist:mag > 180) set speed to 1.
         wait 0.01. 
     }
     translate(V(0,0,0)).
@@ -124,7 +124,7 @@ function leave_keepout
 
 function move_to_radius
 {
-    parameter targetport, shipport, steering_vector.
+    parameter targetport, steering_vector.
 
     local min_dist is 1000000.
     local min_val is list().
@@ -134,18 +134,20 @@ function move_to_radius
     set starvect to starvect:vector.
     local topvect is targetport:portfacing * R(0, 90, 0).
     set topvect to topvect:vector.
+    local star_d is "x".
+    local top_d is "x".
 
     local v1 is 0.
     until (v1 > 1)
     {
-        if (v1=0) local star_d is 1.
-        else local star_d is -1.
+        if (v1=0) set star_d to 1.
+        else set star_d to -1.
 
         local v2 is 0.
         until (v2 > 1)
         {
-            if (v2=0) local top_d is 1.
-            else local top_d is -1.
+            if (v2=0) set top_d to 1.
+            else set top_d to -1.
 
             local value is 0.
             until (value > 1)
@@ -178,54 +180,6 @@ function move_to_radius
         local app_vect is target:position + circle_pos - ship:position.
         set dist to ship:position - app_vect.
         set move_vector to target:position - ship:position + app_vect.
-        set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
-        local speed is set_speed(move_vector, init_speed).
-        translate(move_vector:normalized * speed - relative_vel).
-        clearscreen.
-        print "Moving to Nearest Approach Corner".
-        print round(move_vector:mag, 2).
-        if (move_vector:mag < 20) break.
-        wait 0.01.
-    }
-    translate(V(0,0,0)).
-}
-
-function move_to_corner
-{
-    parameter targetport, shipport, steering_vector.
-
-    local ax_dist is 100.
-    
-    local min_dist is 10000.
-    local min_vect is "x".
-
-    local forevect is targetport:portfacing:vector.
-    local starvect is targetport:portfacing * R(90, 0, 0).
-    set starvect to starvect:vector.
-    local topvect is targetport:portfacing * R(0, 90, 0).
-    set topvect to topvect:vector.
-
-    from{local d2 is -1*ax_dist.} until d2 > ax_dist step{set d2 to d2 + 2*ax_dist.} do
-    {
-        from{local d3 is -1*ax_dist.} until d3 > ax_dist step{set d3 to d3 + 2*ax_dist.} do
-        {
-            local c_pos is forevect*ax_dist + starvect*d2 + topvect*d3.
-            local c_dist is ship:position - c_pos.
-            if (c_dist:mag < min_dist)
-            {
-                set min_dist to c_dist:mag.
-                set min_vect to c_pos.
-            }
-        }
-    }
-
-    local init_speed is 4.
-    lock steering to steering_vector.
-
-    until false
-    {
-        set dist to ship:position - min_vect.
-        set move_vector to targetport:nodeposition - shipport:nodeposition + min_vect.
         set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
         local speed is set_speed(move_vector, init_speed).
         translate(move_vector:normalized * speed - relative_vel).
