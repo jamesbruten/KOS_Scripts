@@ -82,6 +82,9 @@ function reentry
 
     lock steering to retrograde.
     wait 3.
+
+    deploy_dp_shield().
+
     local check is false.
     for p in ship:parts
     {
@@ -103,8 +106,6 @@ function reentry
         AG9 on. 
     }
     wait 10.
-
-    deploy_dp_shield().
 
     set warp to 4.
     wait until ship:altitude < 70000.

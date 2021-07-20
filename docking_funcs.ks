@@ -11,11 +11,14 @@ function dock_vessels
     }
     RCS on.
 
+    set steeringmanager:maxstoppingtime to 0.5.
+
     leave_keepout().
     kill_relative_velocity().
     
     local targetport is get_target_port(target_port_name).
     local shipport is assign_ports(ship_port_name).
+    set targetport to check_ports_match(targetport, shipport).
     shipport:controlfrom().
 
     print "Aligning Steering".
@@ -100,6 +103,35 @@ function assign_ports
     return tp.
 }
 
+function check_ports_match
+{
+    parameter target_port, ship_port.
+
+    if (target_port:nodetype = ship_port:nodetype) return target_port.
+    
+    local open_ports is list().
+    for dp in target:dockingports
+    {
+        if (dp:nodetype = ship_port:nodetype and dp:state = "ready") open_ports:add(dp).
+    }
+
+    until false
+    {
+        local ind is 0.
+        until (ind >= open_ports:length)
+        {
+            print ind + "     " + dp:tag.
+        }
+        local inp is open_ports:length+1.
+        print "Choose Port".
+        terminal:input:clear().
+        set inp to terminal:input:getchar().
+        if (inp < open_ports:length) break.
+    }
+    
+    return open_ports[inp].
+}
+
 function leave_keepout
 {
     parameter speed is 4.
@@ -107,7 +139,7 @@ function leave_keepout
     print "Leaving 200m Keep Out Sphere".
     local target_radius is 200.
 
-    lock steering to north:vector.
+    lock steering to lookdirup(ship:facing:forevector, ship:facing:topvector).
 
     until false
     {
@@ -279,21 +311,28 @@ function kss_tug_move
 
 function undock_leave
 {
-    parameter leave_time is 10, wait_time is 10.
+    parameter leave_time is 10, wait_time is 10, leave_port is "undocker".
 
-    lock inp1 to terminal:input:getchar().
-    print "Hit 'u' to undock or 'c' to continue without undocking".
-    wait until inp1 = "c" or inp1 = "u".
+    local inp1 is "x".
+    local inp is "x".
 
-    if (inp1 = "c")
+    until false
     {
-        // activate_engines().
-        return.
+        print "Hit 'u' to undock or 'c' to continue without undocking".
+        terminal:input:clear().
+        set inp1 to terminal:input:getchar().
+        if (inp1 = "c" or inp1 = "u") break.
     }
 
-    lock inp to terminal:input:getchar().
-    print "Hit 'l' to Undock".
-    wait until inp = "l".
+    if (inp1 = "c") return.
+
+    until false
+    {
+        print "Hit 'l' to Undock".
+        terminal:input:clear().
+        set inp to terminal:input:getchar().
+        if (inp = "l") break.
+    }
 
     local dp is assign_ports("undocker").
 
