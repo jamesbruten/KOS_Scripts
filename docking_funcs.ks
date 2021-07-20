@@ -10,13 +10,13 @@ function dock_vessels
         en:shutdown.
     }
     RCS on.
+
+    leave_keepout().
+    kill_relative_velocity().
     
     local targetport is get_target_port(port_name).
     local shipport is assign_ports("docker").
     shipport:controlfrom().
-
-    kill_relative_velocity(targetport).
-    leave_keepout(targetport, 2).
 
     print "Aligning Steering".
     local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:topvector).
@@ -50,14 +50,12 @@ function translate
 
 function kill_relative_velocity
 {
-    parameter targetport.
-
     print "Killing Relative Velocity".
 
-    set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
+    set relative_vel to ship:velocity:orbit - target:velocity:orbit.
     until relative_vel:mag < 0.1
     {
-        set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
+        set relative_vel to ship:velocity:orbit - target:velocity:orbit.
         translate(-relative_vel).
     }
     translate(V(0,0,0)).
@@ -104,19 +102,19 @@ function assign_ports
 
 function leave_keepout
 {
-    parameter targetport, speed.
+    parameter speed is 2.
 
 
-    print "Leaving Keep Out Sphere".
+    print "Leaving 200m Keep Out Sphere".
     local target_radius is 200.
 
     lock steering to north:vector.
 
     until false
     {
-        set dist to ship:position - targetport:ship:position.
+        set dist to ship:position - target:position.
         set move_vector to (dist:normalized * target_radius) - dist.
-        set relative_vel to ship:velocity:orbit - targetport:ship:velocity:orbit.
+        set relative_vel to ship:velocity:orbit - target:velocity:orbit.
         translate(move_vector:normalized * speed - relative_vel).
         if (dist:mag > target_radius) break.
         wait 0.01. 

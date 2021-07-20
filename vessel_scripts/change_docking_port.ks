@@ -1,10 +1,24 @@
 runpath("0:/boot/load_scripts.ks").
 
-undock_leave(5, 5).
+local port_name is "tug_jnr".
 
-print "Select Target Vessel     Change DP name".
-print "Hit 'l' when done".
-lock inp to terminal:input:getchar().
-wait until inp = "l".
+undock_leave(2, 0).
+
+list targets in target_list.
+local inp is "x".
+until false
+{
+    local index is 0.
+    for t in target_list
+    {
+        print index + "   " + t:name.
+        set index to index + 1.
+    }
+    lock inp to terminal:input:getchar().
+    wait until inp <> "x".
+    if (inp < index) break.
+}
+print "Setting Target Vessel to " + target_list[inp]:name.
+set target to target_list[inp].
 
 dock_vessels().
