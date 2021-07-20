@@ -1,6 +1,6 @@
 function dock_vessels
 {
-    parameter port_name.
+    parameter target_port_name, ship_port_name is "docker".
 
     print "Docking Vessels".
 
@@ -14,8 +14,8 @@ function dock_vessels
     leave_keepout().
     kill_relative_velocity().
     
-    local targetport is get_target_port(port_name).
-    local shipport is assign_ports("docker").
+    local targetport is get_target_port(target_port_name).
+    local shipport is assign_ports(ship_port_name).
     shipport:controlfrom().
 
     print "Aligning Steering".
