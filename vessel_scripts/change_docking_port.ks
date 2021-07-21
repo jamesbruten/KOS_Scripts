@@ -3,7 +3,7 @@ runpath("0:/boot/load_scripts.ks").
 local target_port_name is "tug_snr".
 local leave_port is "undocker".
 
-// undock_leave(3, 5, leave_port).
+undock_leave(3, 5, leave_port).
 
 list targets in target_list.
 local ind is target_list:length-1.
