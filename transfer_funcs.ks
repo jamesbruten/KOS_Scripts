@@ -1,3 +1,30 @@
+function time_to_pa
+{
+    // returns the time until the given target phase angle
+    // Assumes moving prograde and that PA is getting smaller over time
+
+    parameter target_angle.
+
+    local ang1 is get_phase_angle().
+    local t1 is time:seconds.
+    wait 10.
+    local ang2 is get_phase_angle().
+    if (ang2 > ang1) set ang1 to ang1 + 360.
+    local t2 is time:seconds.
+
+    local rate_change is (ang1 - ang2) /(t2 - t1).
+
+    local angle_left is "x".
+    local phase_angle is get_phase_angle().
+    local tcalc is time:seconds.
+    set phase_angle to phase_angle - target_angle.
+    if (phase_angle < 2) set phase_angle to phase_angle + 360.
+
+    local time_left is phase_angle / rate_change.
+
+    return time_left. 
+}
+
 function moon_midcourse_correction
 {
     print "Doing Mid-Course Correction".
@@ -209,7 +236,7 @@ function moon_transfer
     // Target Body Orbit Params
     local tbody is Mun.
     set target to tbody.
-    global next_inc is 180.
+    global next_inc is 0.
     global next_ap_km is 50.
     global next_pe_km is next_ap_km.
     global next_ap is next_ap_km * 1000.

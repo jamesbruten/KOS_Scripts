@@ -6,7 +6,7 @@ if (target:body = ship:body)
     if (abs(ship:latitude) > target_inc) set target_inc to 1.01 * abs(ship:latitude).
     global target_ap_km is target_ap/1000.
     global target_pe_km is target_pe/1000.
-    local port_name is "node_fore_jnr".
+    local port_name is "target_dp".
     print "Target Port is: " + port_name.
     wait 3.
 

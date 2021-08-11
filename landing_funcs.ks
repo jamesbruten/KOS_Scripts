@@ -235,8 +235,10 @@ function initial_landing_burn
         local diff is vect_lspot:mag - stopping_dist.
         if (diff < 1200) break.
 
+        local warp_level is warp_at_level(10000, 99999999, 99999999, diff).
+
         clearscreen.
-        print "Waiting For Initial Landing Burn".
+        print "Waiting For Initial Landing Burn        Warp: " + warp_level.
         print "Gspeed: " + round(ship:groundspeed, 2) + "  Pdist: " + round(vect_lspot:mag, 2).
         print "Sdist: " + round(stopping_dist, 2) + "  Diff: " + round(diff, 2).
     }
@@ -367,8 +369,7 @@ function final_landing_burn
         set vh_spot to dir_params[2].
         set hspeed to dir_params[3].
         set min_t_target to dh_spot / vh_spot:mag.
-        if (dh_spot < 1 and vh_spot:mag < 0.2) set pause to false.
-        if (dh_spot < 2 and vh_spot:mag < 0.1) set pause to false.
+        if (dh_spot < 10 and vh_spot:mag < 1.5) set pause to false.
         if (AG5) set pause to false.
 
         if (pause = true) set ship_alt to ship:altitude - landing_spot:terrainheight.
