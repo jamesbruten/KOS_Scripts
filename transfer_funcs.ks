@@ -202,6 +202,7 @@ function capture_next_body
 
     wait 5.
     adjust_apsides("p", next_ap).
+    lock steering to retrograde.
     wait 5.
     local diff1 is abs(ship:apoapsis - next_ap).
     local diff2 is abs(ship:periapsis - next_pe).
@@ -236,7 +237,7 @@ function moon_transfer
     // Target Body Orbit Params
     local tbody is Mun.
     set target to tbody.
-    global next_inc is 0.
+    global next_inc is 180.
     global next_ap_km is 50.
     global next_pe_km is next_ap_km.
     global next_ap is next_ap_km * 1000.
