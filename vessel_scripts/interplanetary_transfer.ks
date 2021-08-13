@@ -1,18 +1,18 @@
 // Parking Orbit Params
-global target_ap_km is 80.
+global target_ap_km is 120.
 global target_pe_km is target_ap_km.
 global target_inc is 0.
 global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
 // Target Body Orbit Params
-set target to Eve.
+set target to Moho.
 local target_body is target.
-global next_ap is 225000.       // gilly:periapsis - 1.1*gilly:soiradius.
+global next_ap is 50000.       // gilly:periapsis - 1.1*gilly:soiradius.
 global next_pe is next_ap.
 global next_ap_km is next_ap / 100.
 global next_pe_km is next_pe / 100.
-local next_inc is 90.
+local next_inc is 60.
 
 // do launch until apoapsis in parking orbit
 launch_to_ap(true).
@@ -32,15 +32,10 @@ wait 5.
 transfer_orbit_interplanetary().
 wait 5.
 
-deploy_payload("payload").
+deploy_payload("final").
 lock throttle to 0.
 wait 1.
-list engines in ship_engines.
-for en in ship_engines
-{
-    if not en:ignition en:activate.
-}
-wait 5.
+activate_engines().
 
 print "Warping Until Outside Kerbin SOI".
 local time_kerbol is ship:orbit:nextpatcheta.
@@ -97,27 +92,7 @@ for en in ship_engines
     set en:thrustlimit to 100.
 }
 
-until false
-{
-    print "Warping to Next Body".
-    local old_body is ship:body.
-    do_warp(ship:orbit:nextpatcheta).
-    wait until old_body <> ship:body.
-    wait 5.
-    local b1 is true.
-    if (ship:orbit:hasnextpatch = true)
-    {
-        if (ship:orbit:nextpatch:body <> sun and ship:orbit:nextpatcheta < eta:periapsis) set b1 to false.
-    }
-    if (ship:body = target_body and b1 = true) break.
-}
-
 wait 5.
-adjust_apsides("p", 0.3*ship:body:soiradius).
-wait 5.
-adjust_apsides("a", next_pe).
-wait 5.
-adjust_apsides("p", ship:periapsis).
-wait 5.
+capture_next_body().
 
 print "Finished Script".

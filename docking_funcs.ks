@@ -359,4 +359,5 @@ function undock_leave
     }
     RCS off.
     wait wait_time.
+    activate_engines().
 }

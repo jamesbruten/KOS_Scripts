@@ -15,11 +15,9 @@ local target_lat is coords[0].
 local target_lng is coords[1].
 local tbody is Mun.
 
-// set steeringmanager:maxstoppingtime to 2.
-// undock_leave().
-
 if (ship:body = tbody)
 {
+    undock_leave().
     if (ship:apoapsis > 75000)
     {
         print "Lowering Orbit to 50km".
