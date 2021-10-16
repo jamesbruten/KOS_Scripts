@@ -45,7 +45,7 @@ function wait_for_landing
 function lower_periapsis
 {
     // waits until opposite landing site then lowers periapsis to 9000m
-    parameter landing_lat, landing_lng.
+    parameter landing_lat, landing_lng, atmos_land is false.
 
     local mode is 0.
     if (ship:orbit:inclination < 7 or ship:orbit:inclination > 173) set mode to 1.
@@ -107,19 +107,26 @@ function lower_periapsis
     print "Pointing Retrograde".
     lock steering to retrograde.
     wait 15.
-    print "Retrograde Burn until: " + p_val.
-    lock throttle to 0.25.
-    wait until ship:periapsis < p_val+100.
-    lock throttle to 0.
-    print "Shutdown".
-    wait 2.
+
+    if (atmos_land = false)
+    {
+        print "Retrograde Burn until Periapsis Lower than " + p_val.
+        lock throttle to 0.25.
+        wait until ship:periapsis < p_val+100.
+        lock throttle to 0.
+        print "Shutdown".
+        wait 2.
+    }
+    else
+    {
+
+    }
 }
 
 function correct_landing_inc
 {
-    parameter landing_lat, landing_lng.
+    parameter landing_lat, landing_lng, wait_time is 2*eta:periapsis/3.
 
-    local wait_time is 2 * eta:periapsis / 3.
     local wait_end is wait_time + time:seconds.
     print "Warping: " + wait_time.
     do_warp(wait_time - 2).
@@ -518,3 +525,47 @@ function line_params
     return list(m, c).
 }
 
+function intercept_landing_site_atmosphere
+{
+    parameter landing_lat, landing_lng.
+
+    print("Impacting Landing Site").
+
+    lock steering to retrograde.
+    wait 5.
+    lock throttle to 1.
+    wait until TRAddon:hasimpact = true.
+    wait 0.5.
+    until false
+    {
+        local impact_params is TRAddons:impactpos.
+        local impact_lat is impact_params:lat.
+        local impact_lng is impact_params:lng.
+
+        local diff_lat is abs(impact_lat - landing_lat).
+        local diff_lng is abs(impact_lng - landing_lng).
+        if (diff_lng > 180) set diff_lng to 360 - diff_lng.
+
+        if (abs(landing_lat) <= 85)
+        {
+            if (diff_lat < 5)
+            {
+                if (diff_lng < 5) break.
+                else if (abs(landing_lat) > 80) break.
+            }
+        }
+        else
+        {
+            local tlat is abs(landing_lat) + 5 - 90.
+            if (landing_lat < 0) set tlat to -1 * tlat.
+            if (abs(impact_lat - tlat) < 0.5) break.
+        }
+        
+        clearscreen.
+        print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
+        print "Tlat: " + round(landing_lat, 2) + " Tlng: " + round(landing_lng, 2).
+        print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
+    }
+    lock throttle to 0.
+    wait 3.
+}

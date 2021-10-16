@@ -1,3 +1,4 @@
+@lazyglobal off.
 runpath("0:/boot/load_scripts.ks").
 
 local target_port_name is "star_jnr_upr".
