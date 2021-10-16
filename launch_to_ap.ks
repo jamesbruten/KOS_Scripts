@@ -25,7 +25,7 @@ function launch_to_ap
     initial_launch().
 
     // fly on defined pitch heading to 10km
-    to_ten_km().
+    pitch_over().
 
     // fly prograde until apoapsis height reached.
     prograde_climb().
@@ -39,6 +39,7 @@ function countdown
 {
     // Countdown and ignition of engines
     local tminus is 5.
+    set thrott_pid to 0.
     until (tminus < 1)
     {
         clearscreen.
@@ -48,13 +49,20 @@ function countdown
         print " ".
         print "Initiating Launch Program".
         print "t-minus: " + tminus.
-        if (tminus < 2)
+        if (tminus < 3)
         {
             print "Engine Ignition".
-            if (tminus = 1) stage.
+            if (tminus = 2) stage.
+            local tstep is 0.
+            until (tstep = 20)
+            {
+                set thrott_pid to thrott_pid + 0.5 / 20.
+                set tstep to tstep + 1.
+                wait 0.05.
+            }
         }
+        else wait 1.
         set tminus to tminus - 1.
-        WAIT 1.
     }
     clearscreen.
     print "Target Apoapsis:    " + target_ap_km.
@@ -72,9 +80,9 @@ function initial_launch
     set gforce to accvec:mag / g_pid.
     lock steering to heading(0, 90, 0).
     print "Liftoff".
-    print "Climbing to 700m".
+    print "Climbing to 500m".
     stage.
-    until (alt:radar > 700)
+    until (alt:radar > 500)
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
@@ -84,28 +92,33 @@ function initial_launch
     }
 }
 
-function to_ten_km
+function pitch_over
 {
-    // Will fly this path calculated from WA
-    // -8.94037×10^-8 x^2 - 0.00370273 x + 91.4233 (quadratic) where x is altitude
-    // Starts at 700m with pitch of 90
-    // Ends at 10km with pitch of 45
-    // Currently just following inclination azimuth
+    // Holds 85 degrees pitch until 1500m
+    // Then pitches over to reach 45 degrees in set amount of time
+    // The time is given by pitch_over_params
+    // Higher orbits == longer pitch over times
+    // calculates heading from inst_az calculation
+
+    local pitch_over_time is pitch_over_params().
 
     print "Initiating Pitch and Roll Maneuver".
     set accvec to ship:sensors:acc - ship:sensors:grav.
     set gforce to accvec:mag / g_pid.
-    set current_pitch to -8.94037E-8 * ship:altitude * ship:altitude - 0.00370273 * ship:altitude + 91.4233.
+    set current_pitch to 85.
     set needed_az to inst_az(target_inc).
     lock steering to heading(needed_az, current_pitch).
+    local ref_time is 0.
     until (ship:altitude > 10000)
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
-        set current_pitch to -8.94037E-8 * ship:altitude * ship:altitude - 0.00370273 * ship:altitude + 91.4233.
+        if (alt:radar > 1500) set current_pitch to 85 - 40 * (time:seconds-ref_time)/pitch_over_time.
         set needed_az to inst_az(target_inc).
         set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
+        if (alt:radar > 1700 and ref_time = 0) set ref_time to time:seconds.
+        if (current_pitch < 46) break.
     }
 }
 
@@ -234,4 +247,12 @@ function launch_to_vac
     lock steering to prograde.
     set steeringmanager:maxstoppingtime to 0.75.
     wait 5.
+}
+
+function pitch_over_rate
+{
+    // -8.94037E-8, -0.00370273, 91.4233, 10000
+    if (target_ap_km > 185) return 58.
+    if (target_ap_km > 125) return 52.
+    return 45.
 }
