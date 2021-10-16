@@ -80,9 +80,9 @@ function initial_launch
     set gforce to accvec:mag / g_pid.
     lock steering to heading(0, 90, 0).
     print "Liftoff".
-    print "Climbing to 700m".
+    print "Climbing to 500m".
     stage.
-    until (alt:radar > 700)
+    until (alt:radar > 500)
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
@@ -209,32 +209,26 @@ function launch_to_vac
     }
     lock steering to lookdirup(up:forevector, ship:facing:topvector).
 
+    pid_throttle_gforce().
+    set pid_gforce:setpoint to 3.0.
+    set accvec to ship:sensors:acc - ship:sensors:grav.
+    set gforce to accvec:mag / g_pid.
+    lock throttle to thrott_pid.
+
     local needed_az is inst_az(orb_inc).
     local last_heading is needed_az.
     
-    local tminus is 5.
-    until (tminus < 1)
-    {
-        clearscreen.
-        print "Target Apoapsis: " + ap_height/1000.
-        print "Target Inclination: " + orb_inc.
-        print "t-minus: " + tminus.
-        set tminus to tminus - 1.
-        wait 1.
-    }
-    clearscreen.
-    print "Target Apoapsis: " + ap_height.
-    print "Target Inclination: " + orb_inc.
-    print "Liftoff".
-
-    lock throttle to 1.
-    wait 1.
+    countdown().
     
     lock steering to heading(needed_az, 45).
-    gear off.
+    when (alt:radar > 150) then gear off.
     when (alt:radar > 500) then lock steering to heading(needed_az, 5).
     until (ship:apoapsis >= ap_height - 100)
     {
+        set accvec to ship:sensors:acc - ship:sensors:grav.
+        set gforce to accvec:mag / g_pid.
+        set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
+
         if (ship:periapsis < -40000)
         {
            set needed_az to inst_az(orb_inc).
