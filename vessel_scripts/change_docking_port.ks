@@ -1,6 +1,6 @@
 runpath("0:/boot/load_scripts.ks").
 
-local target_port_name is "tug_snr".
+local target_port_name is "star_jnr_upr".
 local leave_port is "undocker".
 
 undock_leave(3, 5, leave_port).
@@ -15,10 +15,10 @@ until (ind < 0)
     set ind to ind - 1.
 }
 
+local inp is 10000.
 if (target_list:length = 1) set inp to 0.
 else
 {
-    local inp is 10000.
     until false
     {
         local index is 0.

@@ -5,8 +5,8 @@ global target_inc is 0.
 global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
-local target_body is Duna.
-if (target_body:body = Kerbol) set target to target_body.
+local target_body is Moho.
+if (target_body:body = Sun) set target to target_body.
 else set target to target_body:body.
 
 // do launch until apoapsis in parking orbit
@@ -24,14 +24,17 @@ wait 5.
 deploy_antenna().
 wait 5.
 
+local wait_end is time:seconds + 180.
+do_warp(180).
+wait until time:seconds > wait_end.
+
 transfer_orbit_interplanetary().
 wait 5.
-unset target.
 
-deploy_payload("final").
-lock throttle to 0.
-wait 1.
-activate_engines().
+// deploy_payload("final").
+// lock throttle to 0.
+// wait 1.
+// activate_engines().
 
 print "Warping Until Outside Kerbin SOI".
 local time_kerbol is ship:orbit:nextpatcheta.
@@ -42,6 +45,7 @@ wait until time:seconds > wait_end.
 
 until (false)
 {
+    if (ship:body = target_body:body) set target to target_body.
     local next_soi is "None".
     if (ship:orbit:hasnextpatch) set next_soi to ship:orbit:nextpatch:body.
 
