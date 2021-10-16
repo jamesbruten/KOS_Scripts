@@ -5,6 +5,8 @@ function wait_for_landing
 
     // the angle that the body rotates during one orbit of ship
     // will wait until landing site within this angle of orbit
+    local period_val is ship:orbit:period.
+    if (ship:body = Kerbin) set period_val to 1.5 * period_val.
     local ang_error is 360 * ship:orbit:period / body:rotationperiod.
     set landing_long to landing_long + ang_error.
     if (landing_long < -180) set landing_long to landing_long + 360.
@@ -529,16 +531,66 @@ function intercept_landing_site_atmosphere
 {
     parameter landing_lat, landing_lng.
 
+    local mode is 0.
+    if (ship:orbit:inclination < 7 or ship:orbit:inclination > 173) set mode to 1.
+
+    local transfer_semimajor is (ship:orbit:semimajoraxis + body:radius) / 2.
+    local transfer_t is 2*constant:pi*sqrt(transfer_semimajor^3 / body:mu). // orbital period of transfer orbit.
+    local body_rot is  360 * 0.5 * transfer_t / body:rotationperiod.
+
+    set landing_lng to landing_lng + body_rot.
+    if (landing_lng > 180) set landing_lng to landing_lng - 360.
+    local burn_lng is landing_lng - 180.
+    if (burn_lng < -180) set burn_lng to burn_lng + 360.
+
+    local burn_lat is -1 * landing_lat.
+
+    local lat1 is burn_lat.
+    local lng1 is burn_lng + 180.
+    if (lng1 >= 360) set lng1 to lng1 - 360.
+    local warp_level is 0.
+    local diff is 0.
+    until false
+    {
+        local lng2 is ship:geoposition:lng + 180.
+        if (lng2 >= 360) set lng2 to lng2 - 360.
+        local lat2 is ship:geoposition:lat.
+        
+        local dlat is abs(lat1 - lat2).
+        local dlng is abs(lng1 - lng2).
+        if (dlng < 0) set dlng to dlng + 360.
+
+        if (mode = 0)
+        {
+            set diff to dlat.
+            if (dlng > 1.25*body_rot and abs(landing_lat) < 80) set diff to max(1.1, dlat).
+            set warp_level to warp_at_level(1, 2, 10, diff).
+        }
+        else
+        {
+            set diff to dlng.
+            set warp_level to warp_at_level(0.25, 1, 10, diff).
+        }
+
+        if (warp_level = 0) break.
+
+        clearscreen.
+        print "Mode: " + mode.
+        print "Warping to Latitude: " + round(burn_lat, 2) + "   Longitude: " + round(burn_lng, 2).
+        print "DLNG: " + round(dlng, 2) + "  DLAT: " + round(dlat, 2) + "   WL: " + warp_level.
+    }
+
     print("Impacting Landing Site").
 
     lock steering to retrograde.
     wait 5.
     lock throttle to 1.
-    wait until TRAddon:hasimpact = true.
+    wait until addons:tr:hasimpact = true.
     wait 0.5.
+    local min_val is 9999.
     until false
     {
-        local impact_params is TRAddons:impactpos.
+        local impact_params is addons:tr:impactpos.
         local impact_lat is impact_params:lat.
         local impact_lng is impact_params:lng.
 
@@ -546,19 +598,11 @@ function intercept_landing_site_atmosphere
         local diff_lng is abs(impact_lng - landing_lng).
         if (diff_lng > 180) set diff_lng to 360 - diff_lng.
 
-        if (abs(landing_lat) <= 85)
+        if (diff_lat<15)
         {
-            if (diff_lat < 5)
-            {
-                if (diff_lng < 5) break.
-                else if (abs(landing_lat) > 80) break.
-            }
-        }
-        else
-        {
-            local tlat is abs(landing_lat) + 5 - 90.
-            if (landing_lat < 0) set tlat to -1 * tlat.
-            if (abs(impact_lat - tlat) < 0.5) break.
+            local diff_val is diff_lng + diff_lat.
+            if (diff_val < min_val) set min_val to diff_val.
+            else if (addons:tr:timetillimpact < 0.75*ship:orbit:period) break.
         }
         
         clearscreen.

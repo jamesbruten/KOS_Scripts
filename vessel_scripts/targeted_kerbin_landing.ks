@@ -40,13 +40,12 @@ undock_leave().
 
 activate_engines().
 
-impact_landing_site_atmosphere(landing_lat, landing_lng).
-
-correct_landing_inc(landing_lat, landing_lng, 0.5*TRAddon:timetillimpact).
+intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
 set warp to 4.
 wait until ship:altitude < 71000.
 AG6.
+print "Aerodynamic Control Surfaces Unlocked".
 lock steering to prograde.
 RCS on.
 wait until ship:altitude < 60000.
@@ -58,3 +57,4 @@ if (ship:altitude < 20000 or AG7)
     unlock steering.
     SAS on.
 }
+wait until ship:altitude < 19000.
