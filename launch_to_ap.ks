@@ -137,15 +137,14 @@ function prograde_climb
     set pid_gforce:setpoint to 2.5.
     local fairings_deployed is false.
     local max_pitch is 45.
-    local min_pitch is 15.
+    local min_pitch is 10.
     set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
     set needed_az to inst_az(target_inc).
 
     lock steering to heading(needed_az, current_pitch).
 
-    when (alt:radar > 27000) then set pid_gforce:setpoint to 3.0.
-    when (alt:radar > 60000) then set min_pitch to 8.
+    when (alt:radar > 60000) then set min_pitch to 5.
     when (alt:radar > 70000) then set min_pitch to 0.
     when (ship:velocity:orbit:mag > 2150) then lock steering to prograde.
 
@@ -252,5 +251,6 @@ function launch_to_vac
 
 function pitch_over_params
 {
-    if (target_ap_km > 185) return list(-8.94037E-8, -0.00370273, 91.4233, 10000).
+    if (target_ap_km > 145) return list(-1.48781044e-07, -3.09494190e-03, 9.10359649e+01, 10000).
+    return list(-3.91456583e-07, -2.65203081e-03, 9.11089286e+01, 8000).
 }
