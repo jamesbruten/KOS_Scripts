@@ -21,10 +21,10 @@ function launch_to_ap
     // Do Countdown
     countdown().
 
-    // Do Launch to 1500 - steering up, thrust max
+    // Do Launch to 700m - steering up, thrust max
     initial_launch().
 
-    // fly on defined pitch heading to 10km
+    // fly on defined pitch + heading to 10km
     pitch_over().
 
     // fly prograde until apoapsis height reached.
@@ -80,9 +80,9 @@ function initial_launch
     set gforce to accvec:mag / g_pid.
     lock steering to heading(0, 90, 0).
     print "Liftoff".
-    print "Climbing to 500m".
+    print "Climbing to 700m".
     stage.
-    until (alt:radar > 500)
+    until (alt:radar > 700)
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
@@ -94,31 +94,32 @@ function initial_launch
 
 function pitch_over
 {
-    // Holds 85 degrees pitch until 1500m
     // Then pitches over to reach 45 degrees in set amount of time
-    // The time is given by pitch_over_params
+    // The path is a quadratic given by pitch_over_params
     // Higher orbits == longer pitch over times
     // calculates heading from inst_az calculation
 
-    local pitch_over_time is pitch_over_params().
+    local pitch_params is pitch_over_params().
+    local pitch1 is pitch_params[0].
+    local pitch2 is pitch_params[1].
+    local pitch3 is pitch_params[2].
+    local final_alt is pitch_params[3].
 
     print "Initiating Pitch and Roll Maneuver".
     set accvec to ship:sensors:acc - ship:sensors:grav.
     set gforce to accvec:mag / g_pid.
-    set current_pitch to 85.
+    set current_pitch to pitch1*alt:radar*alt:radar + pitch2*alt:radar + pitch3.
     set needed_az to inst_az(target_inc).
     lock steering to heading(needed_az, current_pitch).
     local ref_time is 0.
-    until (ship:altitude > 10000)
+    until (alt:radar > final_alt)
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
-        if (alt:radar > 1500) set current_pitch to 85 - 40 * (time:seconds-ref_time)/pitch_over_time.
+        set current_pitch to pitch1*alt:radar*alt:radar + pitch2*alt:radar + pitch3.
         set needed_az to inst_az(target_inc).
         set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
         if (check_stage_thrust() = false) autostage().
-        if (alt:radar > 1700 and ref_time = 0) set ref_time to time:seconds.
-        if (current_pitch < 46) break.
     }
 }
 
@@ -249,10 +250,7 @@ function launch_to_vac
     wait 5.
 }
 
-function pitch_over_rate
+function pitch_over_params
 {
-    // -8.94037E-8, -0.00370273, 91.4233, 10000
-    if (target_ap_km > 185) return 58.
-    if (target_ap_km > 125) return 52.
-    return 45.
+    if (target_ap_km > 185) return list(-8.94037E-8, -0.00370273, 91.4233, 10000).
 }
