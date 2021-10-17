@@ -51,17 +51,18 @@ set warp to 4.
 wait until ship:altitude < 71000.
 lock steering to retrograde.
 AG6.
-RCS on.
 print "Aerodynamic Control Surfaces Unlocked".
-print "Holding Rretrograde until 20000". 
+print "Holding Rretrograde until 25000". 
 print "Hit AG7 to unlock steering and turn on SAS".
-when ship:altitude < 30000 then RCS off.
-if (ship:altitude < 20000 or AG7)
+when AG7 then
 {
+    print "Unlocking Steering and Setting SAS Prograde".
     unlock steering.
     SAS on.
+    set sasmode to "prograde".
 }
-wait until ship:altitude < 19000.
+when (ship:altitude < 25000) then AG7.
+wait until ship:altitude < 24000.
 
 
 function kerbin_landing_window
@@ -114,15 +115,6 @@ function intercept_landing_site_atmosphere
         local diff_lat is abs(impact_lat - target_lat).
         local diff_lng is abs(impact_lng - target_lng).
         if (diff_lng > 180) set diff_lng to 360 - diff_lng.
-
-        // if (diff_lat<15)
-        // {
-        //     local diff_val is diff_lng + diff_lat.
-        //     local dist_site is ship:body:geopositionlatlng(target_lat, target_lng):position:mag.
-        //     local dist_imp is ship:body:geopositionlatlng(impact_lat, impact_lng):position:mag.
-        //     if (diff_val < min_val) set min_val to diff_val.
-        //     else if (addons:tr:timetillimpact < 0.5*ship:orbit:period and dist_imp <= dist_site) break.
-        // }
 
         if (diff_lat < 5 and diff_lng < 5) break.
 
