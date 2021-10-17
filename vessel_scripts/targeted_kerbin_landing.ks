@@ -115,14 +115,16 @@ function intercept_landing_site_atmosphere
         local diff_lng is abs(impact_lng - target_lng).
         if (diff_lng > 180) set diff_lng to 360 - diff_lng.
 
-        if (diff_lat<15)
-        {
-            local diff_val is diff_lng + diff_lat.
-            local dist_site is ship:body:geopositionlatlng(target_lat, target_lng):position:mag.
-            local dist_imp is ship:body:geopositionlatlng(impact_lat, impact_lng):position:mag.
-            if (diff_val < min_val) set min_val to diff_val.
-            else if (addons:tr:timetillimpact < 0.5*ship:orbit:period and dist_imp <= dist_site) break.
-        }
+        // if (diff_lat<15)
+        // {
+        //     local diff_val is diff_lng + diff_lat.
+        //     local dist_site is ship:body:geopositionlatlng(target_lat, target_lng):position:mag.
+        //     local dist_imp is ship:body:geopositionlatlng(impact_lat, impact_lng):position:mag.
+        //     if (diff_val < min_val) set min_val to diff_val.
+        //     else if (addons:tr:timetillimpact < 0.5*ship:orbit:period and dist_imp <= dist_site) break.
+        // }
+
+        if (diff_lat < 5 and diff_lng < 5) break.
 
         clearscreen.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
