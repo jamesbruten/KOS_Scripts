@@ -78,7 +78,7 @@ function initial_launch
 {
     set accvec to ship:sensors:acc - ship:sensors:grav.
     set gforce to accvec:mag / g_pid.
-    lock steering to heading(0, 90, 0).
+    lock steering to lookdirup(ship:up:vector, ship:facing:topvector).
     print "Liftoff".
     print "Climbing to 500m".
     stage.
