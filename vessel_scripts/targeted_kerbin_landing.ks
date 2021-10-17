@@ -38,30 +38,23 @@ kerbin_landing_window(landing_lat, landing_lng).
 
 undock_leave().
 
-lock steering to retrograde.
-
-// local wait_time is 0.25*ship:orbit:period - 60.
-// local wait_end is time:seconds + wait_time + 10.
-// do_warp(wait_time).
-// wait until time:seconds > wait_end.
-
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
 set warp to 4.
 wait until ship:altitude < 71000.
 lock steering to retrograde.
-AG6.
+AG6 on.
 print "Aerodynamic Control Surfaces Unlocked".
 print "Holding Rretrograde until 25000". 
 print "Hit AG7 to unlock steering and turn on SAS".
-when AG7 then
+when (ship:altitude < 25000) then AG7.
+on AG7
 {
     print "Unlocking Steering and Setting SAS Prograde".
     unlock steering.
     SAS on.
     set sasmode to "prograde".
 }
-when (ship:altitude < 25000) then AG7.
 wait until ship:altitude < 24000.
 
 
