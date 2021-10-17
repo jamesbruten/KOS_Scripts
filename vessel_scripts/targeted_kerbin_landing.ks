@@ -40,10 +40,10 @@ undock_leave().
 
 lock steering to retrograde.
 
-local wait_time is 0.25*ship:orbit:period - 60.
-local wait_end is time:seconds + wait_time + 10.
-do_warp(wait_time).
-wait until time:seconds > wait_end.
+// local wait_time is 0.25*ship:orbit:period - 60.
+// local wait_end is time:seconds + wait_time + 10.
+// do_warp(wait_time).
+// wait until time:seconds > wait_end.
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
@@ -80,7 +80,7 @@ function kerbin_landing_window
         local diff_lat is abs(ship:geoposition:lat - target_lat).
         local diff_lng is abs(ship:geoposition:lng - burn_lng).
 
-        if (diff_lat < 2 and diff_lng > 5) set diff_lat to 7.
+        if (diff_lat < 10 and diff_lng > 5) set diff_lat to 12.
 
         set warp_level to warp_at_level(1, 2, 10, diff_lat).
 
@@ -100,7 +100,7 @@ function intercept_landing_site_atmosphere
     print("Impacting Landing Site").
 
     lock steering to retrograde.
-    wait 5.
+    wait 10.
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
     wait 0.5.
@@ -118,8 +118,8 @@ function intercept_landing_site_atmosphere
         if (diff_lat<15)
         {
             local diff_val is diff_lng + diff_lat.
-            local dist_site is geoposition(target_lat, target_lng):position:mag.
-            local dist_imp is geoposition(impact_lat, impact_lng):position:mag.
+            local dist_site is ship:body:geopositionlatlng(target_lat, target_lng):position:mag.
+            local dist_imp is ship:body:geopositionlatlng(impact_lat, impact_lng):position:mag.
             if (diff_val < min_val) set min_val to diff_val.
             else if (addons:tr:timetillimpact < 0.5*ship:orbit:period and dist_imp <= dist_site) break.
         }
