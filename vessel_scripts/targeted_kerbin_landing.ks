@@ -56,7 +56,7 @@ on AG7
     unlock steering.
     SAS on.
 }
-when (ship:status = "landed") then
+when (alt:radar < 10) then
 {
     brakes on.
     chutes on.
