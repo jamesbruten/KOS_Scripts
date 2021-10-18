@@ -46,15 +46,14 @@ lock steering to retrograde.
 AG6 on.
 print "Aerodynamic Control Surfaces Unlocked".
 print "Holding Rretrograde until 25000". 
-wait 20.
 print "Hit AG7 to unlock steering and turn on SAS".
-when (vang(ship:facing:forevector, ship:retrograde:vector) > 60) then lock steering to prograde.
 when (ship:altitude < 25000) then AG7.
 on AG7
 {
-    print "Unlocking Steering and Setting SAS on".
+    print "Unlocking Steering and Setting SAS to Prograde".
     unlock steering.
     SAS on.
+    set sasmode to "prograde".
 }
 wait until ship:altitude < 24000.
 
@@ -110,7 +109,9 @@ function intercept_landing_site_atmosphere
         local diff_lng is abs(impact_lng - target_lng).
         if (diff_lng > 180) set diff_lng to 360 - diff_lng.
 
-        if (diff_lat < 5 and diff_lng < 5) break.
+        local tot_diff is diff_lat + diff_lng.
+
+        if (tot_diff < 10) break.
 
         clearscreen.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
