@@ -46,16 +46,22 @@ lock steering to retrograde.
 AG6 on.
 print "Aerodynamic Control Surfaces Unlocked".
 print "Holding Rretrograde until 25000". 
+wait 20.
 print "Hit AG7 to unlock steering and turn on SAS".
+when (vang(ship:facing:forevector, ship:retrograde:vector) > 60) then AG6.
 when (ship:altitude < 25000) then AG7.
 on AG7
 {
     print "Unlocking Steering and Setting SAS to Prograde".
     unlock steering.
     SAS on.
-    set sasmode to "prograde".
 }
-wait until ship:altitude < 24000.
+when (ship:status = "landed") then
+{
+    brakes on.
+    chutes on.
+}
+wait until ship:groundspeed < 10.
 
 
 function kerbin_landing_window
