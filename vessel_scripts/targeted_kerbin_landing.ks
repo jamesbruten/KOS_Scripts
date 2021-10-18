@@ -46,14 +46,15 @@ lock steering to retrograde.
 AG6 on.
 print "Aerodynamic Control Surfaces Unlocked".
 print "Holding Rretrograde until 25000". 
+wait 20.
 print "Hit AG7 to unlock steering and turn on SAS".
+when (vang(ship:facing:forevector, ship:retrograde:vector) > 60) then lock steering to prograde.
 when (ship:altitude < 25000) then AG7.
 on AG7
 {
-    print "Unlocking Steering and Setting SAS Prograde".
+    print "Unlocking Steering and Setting SAS on".
     unlock steering.
     SAS on.
-    set sasmode to "prograde".
 }
 wait until ship:altitude < 24000.
 
