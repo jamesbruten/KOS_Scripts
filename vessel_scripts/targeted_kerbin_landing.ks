@@ -40,28 +40,7 @@ undock_leave().
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
-set warp to 4.
-wait until ship:altitude < 71000.
-lock steering to retrograde.
-AG6 on.
-print "Aerodynamic Control Surfaces Unlocked".
-print "Holding Rretrograde until 25000". 
-wait 20.
-print "Hit AG7 to unlock steering and turn on SAS".
-when (vang(ship:facing:forevector, ship:retrograde:vector) > 60) then AG6.
-when (ship:altitude < 25000) then AG7.
-on AG7
-{
-    print "Unlocking Steering and Setting SAS to Prograde".
-    unlock steering.
-    SAS on.
-}
-when (alt:radar < 10) then
-{
-    brakes on.
-    chutes on.
-}
-wait until ship:groundspeed < 10.
+reentry_pro().
 
 
 function kerbin_landing_window
@@ -126,4 +105,65 @@ function intercept_landing_site_atmosphere
     }
     lock throttle to 0.
     wait 3.
+}
+
+function reentry_pro
+{
+    set warp to 4.
+    wait until ship:altitude < 71000.
+
+    local prograde_heading is compass_for(ship, ship:prograde:vector).
+    AG6 on.    // unlock aero
+    AG6 on.    // re-retracts the airbrake
+    print "Aerodynamic Control Surfaces Unlocked".
+    print "Holding 60 Pitch until 25000". 
+
+    lock steering to heading(prograde_heading, 60).
+
+    until false
+    {
+        set prograde_heading to compass_for(ship, ship:prograde:vector).
+        if (ship:altitude < 25000) AG7 on.
+        on AG7
+        {
+            print "Unlocking Steering and Setting SAS to Prograde".
+            unlock steering.
+            SAS on.
+            break.
+        }
+    }
+
+    when (alt:radar < 10) then
+    {
+        brakes on.
+        chutes on.
+    }
+    wait until ship:groundspeed < 10.
+}
+
+function reentry_retro
+{
+    set warp to 4.
+    wait until ship:altitude < 71000.
+
+    lock steering to retrograde.
+    AG6 on.
+    print "Aerodynamic Control Surfaces Unlocked".
+    print "Holding Rretrograde until 25000". 
+    wait 20.
+    print "Hit AG7 to unlock steering and turn on SAS".
+    when (vang(ship:facing:forevector, ship:retrograde:vector) > 60) then AG6.
+    when (ship:altitude < 25000) then AG7.
+    on AG7
+    {
+        print "Unlocking Steering and Setting SAS to Prograde".
+        unlock steering.
+        SAS on.
+    }
+    when (alt:radar < 10) then
+    {
+        brakes on.
+        chutes on.
+    }
+    wait until ship:groundspeed < 10.
 }
