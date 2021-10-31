@@ -84,3 +84,5 @@ mun_pads:add("Mun LC A", mun_a).
 mun_pads:add("Mun LC B", mun_b).
 mun_pads:add("Mun LC C", mun_c).
 mun_pads:add("Mun LC D", mun_d).
+
+global rover_lander is false.

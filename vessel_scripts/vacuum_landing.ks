@@ -15,6 +15,11 @@ local target_lat is coords[0].
 local target_lng is coords[1].
 local tbody is Mun.
 
+for p in ship:parts
+{
+    if (p:tag = "rover_lander") set rover_lander to true.
+}
+
 if (ship:body = tbody)
 {
     undock_leave().
@@ -61,11 +66,16 @@ for p in ship:parts
     }
 }
 
+if (rover_lander = True) AG4 on.
+wait 10.
+
 set steeringmanager:maxstoppingtime to 0.75.
 
 initial_landing_burn(target_lat, target_lng).
 
 final_landing_burn(target_lat, target_lng).
+
+if (rover_lander = True) AG5 on.
 
 wait 3.
 deploy_solar_panels().

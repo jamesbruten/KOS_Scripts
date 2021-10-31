@@ -124,3 +124,29 @@ function activate_engines
     }
     wait 5.
 }
+
+function deploy_gear
+{
+    if (rover_lander = False) Gear on.
+    else
+    {
+        AG3.
+        wait 0.25.
+        AG1 on.
+        wait 1.
+        AG2 on.
+    }
+}
+
+function retract_gear
+{
+    if (rover_lander = False) Gear off.
+    else
+    {
+        AG2 on.
+        wait 1.
+        AG1 on.
+        wait 1.
+        AG3.
+    }
+}

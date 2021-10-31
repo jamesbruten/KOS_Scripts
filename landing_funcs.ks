@@ -366,7 +366,8 @@ function final_landing_burn
     lock steering to lookdirup(steer, ship:facing:topvector).
     pid_throttle_vspeed().
     local pause is true.
-    when (pause = false) then gear on.
+    if (rover_lander = False) when (pause = false) then deploy_gear().
+    else when (alt:radar < 250) then deploy_gear().
     local pause_alt is 70.
     local sit is "Final Landing Burn".
 
