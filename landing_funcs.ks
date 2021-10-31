@@ -261,6 +261,8 @@ function initial_landing_burn
     {
         set c_head to initial_burn_steering(lspot).
 
+        if (rover_lander = True) throttle_balance().
+
         if (ship:groundspeed < 70) break.
         if (ship:groundspeed < 200 and abs(ship:verticalspeed) > 50) break.
 
@@ -397,6 +399,8 @@ function final_landing_burn
 
         set pid_vspeed:setpoint to tgt_vspd.
         set thrott_pid to pid_vspeed:update(time:seconds, ship:verticalspeed).
+
+        if (rover_lander = True) throttle_balance().
 
         if (ship:status = "landed") break.
 

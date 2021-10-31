@@ -14,6 +14,7 @@ copypath("0:/landing_funcs.ks", "1:landing_funcs.ks").
 copypath("0:/transfer_funcs.ks", "1:transfer_funcs.ks").
 copypath("0:/kerbin_landing.ks", "1:kerbin_landing.ks").
 copypath("0:/ground_intercept.ks", "1:ground_intercept.ks").
+copypath("0:/throttle_balance.ks", "1:throttle_balance.ks").
 
 runpath("1:launch_to_ap.ks").
 runpath("1:maneuver_funcs.ks").
@@ -29,6 +30,7 @@ runpath("1:landing_funcs.ks").
 runpath("1:transfer_funcs.ks").
 runpath("1:kerbin_landing.ks").
 runpath("1:ground_intercept.ks").
+runpath("1:throttle_balance.ks").
 
 
 function do_warp
