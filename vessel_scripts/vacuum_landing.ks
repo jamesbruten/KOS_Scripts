@@ -53,6 +53,7 @@ for p in ship:parts
     if (p:tag = "payload")
     {
         deploy_payload("payload").
+        if (rover_lander = True) AG4 on.
         wait 2.
         if (kuniverse:activevessel <> core:vessel)
         {
@@ -65,9 +66,6 @@ for p in ship:parts
         break.
     }
 }
-
-if (rover_lander = True) AG4 on.
-wait 10.
 
 set steeringmanager:maxstoppingtime to 0.75.
 

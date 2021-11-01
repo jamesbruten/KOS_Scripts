@@ -131,7 +131,8 @@ function deploy_gear
     else
     {
         AG3.
-        wait 0.25.
+        Gear on.
+        wait 1.5.
         AG1 on.
         wait 1.
         AG2 on.
@@ -144,6 +145,7 @@ function retract_gear
     else
     {
         AG2 on.
+        Gear Off.
         wait 1.
         AG1 on.
         wait 1.
