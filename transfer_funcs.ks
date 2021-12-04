@@ -259,17 +259,17 @@ function moon_transfer
     transfer_orbit_moon().
     wait 5.
 
-    // deploy_payload("payload").
-    // wait 2.
-    // if (kuniverse:activevessel <> core:vessel)
-    // {
-    //     kuniverse:forcesetactivevessel(core:vessel).
-    //     unlock steering.
-    //     set target to tbody.
-    //     AG1 on.
-    //     wait 10.
-    // }
-    // activate_engines().
+    deploy_payload("payload").
+    wait 2.
+    if (kuniverse:activevessel <> core:vessel)
+    {
+        kuniverse:forcesetactivevessel(core:vessel).
+        unlock steering.
+        set target to tbody.
+        AG1 on.
+        wait 10.
+    }
+    activate_engines().
 
     moon_midcourse_correction().
     wait 5.
