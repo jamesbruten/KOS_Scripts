@@ -1,13 +1,12 @@
 @lazyglobal off.
-core:part:getmodule("KOSProcessor"):doevent("Open Terminal").
 runpath("0:/boot/load_scripts.ks").
 
 // if using boot_deorbit set main_cpu tag
 // Call final decoupler 'payload_deploy'     --- IMPORTANT ---
 
-declare global target_ap_km to 160.
-declare global target_pe_km to 160.
-declare global target_inc to -55.
+declare global target_ap_km to 120.
+declare global target_pe_km to 120.
+declare global target_inc to 45.
 
 if (target_ap_km < target_pe_km)
 {
@@ -21,23 +20,23 @@ declare global target_pe to target_pe_km * 1000.
 
 launch_to_ap(false).
 
-adjust_apsides("a").
+adjust_apsides("a", ship:apoapsis).
 
-wait 10.
-deploy_payload("payload1").
-wait 10.
-deploy_payload("payload2").
-wait 10.
-deploy_payload("payload3").
+// wait 10.
+// deploy_payload("payload1").
+// wait 10.
+// deploy_payload("payload2").
+// wait 10.
+// deploy_payload("payload3").
 
-if (ship:apoapsis > 750000) wait until eta:apoapsis < 60.
-lock steering to retrograde.
-wait 60.
-lock throttle to 0.3.
-wait 10.
-lock throttle to 1.
-wait until ship:periapsis < 0.
-lock throttle to 0.
-unlock steering.
+// if (ship:apoapsis > 750000) wait until eta:apoapsis < 60.
+// lock steering to retrograde.
+// wait 60.
+// lock throttle to 0.3.
+// wait 10.
+// lock throttle to 1.
+// wait until ship:periapsis < 0.
+// lock throttle to 0.
+// unlock steering.
 
-wait until false.
+// wait until false.

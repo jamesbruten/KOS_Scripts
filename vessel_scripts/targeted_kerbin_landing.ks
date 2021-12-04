@@ -5,6 +5,7 @@ print "Select Landing Site:".
 print "1 - Kerbin Runway".
 print "2 - Island Runway".
 print "3 - Desert Runway".
+print "4 - Custom".
 
 local inp is 0.
 until false
@@ -12,7 +13,7 @@ until false
     terminal:input:clear().
     set inp to terminal:input:getchar().
     set inp to inp:tonumber(-999).
-    if (inp=1 or inp=2 or inp=3) break.
+    if (inp=1 or inp=2 or inp=3 or inp=4) break.
 }
 
 local landing_lat is 0.
@@ -28,10 +29,15 @@ else if (inp = 2)
     set landing_lat to -1.540833.
     set landing_lng to -71.90972.
 }
-else
+else if (inp = 3)
 {
     set landing_lat to -6.599444.
     set landing_lng to -144.0406.
+}
+else
+{
+    set landing_lat to 8.39.
+    set landing_lng to -179.2.
 }
 
 kerbin_landing_window(landing_lat, landing_lng).
@@ -96,7 +102,7 @@ function intercept_landing_site_atmosphere
 
         local tot_diff is diff_lat + diff_lng.
 
-        if (tot_diff < 10) break.
+        if (tot_diff < 15) break.
 
         clearscreen.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
@@ -110,28 +116,31 @@ function intercept_landing_site_atmosphere
 function spaceplane_reeentry
 {
     set warp to 4.
-    wait until ship:altitude < 71000.
+    wait until ship:altitude < 73000.
 
-    local prograde_heading is compass_for(ship, ship:prograde:vector).
+    local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
-    AG6 on.    // re-retracts the airbrake
     print "Aerodynamic Control Surfaces Unlocked".
-    print "Holding 70 Pitch until 25000". 
+    print "Holding 60 Pitch until 25000". 
 
-    lock steering to heading(prograde_heading, 60).
+    lock steering to heading(prograde_heading, 60, 0).
 
-    until false
+    on AG7
     {
-        set prograde_heading to compass_for(ship, ship:prograde:vector).
-        if (ship:altitude < 25000) AG7 on.
-        on AG7
-        {
-            print "Unlocking Steering and Setting SAS to Prograde".
-            unlock steering.
-            SAS on.
-            break.
-        }
+        print "Unlocking Steering and Setting SAS to Prograde".
+        unlock steering.
+        SAS on.
     }
+
+    when (ship:altitude < 50000) then RCS on.
+
+    until AG7
+    {
+        set prograde_heading to compass_for_vec().
+        if (ship:altitude < 25000) AG7 on.
+    }
+
+    when (alt:radar < 125) then gear on.
 
     when (alt:radar < 10) then
     {
