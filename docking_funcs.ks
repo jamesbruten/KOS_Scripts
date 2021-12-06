@@ -13,7 +13,7 @@ function dock_vessels
 
     set steeringmanager:maxstoppingtime to 0.5.
 
-    leave_keepout().
+    // leave_keepout().
     kill_relative_velocity().
     
     local targetport is get_target_port(target_port_name).
@@ -22,7 +22,8 @@ function dock_vessels
     shipport:controlfrom().
 
     print "Aligning Steering".
-    local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:topvector).
+    local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:starvector).
+    if (target_port_name = "star_jnr_lwr") set steering_vector to lookdirup(-1*targetport:portfacing:vector, -1*targetport:portfacing:starvector).
     lock steering to steering_vector.
 
     move_to_radius(targetport, steering_vector).
