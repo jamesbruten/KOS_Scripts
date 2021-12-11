@@ -5,7 +5,9 @@ print "Select Landing Site:".
 print "1 - Kerbin Runway".
 print "2 - Island Runway".
 print "3 - Desert Runway".
-print "4 - Custom".
+print "4 - Glacier Runway".
+print "5 - Crater Runway".
+print "6 - Custom".
 
 local inp is 0.
 until false
@@ -13,7 +15,7 @@ until false
     terminal:input:clear().
     set inp to terminal:input:getchar().
     set inp to inp:tonumber(-999).
-    if (inp=1 or inp=2 or inp=3 or inp=4) break.
+    if (inp=1 or inp=2 or inp=3 or inp=4 or inp=5 or inp=6) break.
 }
 
 local landing_lat is 0.
@@ -34,10 +36,20 @@ else if (inp = 3)
     set landing_lat to -6.599444.
     set landing_lng to -144.0406.
 }
-else
+else if (inp = 4)
+{
+    set landing_lat to 73.56.
+    set landing_lng to 84.27.
+}
+else if (inp = 5)
 {
     set landing_lat to 8.39.
-    set landing_lng to -179.2.
+    set landing_lng to -179.68.
+}
+else if (inp = 6)
+{
+    set landing_lat to 0.
+    set landing_lng to 0.
 }
 
 kerbin_landing_window(landing_lat, landing_lng).
@@ -53,16 +65,18 @@ function kerbin_landing_window
 {
     parameter target_lat, target_lng.
 
+    local burn_lat is -1 * target_lat.
     local burn_lng is target_lng + 180.
     if (burn_lng > 180) set burn_lng to burn_lng - 360.         // opposite longitude to landing
     local body_rot is 180 * ship:orbit:period / ship:body:rotationperiod. // degrees of body rotation in half orbit
     set burn_lng to burn_lng + body_rot.                        // now opposite of where site will be with half orbit rotation
-    if (burn_lng > 180) set burn_lng to burn_lng - 360.            
+    if (burn_lng > 180) set burn_lng to burn_lng - 360.   
+
 
     local warp_level is 0.
     until false
     {
-        local diff_lat is abs(ship:geoposition:lat - target_lat).
+        local diff_lat is abs(ship:geoposition:lat - burn_lat).
         local diff_lng is abs(ship:geoposition:lng - burn_lng).
 
         if (diff_lat < 10 and diff_lng > 5) set diff_lat to 12.
