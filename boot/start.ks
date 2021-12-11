@@ -38,7 +38,7 @@ if (terminal:height < fileslist:length+3) set terminal:height to fileslist:lengt
 set ind to 0.
 print "Select File to Run:".
 for f in fileslist {
-    if f:name[0] <> "." {
+    if f:extension = "ks" {
         print "Option " + ind + ":   " + f:name.
         set ind to ind + 1.
     }
