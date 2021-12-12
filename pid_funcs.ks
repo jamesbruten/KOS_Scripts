@@ -16,6 +16,22 @@ function pid_throttle_gforce
 }
 
 
+function pid_throttle_accel
+{
+    global accel is ship:sensors:acc - ship:sensors:grav.
+
+    global Kp_accel is 0.05.
+    global Ki_accel is 0.
+    global Kd_accel is 0.006.
+
+    global pid_accel is pidloop(Kp_accel, Ki_accel, Kd_accel).
+    set pid_accel:setpoint to 10.
+
+    global thrott_pid is 0.
+    lock throttle to thrott_pid.
+}
+
+
 function pid_throttle_height
 {
     parameter target_height.

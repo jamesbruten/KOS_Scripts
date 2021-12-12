@@ -228,6 +228,8 @@ function final_rendezvous
     print "Performing Final Rendezvous to within 400m".
 
     local wanted_min is 350.
+
+    pid_throttle_accel().
     
     local dist is ship:position - target:position.
     local current_vel is ship:velocity:orbit - target:velocity:orbit.
@@ -253,44 +255,46 @@ function final_rendezvous
         add_maneuver(mnv).
 
         lock steering to lookdirup(-1*vel_diff, north:vector).
+        set pid_accel:setpoint to vel_diff / 4.
+        when (vel_diff:mag < 1.5) then set pid_accel:setpoint to 1.
+
         do_warp(mnv:eta-60-killdv_time/2).
         local max_time is min_time + 1.5*killdv_time.
         wait until time:seconds >= min_time - killdv_time / 2.
         remove_maneuver(mnv).
-        lock throttle to 1.
-        when (vel_diff:mag < 1.5) then lock throttle to 0.5.
+        
         until false
         {
+            set accel to ship:sensors:acc - ship:sensors:grav.
+            set thrott_pid to max(0, min(1, thrott_pid + pid_accel:update(time:seconds, accel))).
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
             lock steering to lookdirup(-1*vel_diff, north:vector).
             if (vel_diff:mag < 0.2) break.
             if (time:seconds > max_time) break.
         }
-        lock throttle to 0.
-        lock throttle to 0.
+        set thrott_pid to 0.
+        
         set dist to ship:position - target:position.
-        if (dist:mag < 400) break.
+        if (dist:mag < 500) break.
 
-        list engines in ship_engines.
-        for en in ship_engines
-        {
-            if (en:ignition = true and dist:mag < 2000) set en:thrustlimit to 10.
-            else if (en:ignition = true and dist:mag > 2000) set en:thrustlimit to 25.
-        }
+        local app_vel is 5.
+        if (dist:mag < 900) set app_vel to 3.
+        if (dist:mag > 1500) set app_vel to 8.
+        set pid_accel:setpoint to app_vel / 4.             // set acceleration to reach app_vel in 4 secs
 
         lock np to lookdirup(target:position, ship:facing:topvector).
         lock steering to np.    
-        wait until abs(np:pitch - facing:pitch) < 0.5 and abs(np:yaw - facing:yaw) < 0.5.
+        wait until abs(np:pitch - facing:pitch) < 1 and abs(np:yaw - facing:yaw) < 1.
+
         lock throttle to 1.
-        local app_vel is 5.
-        if (dist:mag < 500) set app_vel to 2.5.
-        if (dist:mag > 2000) set app_vel to 8.
         until false
         {
+            set accel to ship:sensors:acc - ship:sensors:grav.
+            set thrott_pid to max(0, min(1, thrott_pid + pid_accel:update(time:seconds, accel))).
             set current_vel to ship:velocity:orbit - target:velocity:orbit.
             if (current_vel:mag >= app_vel) break.
         }
-        lock throttle to 0.
+        set thrott_pid to 0.
     }
     print "Rendezvous Complete".
 }
