@@ -54,9 +54,9 @@ else if (inp = 6)
 
 kerbin_landing_window(landing_lat, landing_lng).
 
-undock_leave().
-
 kuniverse:quicksave().
+
+undock_leave().
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
