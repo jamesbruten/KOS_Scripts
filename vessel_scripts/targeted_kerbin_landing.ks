@@ -6,7 +6,7 @@ print "1 - Kerbin Runway".
 print "2 - Island Runway".
 print "3 - Desert Runway".
 print "4 - Glacier Runway".
-print "5 - Crater Runway".
+print "5 - Mahi Mahi Runway".
 print "6 - Custom".
 
 local inp is 0.
@@ -43,8 +43,8 @@ else if (inp = 4)
 }
 else if (inp = 5)
 {
-    set landing_lat to 8.39.
-    set landing_lng to -179.68.
+    set landing_lat to -49.8.
+    set landing_lng to -120.77.
 }
 else if (inp = 6)
 {
@@ -147,12 +147,14 @@ function spaceplane_reeentry
     }
 
     when (ship:altitude < 50000) then RCS on.
+    when (ship:altitude < 40000) then RCS off.
 
     until AG7
     {
         set prograde_heading to compass_for_vec().
         if (ship:altitude < 25000) AG7 on.
     }
+    unlock throttle.
 
     when (alt:radar < 125) then gear on.
 

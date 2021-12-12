@@ -7,7 +7,9 @@ print(pth).
 list files in fileslist.
 local dirs is list().
 for f in fileslist {
-    if (not f:isfile) dirs:add(f).
+    if (not f:isfile) {
+        if (f:name[0] <> ".") dirs:add(f).
+    }
 }
 
 if (terminal:height < dirs:length+3) set terminal:height to dirs:length + 3.
@@ -24,7 +26,7 @@ until false {
     terminal:input:clear().
     set inp to terminal:input:getchar().
     set inp to inp:tonumber(-999).
-    if (inp > 0 and inp < dirs:length) break.
+    if (inp >= 0 and inp < dirs:length) break.
 }
 
 set pth to pth + "/" + dirs[inp].
@@ -49,7 +51,7 @@ until false {
     terminal:input:clear().
     set inp to terminal:input:getchar().
     set inp to inp:tonumber(-999).
-    if (inp > 0 and inp < fileslist:length) break.
+    if (inp >= 0 and inp < fileslist:length) break.
 }
 
 set terminal:height to default_height.

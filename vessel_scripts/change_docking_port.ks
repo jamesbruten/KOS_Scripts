@@ -6,6 +6,7 @@ local leave_port is "undocker".
 
 undock_leave(3, 5, leave_port).
 
+local target_list is list().
 list targets in target_list.
 local ind is target_list:length-1.
 until (ind < 0)

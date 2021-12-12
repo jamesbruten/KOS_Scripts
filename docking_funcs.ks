@@ -13,7 +13,7 @@ function dock_vessels
 
     set steeringmanager:maxstoppingtime to 0.5.
 
-    // leave_keepout().
+    // // leave_keepout().
     kill_relative_velocity().
     
     local targetport is get_target_port(target_port_name).
