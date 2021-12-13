@@ -228,13 +228,13 @@ function final_rendezvous
     print "Performing Final Rendezvous to within 400m".
 
     local wanted_min is 350.
-
-    pid_throttle_accel().
     
     local dist is ship:position - target:position.
     local current_vel is ship:velocity:orbit - target:velocity:orbit.
     until false
     {
+        // ################################################################################################################
+        // Closest Approach Calculation
         set dist to ship:position - target:position.
         if (dist:mag < 10000) local rlist is closest_approach(wanted_min, 0).
         else local rlist is closest_approach(wanted_min, eta:apoapsis).
@@ -242,7 +242,8 @@ function final_rendezvous
         local min_dist is rlist[1].
         local time_until_burn is min_time - time:seconds.
 
-        // Required burn dv and burn time to kill velocity relative to target
+        // ################################################################################################################
+        // Kill Relative Velocity Section
         local vel_diff is velocityat(ship, min_time):orbit - velocityat(target, min_time):orbit.
         local killdv_time is calc_burn_time(vel_diff:mag).
 
@@ -255,32 +256,36 @@ function final_rendezvous
         add_maneuver(mnv).
 
         lock steering to lookdirup(-1*vel_diff, north:vector).
-        set pid_accel:setpoint to vel_diff / 4.
-        when (vel_diff:mag < 1.5) then set pid_accel:setpoint to 1.
+        local wantedAccel is vel_diff:mag / 4.
+        set_engine_limit(wantedAccel).
 
         do_warp(mnv:eta-60-killdv_time/2).
         local max_time is min_time + 1.5*killdv_time.
         wait until time:seconds >= min_time - killdv_time / 2.
         remove_maneuver(mnv).
         
+        lock throttle to 1.
         until false
         {
-            set accel to ship:sensors:acc - ship:sensors:grav.
-            set thrott_pid to max(0, min(1, thrott_pid + pid_accel:update(time:seconds, accel))).
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
             lock steering to lookdirup(-1*vel_diff, north:vector).
+            if (vel_diff:mag < 1.5) lock throttle to 0.5.
             if (vel_diff:mag < 0.2) break.
             if (time:seconds > max_time) break.
         }
-        set thrott_pid to 0.
+        lock throttle to 0.
         
         set dist to ship:position - target:position.
         if (dist:mag < 500) break.
 
+        // ################################################################################################################
+        // Burn at Target Section
+
         local app_vel is 5.
         if (dist:mag < 900) set app_vel to 3.
         if (dist:mag > 1500) set app_vel to 8.
-        set pid_accel:setpoint to app_vel / 4.             // set acceleration to reach app_vel in 4 secs
+        set wantedAccel to app_vel / 4.             // set acceleration to reach app_vel in 4 secs
+        set_engine_limit(wantedAccel).
 
         lock np to lookdirup(target:position, ship:facing:topvector).
         lock steering to np.    
@@ -289,12 +294,10 @@ function final_rendezvous
         lock throttle to 1.
         until false
         {
-            set accel to ship:sensors:acc - ship:sensors:grav.
-            set thrott_pid to max(0, min(1, thrott_pid + pid_accel:update(time:seconds, accel))).
             set current_vel to ship:velocity:orbit - target:velocity:orbit.
             if (current_vel:mag >= app_vel) break.
         }
-        set thrott_pid to 0.
+        lock throttle to 0.
     }
     print "Rendezvous Complete".
 }
@@ -338,4 +341,21 @@ function closest_approach
         if (t > end_time) break.
     }
     return list(min_time, min_dist).
+}
+
+function set_engine_limit {
+    parameter wantedAccel.
+
+    local totThrust is 0.
+    list engines in shipEngines.
+    for en in shipEngines {
+        set totThrust to totThrust + en:maxthrust.
+    }
+    local maxAccel is totThrust / ship:mass.
+    if (maxAccel > wantedAccel) {
+        set thrustLimit to wantedAccel / maxAccel.
+        for en in shipEngines {
+            set en:thrustlimit to 100 * thrustLimit.
+        }
+    }
 }
