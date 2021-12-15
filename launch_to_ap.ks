@@ -185,7 +185,7 @@ function prograde_climb
         if (p:tag = "stage1")
         {
             print "Dropping 1st Stage".
-            wait 5.
+            wait 2.
             stage.
             wait 1.
             stage.
