@@ -247,7 +247,11 @@ function final_rendezvous
         local vel_diff is velocityat(ship, min_time):orbit - velocityat(target, min_time):orbit.
         local killdv_time is calc_burn_time(vel_diff:mag).
         local targVel is 0.2.
-        if (vel_diff > 20) set targVel to 0.6.
+        local halfVel is 2.
+        if (vel_diff:mag > 20) {
+            set targVel to 0.6.
+            set halfVel to 3.
+        }
 
         print "Burn in: " + round(time_until_burn, 2).
         print "Burn DV: " + round(vel_diff:mag, 2).
@@ -262,8 +266,10 @@ function final_rendezvous
         set_engine_limit(wantedAccel).
 
         do_warp(mnv:eta-60-killdv_time/2).
+        RCS on.
         local max_time is min_time + 1.25*killdv_time.
         wait until time:seconds >= min_time - killdv_time / 2.
+        // RCS off.
         remove_maneuver(mnv).
         
         lock throttle to 1.
@@ -271,8 +277,8 @@ function final_rendezvous
         {
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
             lock steering to lookdirup(-1*vel_diff, north:vector).
-            if (vel_diff:mag < 2) lock throttle to 0.5.
-            if (vel_diff:mag < 0.2) break.
+            if (vel_diff:mag < halfVel) lock throttle to 0.5.
+            if (vel_diff:mag < targVel) break.
             if (time:seconds > max_time) break.
         }
         lock throttle to 0.
@@ -291,7 +297,9 @@ function final_rendezvous
 
         lock np to lookdirup(target:position, ship:facing:topvector).
         lock steering to np.    
+        RCS on.
         wait until abs(np:pitch - facing:pitch) < 1 and abs(np:yaw - facing:yaw) < 1.
+        RCS off.
 
         lock throttle to 1.
         until false

@@ -99,10 +99,14 @@ function execute_mnv
 
     wait 5.
     do_warp(mnv:eta-60-burn_duration/2).
-    wait until mnv:eta <= (burn_duration/2 + 45).
+    wait until mnv:eta <= (burn_duration/2 + 57).
+
+    RCS on.
 
     //now we need to wait until the burn vector and ship's facing are aligned
-    wait until abs(np:pitch - facing:pitch) < 0.15 and abs(np:yaw - facing:yaw) < 0.15.
+    wait until abs(np:pitch - facing:pitch) < 0.3 and abs(np:yaw - facing:yaw) < 0.3.
+
+    RCS off.
 
     //the ship is facing the right direction, let's wait for our burn time
     wait until mnv:eta <= (burn_duration/2).
