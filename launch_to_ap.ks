@@ -184,13 +184,20 @@ function prograde_climb
     {
         if (p:tag = "stage1")
         {
+            local init_mass is ship:mass.
             print "Dropping 1st Stage".
             wait 2.
             stage.
             wait 1.
-            stage.
+            if (ship:mass < 0.99 * init_mass) stage.
             wait 5.
         }
+    }
+
+    list engines in shipEngines.
+    for en in shipEngines {
+        if (en:tag = "en1") en:shutdown.
+        if (en:tag = "en2") en:activate. 
     }
 }
 

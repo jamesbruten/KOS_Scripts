@@ -76,18 +76,28 @@ function deploy_dp_shield
 {
     for p in ship:parts
     {
-        if p:hasmodule("moduleanimategeneric")
+        if (p:tag = "docker")
         {
-            print "Toggling Docking Port Shield".
-            local dp is p:getmodule("moduleanimategeneric").
-            if dp:hasevent("open shield")
+            if p:hasmodule("moduleanimategeneric")
             {
-                dp:doevent("open shield").
-                wait 5.
-            }
-            else if dp:hasevent("close shield")
-            {
-                dp:doevent("close shield").
+                print "Toggling Docking Port Shield".
+                local dp is p:getmodule("moduleanimategeneric").
+                if dp:hasevent("open shield")
+                {
+                    dp:doevent("open shield").
+                }
+                else if dp:hasevent("close shield")
+                {
+                    dp:doevent("close shield").
+                }
+                else if dp:hasevent("open docking shield")
+                {
+                    dp:doevent("open docking shield").
+                }
+                else if dp:hasevent("close docking shield")
+                {
+                    dp:doevent("close docking shield").
+                }
                 wait 5.
             }
         }
@@ -119,8 +129,11 @@ function activate_engines
     list engines in ship_engines.
     for en in ship_engines
     {
-        if not en:ignition en:activate.
-        set en:thrustlimit to tlimit.
+        if (en:tag <> "en1")
+        {
+            if not en:ignition en:activate.
+            set en:thrustlimit to tlimit.
+        }
     }
     wait 5.
 }
