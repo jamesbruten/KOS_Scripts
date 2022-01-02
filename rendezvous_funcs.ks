@@ -261,17 +261,20 @@ function final_rendezvous
         local mnv is node(min_time, vel_diff:mag, 0, 0).
         add_maneuver(mnv).
 
-        lock steering to lookdirup(-1*vel_diff, north:vector).
         local wantedAccel is vel_diff:mag / 4.
         set_engine_limit(wantedAccel).
 
         do_warp(mnv:eta-60-killdv_time/2).
         RCS on.
-        local max_time is min_time + 1.25*killdv_time.
-        wait until time:seconds >= min_time - killdv_time / 2.
-        // RCS off.
+        until (time:seconds >= min_time - killdv_time / 2)
+        {
+            set vel_diff to ship:velocity:orbit - target:velocity:orbit.
+            lock steering to lookdirup(-1*vel_diff, north:vector).
+        }
+        RCS off.
         remove_maneuver(mnv).
         
+        local max_time is min_time + 1.25*killdv_time.
         lock throttle to 1.
         until false
         {
