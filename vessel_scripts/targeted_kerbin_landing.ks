@@ -52,11 +52,13 @@ else if (inp = 6)
     set landing_lng to 0.
 }
 
-kerbin_landing_window(landing_lat, landing_lng).
+// kerbin_landing_window(landing_lat, landing_lng).
 
-kuniverse:quicksave().
+// kuniverse:quicksave().
 
-undock_leave().
+// undock_leave().
+
+deploy_dp_shield().
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
@@ -104,7 +106,8 @@ function intercept_landing_site_atmosphere
 
     lock steering to retrograde.
     RCS on.
-    wait until vang(ship:facing:forevector, retrograde) < 2.
+    // wait until vang(ship:facing:forevector, retrograde) < 2.
+    wait 10.
     wait 3.
     RCS off.
     lock throttle to 1.

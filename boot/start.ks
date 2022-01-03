@@ -51,7 +51,7 @@ local file is "".
 local bpressed2 is false.
 
 set gui2 to gui(200, fileslist:length+3).
-set gui1:y to -250.
+set gui2:x to -250.
 local label2 is gui2:addlabel("Select File from " + directory).
 set label2:style:align to "center".
 set label2:style:hstretch to true.

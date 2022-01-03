@@ -76,7 +76,7 @@ function deploy_dp_shield
 {
     for p in ship:parts
     {
-        if (p:tag = "docker")
+        if (p:tag = "docker" or p:tag = "undocker")
         {
             if p:hasmodule("moduleanimategeneric")
             {
