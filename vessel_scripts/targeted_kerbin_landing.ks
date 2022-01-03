@@ -100,6 +100,8 @@ function intercept_landing_site_atmosphere
 
     print("Impacting Landing Site").
 
+    set addons:tr:descentangles to list(60, 60, 30, 30).
+
     lock steering to retrograde.
     RCS on.
     wait until vang(ship:facing:forevector, retrograde) < 2.
