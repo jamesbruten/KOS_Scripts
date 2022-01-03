@@ -125,7 +125,7 @@ function intercept_landing_site_atmosphere
 
         local tot_diff is diff_lat + diff_lng.
 
-        if (tot_diff < 15) break.
+        if (tot_diff < 3) break.
 
         clearscreen.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
