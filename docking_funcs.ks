@@ -30,7 +30,7 @@ function dock_vessels
     set target to targetport.
 
     retract_solar_panels().
-    approach_port(targetport, shipport, 100, 2, 3, steering_vector).
+    approach_port(targetport, shipport, 100, 2, 7, steering_vector).
     approach_port(targetport, shipport, 20, 2, 0.5, steering_vector).
     approach_port(targetport, shipport, 10, 0.5, 0.1, steering_vector).
     approach_port(targetport, shipport, 1, 0.4, 0.1, steering_vector).

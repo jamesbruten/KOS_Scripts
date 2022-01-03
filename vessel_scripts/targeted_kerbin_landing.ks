@@ -132,7 +132,7 @@ function intercept_landing_site_atmosphere
 function spaceplane_reeentry
 {
     set warp to 4.
-    wait until ship:altitude < 73000.
+    wait until ship:altitude < 85000.
 
     local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
@@ -141,15 +141,15 @@ function spaceplane_reeentry
 
     lock steering to heading(prograde_heading, 60, 0).
 
+    when (ship:altitude < 50000) then RCS on.
+    when (ship:altitude < 40000) then RCS off.
+
     on AG7
     {
         print "Unlocking Steering and Setting SAS to Prograde".
         unlock steering.
         SAS on.
     }
-
-    when (ship:altitude < 50000) then RCS on.
-    when (ship:altitude < 40000) then RCS off.
 
     until AG7
     {

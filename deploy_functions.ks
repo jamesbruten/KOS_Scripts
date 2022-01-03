@@ -82,22 +82,12 @@ function deploy_dp_shield
             {
                 print "Toggling Docking Port Shield".
                 local dp is p:getmodule("moduleanimategeneric").
-                if dp:hasevent("open shield")
-                {
-                    dp:doevent("open shield").
-                }
-                else if dp:hasevent("close shield")
-                {
-                    dp:doevent("close shield").
-                }
-                else if dp:hasevent("open docking shield")
-                {
-                    dp:doevent("open docking shield").
-                }
-                else if dp:hasevent("close docking shield")
-                {
-                    dp:doevent("close docking shield").
-                }
+                if dp:hasevent("open shield") dp:doevent("open shield").
+                else if dp:hasevent("close shield") dp:doevent("close shield").
+                else if dp:hasevent("open docking shield") dp:doevent("open docking shield").
+                else if dp:hasevent("close docking shield") dp:doevent("close docking shield").
+                else if dp:hasevent("open") dp:doevent("open").
+                else if dp:hasevent("close") dp:doevent("close").
                 wait 5.
             }
         }

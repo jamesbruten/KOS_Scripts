@@ -1,4 +1,4 @@
-local default_height is terminal:height.
+local closeButton is 0.
 local pth is "0:".
 cd(pth).
 clearscreen.
@@ -12,51 +12,59 @@ for f in fileslist {
     }
 }
 
-if (terminal:height < dirs:length+3) set terminal:height to dirs:length + 3.
+local directory is "".
+local bpressed1 is false.
 
-local ind is 0.
-print "Select Directory:".
+set gui1 to gui(200, dirs:length+3).
+local label1 is gui1:addlabel("Select Directory").
+set label1:style:align to "center".
+set label1:style:hstretch to true.
+local buttonList1 is list().
 for d in dirs {
-    print "Option " + ind + ":   " + d:name.
-    set ind to ind + 1.
+    local b is gui1:addbutton(d:name).
+    set b:onclick to {
+        set directory to b:text.
+        set bpressed1 to true.
+    }.
+    buttonList1:add(b).
 }
+set closeButton to gui1:addbutton("Close").
+set closeButton:onclick to {clearguis().}.
+gui1:show().
+wait until bpressed1.
+clearguis().
 
-local inp is 0.
-until false {
-    terminal:input:clear().
-    set inp to terminal:input:getchar().
-    set inp to inp:tonumber(-999).
-    if (inp >= 0 and inp < dirs:length) break.
-}
-
-set pth to pth + "/" + dirs[inp].
+set pth to pth + "/" + directory.
 cd(pth).
 clearscreen.
-print(pth).
 
 list files in fileslist.
-if (terminal:height < fileslist:length+3) set terminal:height to fileslist:length + 3.
 
-set ind to 0.
-print "Select File to Run:".
+local file is "".
+local bpressed2 is false.
+
+set gui2 to gui(200, fileslist:length+3).
+local label2 is gui2:addlabel("Select File from " + directory).
+set label2:style:align to "center".
+set label2:style:hstretch to true.
+local buttonList2 is list().
 for f in fileslist {
-    if f:extension = "ks" {
-        print "Option " + ind + ":   " + f:name.
-        set ind to ind + 1.
-    }
+    local b is gui2:addbutton(f:name).
+    set b:onclick to {
+        set file to b:text.
+        set bpressed2 to true.
+    }.
+    buttonList2:add(b).
 }
+set closeButton to gui2:addbutton("Close").
+set closeButton:onclick to {clearguis().}.
+gui2:show().
+wait until bpressed2.
+clearguis().
 
-set inp to 0.
-until false {
-    terminal:input:clear().
-    set inp to terminal:input:getchar().
-    set inp to inp:tonumber(-999).
-    if (inp >= 0 and inp < fileslist:length) break.
-}
 
-set terminal:height to default_height.
-
-set pth to pth + "/" + fileslist[inp].
+set pth to pth + "/" + file.
+core:part:getmodule("kosprocessor"):doevent("open terminal").
 clearscreen.
 print("Running " + pth).
 runpath(pth).
