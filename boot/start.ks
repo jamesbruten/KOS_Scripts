@@ -1,8 +1,14 @@
 local closeButton is 0.
 local pth is "0:".
 cd(pth).
-clearscreen.
-print(pth).
+
+local cont is false.
+if (ship:status = "prelaunch") set cont to true.
+if not cont {
+    lock inp to terminal:input:getchar().
+    print "Hit 'l' continue start script".
+    wait until inp = "l".
+}
 
 list files in fileslist.
 local dirs is list().
@@ -16,6 +22,7 @@ local directory is "".
 local bpressed1 is false.
 
 set gui1 to gui(200, dirs:length+3).
+set gui1:x to -250.
 local label1 is gui1:addlabel("Select Directory").
 set label1:style:align to "center".
 set label1:style:hstretch to true.
@@ -44,6 +51,7 @@ local file is "".
 local bpressed2 is false.
 
 set gui2 to gui(200, fileslist:length+3).
+set gui1:y to -250.
 local label2 is gui2:addlabel("Select File from " + directory).
 set label2:style:align to "center".
 set label2:style:hstretch to true.

@@ -232,7 +232,7 @@ function approach_port
     local speed is init_speed.
     lock steering to steering_vector.
 
-    until shipport:state <> "Ready"
+    until false
     {
         set offset to targetport:portfacing:vector * distance.
         set move_vector to targetport:position - shipport:position + offset.
@@ -245,6 +245,7 @@ function approach_port
         print round(move_vector:mag, 2).
         print round(vang(shipport:portfacing:vector, dvect), 2).
         if (move_vector:mag < dist_error and vang(shipport:portfacing:vector, dvect) < 2) break.
+        if (shipport:state <> "Ready" and shipport:state <> "Preattached") break.
         wait 0.01.
     }
     translate(V(0,0,0)).

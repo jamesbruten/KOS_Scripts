@@ -101,11 +101,13 @@ function intercept_landing_site_atmosphere
     print("Impacting Landing Site").
 
     lock steering to retrograde.
-    wait 10.
+    RCS on.
+    wait until vang(ship:facing:forevector, retrograde) < 2.
+    wait 3.
+    RCS off.
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
     wait 0.5.
-    local min_val is 9999.
     until false
     {
         local impact_params is addons:tr:impactpos.
