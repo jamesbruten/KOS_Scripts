@@ -113,6 +113,8 @@ function intercept_landing_site_atmosphere
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
     wait 0.5.
+    local record is list(99999,99999,99999,99999,99999,99999,99999,99999,99999,99999).
+    local lastAv is 99999.
     until false
     {
         local impact_params is addons:tr:impactpos.
@@ -126,11 +128,21 @@ function intercept_landing_site_atmosphere
         local tot_diff is diff_lat + diff_lng.
 
         if (tot_diff < 3) break.
+        record:add(tot_diff).
+        record:remove(0).
+        local av is 0.
+        for r in record {
+            set av to av + r.
+        }
+        set av to av / 10.
+        if (av > lastAv) break.
+        set lastAv to av.
 
         clearscreen.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
         print "Tlat: " + round(target_lat, 2) + " Tlng: " + round(target_lng, 2).
         print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
+        print "Total Diff: " + round(tot_diff, 2).
     }
     lock throttle to 0.
     wait 3.
