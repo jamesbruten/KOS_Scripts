@@ -112,8 +112,8 @@ function intercept_landing_site_atmosphere
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
     wait 0.5.
-    local record is list(99999,99999,99999,99999,99999,99999,99999,99999,99999,99999).
-    local lastAv is 99999.
+    // local record is list(99999,99999,99999,99999,99999,99999,99999,99999,99999,99999).
+    // local lastAv is 99999.
     until false
     {
         local impact_params is addons:tr:impactpos.
@@ -129,15 +129,17 @@ function intercept_landing_site_atmosphere
         local targetPos is latlng(target_lat, target_lng):position:mag.
         local impactPos is latlng(impact_lat, impact_lng):position:mag.
 
-        record:add(tot_diff).
-        record:remove(0).
-        local av is 0.
-        for r in record {
-            set av to av + r.
-        }
-        set av to av / 10.
-        if (av > lastAv and impactPos < targetPos) break.
-        set lastAv to av.
+        if (tot_diff < 8 and impactPos < targetPos) break.
+
+        // record:add(tot_diff).
+        // record:remove(0).
+        // local av is 0.
+        // for r in record {
+        //     set av to av + r.
+        // }
+        // set av to av / 10.
+        // if (av > lastAv and impactPos < targetPos) break.
+        // set lastAv to av.
 
         clearscreen.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
@@ -152,8 +154,9 @@ function intercept_landing_site_atmosphere
 function spaceplane_reeentry
 {
     set warp to 4.
+    when (ship:altitude < 100000) then set warp to 2.
+    when (ship:altitude < 85000) then set warp to 0.
     wait until ship:altitude < 85000.
-    set warp to 0.
 
     local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
