@@ -52,11 +52,11 @@ else if (inp = 6)
     set landing_lng to 0.
 }
 
-// kerbin_landing_window(landing_lat, landing_lng).
+kerbin_landing_window(landing_lat, landing_lng).
 
-// kuniverse:quicksave().
+kuniverse:quicksave().
 
-// undock_leave().
+undock_leave().
 
 deploy_dp_shield().
 
@@ -106,8 +106,7 @@ function intercept_landing_site_atmosphere
 
     lock steering to retrograde.
     RCS on.
-    // wait until vang(ship:facing:forevector, retrograde) < 2.
-    wait 10.
+    wait until vang(ship:facing:forevector, retrograde:vector) < 2.
     wait 3.
     RCS off.
     lock throttle to 1.
@@ -127,7 +126,9 @@ function intercept_landing_site_atmosphere
 
         local tot_diff is diff_lat + diff_lng.
 
-        if (tot_diff < 3) break.
+        local targetPos is latlng(target_lat, target_lng):position:mag.
+        local impactPos is latlng(impact_lat, impact_lng):position:mag.
+
         record:add(tot_diff).
         record:remove(0).
         local av is 0.
@@ -135,7 +136,7 @@ function intercept_landing_site_atmosphere
             set av to av + r.
         }
         set av to av / 10.
-        if (av > lastAv) break.
+        if (av > lastAv and impactPos < targetPos) break.
         set lastAv to av.
 
         clearscreen.
@@ -152,6 +153,7 @@ function spaceplane_reeentry
 {
     set warp to 4.
     wait until ship:altitude < 85000.
+    set warp to 0.
 
     local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
