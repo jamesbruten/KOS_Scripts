@@ -23,6 +23,7 @@ local bpressed1 is false.
 
 set gui1 to gui(200, dirs:length+3).
 set gui1:x to -250.
+set gui1:y to 200.
 local label1 is gui1:addlabel("Select Directory").
 set label1:style:align to "center".
 set label1:style:hstretch to true.
@@ -52,6 +53,7 @@ local bpressed2 is false.
 
 set gui2 to gui(200, fileslist:length+3).
 set gui2:x to -250.
+set gui2:y to 200.
 local label2 is gui2:addlabel("Select File from " + directory).
 set label2:style:align to "center".
 set label2:style:hstretch to true.
