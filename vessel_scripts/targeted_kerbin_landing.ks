@@ -111,7 +111,7 @@ function intercept_landing_site_atmosphere
 
     print("Impacting Landing Site").
 
-    set addons:tr:descentangles to list(60, 60, 30, 30).
+    set addons:tr:descentangles to list(60, 50, 30, 5).
 
     lock steering to retrograde.
     RCS on.
@@ -121,8 +121,6 @@ function intercept_landing_site_atmosphere
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
     wait 0.5.
-    // local record is list(99999,99999,99999,99999,99999,99999,99999,99999,99999,99999).
-    // local lastAv is 99999.
     until false
     {
         local impact_params is addons:tr:impactpos.
@@ -139,16 +137,6 @@ function intercept_landing_site_atmosphere
         local impactPos is latlng(impact_lat, impact_lng):position:mag.
 
         if (tot_diff < 8 and impactPos < targetPos) break.
-
-        // record:add(tot_diff).
-        // record:remove(0).
-        // local av is 0.
-        // for r in record {
-        //     set av to av + r.
-        // }
-        // set av to av / 10.
-        // if (av > lastAv and impactPos < targetPos) break.
-        // set lastAv to av.
 
         clearscreen.
         print "Landing at " + runway.
