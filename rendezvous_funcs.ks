@@ -246,6 +246,7 @@ function final_rendezvous
         // Kill Relative Velocity Section
         local vel_diff is velocityat(ship, min_time):orbit - velocityat(target, min_time):orbit.
         local killdv_time is calc_burn_time(vel_diff:mag).
+        local max_time is min_time + 1.25*killdv_time.
         local targVel is 0.2.
         local halfVel is 2.
         if (vel_diff:mag > 20) {
@@ -258,28 +259,36 @@ function final_rendezvous
         print "Burn Time: " + round(killdv_time, 2).
         print "Min Sep: " + round(min_dist, 2).
         print "    ".
-        local mnv is node(min_time, vel_diff:mag, 0, 0).
-        add_maneuver(mnv).
 
         local wantedAccel is vel_diff:mag / 4.
         set_engine_limit(wantedAccel).
 
-        do_warp(mnv:eta-60-killdv_time/2).
+        lock steering to lookdirup(-1*vel_diff, north:vector).
+
+        do_warp(time_until_burn-60-killdv_time/2).
         RCS on.
+        local ctime is floor(time:seconds).
         until (time:seconds >= min_time - killdv_time / 2)
         {
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
-            lock steering to lookdirup(-1*vel_diff, north:vector).
+            if (floor(time:seconds <> ctime)){
+                set ctime to floor(time:seconds).
+                clearguis().
+                local gui is gui(100).
+                set gui:x to -250.
+                set gui:y to 200.
+                local label is gui:addlabel("Burn in: " + ctime).
+                set label:style:align to "center".
+                set label:style:hstretch to true.
+            }
         }
+        clearguis().
         RCS off.
-        remove_maneuver(mnv).
         
-        local max_time is min_time + 1.25*killdv_time.
         lock throttle to 1.
         until false
         {
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
-            lock steering to lookdirup(-1*vel_diff, north:vector).
             if (vel_diff:mag < halfVel) lock throttle to 0.5.
             if (vel_diff:mag < targVel) break.
             if (time:seconds > max_time) break.

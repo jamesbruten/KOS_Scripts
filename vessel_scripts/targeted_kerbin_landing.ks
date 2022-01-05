@@ -1,22 +1,32 @@
 @lazyglobal off.
 runpath("0:/boot/load_scripts.ks").
 
-print "Select Landing Site:".
-print "1 - Kerbin Runway".
-print "2 - Island Runway".
-print "3 - Desert Runway".
-print "4 - Glacier Runway".
-print "5 - Mahi Mahi Runway".
-print "6 - Custom".
 
+local runways is list("Kerbin", "Island", "Desert", "Glacier", "Mahi Mahi", "Custom").
+set gui to gui(200, 7).
+set gui:x to -250.
+set gui:y to 200.
+local label is gui:addlabel("Select Landing Runway").
+set label:style:align to "center".
+set label:style:hstretch to true.
+local i is 1.
+local bpressed is false.
 local inp is 0.
-until false
-{
-    terminal:input:clear().
-    set inp to terminal:input:getchar().
-    set inp to inp:tonumber(-999).
-    if (inp=1 or inp=2 or inp=3 or inp=4 or inp=5 or inp=6) break.
+for r in runways {
+    local b is gui:addbutton(r:name).
+    set b:onclick to {
+        set inp to i.
+        set bpressed to true.
+    }.
+    set i to i + 1.
 }
+local closeButton is gui:addbutton("Close").
+set closeButton:onclick to {clearguis().}.
+gui:show().
+wait until bpressed.
+clearguis().
+
+
 
 local landing_lat is 0.
 local landing_lng is 0.
