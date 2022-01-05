@@ -267,20 +267,18 @@ function final_rendezvous
 
         do_warp(time_until_burn-60-killdv_time/2).
         RCS on.
-        local ctime is floor(time:seconds).
         until (time:seconds >= min_time - killdv_time / 2)
         {
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
-            if (floor(time:seconds <> ctime)){
-                set ctime to floor(time:seconds).
-                clearguis().
-                local gui is gui(100).
-                set gui:x to -250.
-                set gui:y to 200.
-                local label is gui:addlabel("Burn in: " + ctime).
-                set label:style:align to "center".
-                set label:style:hstretch to true.
-            }
+            clearguis().
+            local gui is gui(100).
+            set gui:x to -250.
+            set gui:y to 200.
+            local label is gui:addlabel("Burn in: " + floor(min_time-time:seconds-killdv_time/2)).
+            set label:style:align to "center".
+            set label:style:hstretch to true.
+            gui:show().
+            wait 0.8.
         }
         clearguis().
         RCS off.

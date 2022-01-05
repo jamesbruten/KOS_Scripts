@@ -27,14 +27,12 @@ set gui1:y to 200.
 local label1 is gui1:addlabel("Select Directory").
 set label1:style:align to "center".
 set label1:style:hstretch to true.
-// local buttonList1 is list().
 for d in dirs {
     local b is gui1:addbutton(d:name).
     set b:onclick to {
         set directory to b:text.
         set bpressed1 to true.
     }.
-    // buttonList1:add(b).
 }
 set closeButton to gui1:addbutton("Close").
 set closeButton:onclick to {clearguis().}.
@@ -57,14 +55,12 @@ set gui2:y to 200.
 local label2 is gui2:addlabel("Select File from " + directory).
 set label2:style:align to "center".
 set label2:style:hstretch to true.
-// local buttonList2 is list().
 for f in fileslist {
     local b is gui2:addbutton(f:name).
     set b:onclick to {
         set file to b:text.
         set bpressed2 to true.
     }.
-    // buttonList2:add(b).
 }
 set closeButton to gui2:addbutton("Close").
 set closeButton:onclick to {clearguis().}.

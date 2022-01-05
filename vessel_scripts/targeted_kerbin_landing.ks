@@ -3,22 +3,20 @@ runpath("0:/boot/load_scripts.ks").
 
 
 local runways is list("Kerbin", "Island", "Desert", "Glacier", "Mahi Mahi", "Custom").
-set gui to gui(200, 7).
+local gui is gui(200, 7).
 set gui:x to -250.
 set gui:y to 200.
 local label is gui:addlabel("Select Landing Runway").
 set label:style:align to "center".
 set label:style:hstretch to true.
-local i is 1.
 local bpressed is false.
-local inp is 0.
+local runway is 0.
 for r in runways {
-    local b is gui:addbutton(r:name).
+    local b is gui:addbutton(r).
     set b:onclick to {
-        set inp to i.
+        set runway to b:text.
         set bpressed to true.
     }.
-    set i to i + 1.
 }
 local closeButton is gui:addbutton("Close").
 set closeButton:onclick to {clearguis().}.
@@ -31,38 +29,38 @@ clearguis().
 local landing_lat is 0.
 local landing_lng is 0.
 
-if (inp = 1)
+if (runway = "Kerbin")
 {
     set landing_lat to -0.1025.
     set landing_lng to -74.57528.
 }
-else if (inp = 2)
+else if (runway = "Island")
 {
     set landing_lat to -1.540833.
     set landing_lng to -71.90972.
 }
-else if (inp = 3)
+else if (runway = "Desert")
 {
     set landing_lat to -6.599444.
     set landing_lng to -144.0406.
 }
-else if (inp = 4)
+else if (runway = "Glacier")
 {
     set landing_lat to 73.56.
     set landing_lng to 84.27.
 }
-else if (inp = 5)
+else if (runway = "Mahi Mahi")
 {
     set landing_lat to -49.8.
     set landing_lng to -120.77.
 }
-else if (inp = 6)
+else if (runway = "Custom")
 {
     set landing_lat to 0.
     set landing_lng to 0.
 }
 
-kerbin_landing_window(landing_lat, landing_lng).
+kerbin_landing_window(landing_lat, landing_lng, runway).
 
 kuniverse:quicksave().
 
@@ -70,14 +68,14 @@ undock_leave().
 
 deploy_dp_shield().
 
-intercept_landing_site_atmosphere(landing_lat, landing_lng).
+intercept_landing_site_atmosphere(landing_lat, landing_lng, runway).
 
 spaceplane_reeentry().
 
 
 function kerbin_landing_window
 {
-    parameter target_lat, target_lng.
+    parameter target_lat, target_lng, runway.
 
     local burn_lat is -1 * target_lat.
     local burn_lng is target_lng + 180.
@@ -100,6 +98,7 @@ function kerbin_landing_window
         if (warp_level = 0) break.
         
         clearscreen.
+        print "Landing at " + runway.
         print "Warping to " + 90 + " Deg Normal Angle".
         print round(diff_lat, 2) + "      " + round(diff_lng, 2) + "      " + warp_level.
     }
@@ -108,7 +107,7 @@ function kerbin_landing_window
 
 function intercept_landing_site_atmosphere
 {
-    parameter target_lat, target_lng.
+    parameter target_lat, target_lng, runway.
 
     print("Impacting Landing Site").
 
@@ -152,6 +151,7 @@ function intercept_landing_site_atmosphere
         // set lastAv to av.
 
         clearscreen.
+        print "Landing at " + runway.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
         print "Tlat: " + round(target_lat, 2) + " Tlng: " + round(target_lng, 2).
         print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
