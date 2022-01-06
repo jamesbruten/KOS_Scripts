@@ -116,7 +116,7 @@ function intercept_landing_site_atmosphere
 
     print("Impacting Landing Site").
 
-    set addons:tr:descentangles to list(60, 50, 30, 5).
+    set addons:tr:descentangles to list(60, 60, 30, 5).
 
     lock steering to retrograde.
     RCS on.
@@ -141,7 +141,7 @@ function intercept_landing_site_atmosphere
         local targetPos is latlng(target_lat, target_lng):position:mag.
         local impactPos is latlng(impact_lat, impact_lng):position:mag.
 
-        if (tot_diff < 8 and impactPos < targetPos) break.
+        if (tot_diff < 12 and impactPos < targetPos) break.
 
         clearscreen.
         print "Landing at " + runway.
@@ -171,8 +171,8 @@ function spaceplane_reeentry
 
     when (ship:altitude < 50000) then RCS on.
     when (ship:altitude < 45000) then set pitch to 50.
-    when (ship:altitude < 40000) then RCS off.
-    when (ship:altitude < 35000) then set pitch to 30.
+    when (ship:altitude < 40000) then {RCS off. set pitch to 40.}
+    when (ship:altitude < 30000) then set pitch to 30.
 
     on AG7 {
         print "Unlocking Steering and Setting SAS to Prograde".
