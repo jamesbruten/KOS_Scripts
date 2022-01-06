@@ -164,31 +164,30 @@ function spaceplane_reeentry
     local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
     print "Aerodynamic Control Surfaces Unlocked".
-    print "Holding 60 Pitch until 25000". 
+    print "Holding Pitch until 25000". 
 
-    lock steering to heading(prograde_heading, 60, 0).
+    local pitch is 60.
+    lock steering to heading(prograde_heading, pitch, 0).
 
     when (ship:altitude < 50000) then RCS on.
+    when (ship:altitude < 45000) then set pitch to 50.
     when (ship:altitude < 40000) then RCS off.
+    when (ship:altitude < 35000) then set pitch to 30.
 
-    on AG7
-    {
+    on AG7 {
         print "Unlocking Steering and Setting SAS to Prograde".
         unlock steering.
+        unlock throttle.
         SAS on.
     }
 
-    until AG7
-    {
+    until AG7 {
         set prograde_heading to compass_for_vec().
         if (ship:altitude < 25000) AG7 on.
     }
-    unlock throttle.
 
     when (alt:radar < 125) then gear on.
-
-    when (alt:radar < 10) then
-    {
+    when (alt:radar < 10) then {
         brakes on.
         chutes on.
     }
