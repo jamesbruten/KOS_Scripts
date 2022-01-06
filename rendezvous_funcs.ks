@@ -356,7 +356,6 @@ function closest_approach
             set min_dist to dist.
             set min_time to t.
         }
-        // if (dist > min_dist + 1) break.
         set t to t + 1.
         if (t > end_time) break.
     }
