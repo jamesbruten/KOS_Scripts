@@ -2,7 +2,7 @@
 runpath("0:/boot/load_scripts.ks").
 
 
-local runways is list("Kerbin", "Island", "Desert", "Glacier", "Mahi Mahi", "Custom").
+local runways is list("Kerbin", "Island", "Woomerang", "Desert", "Glacier", "Mahi Mahi", "Custom").
 local gui is gui(200, 7).
 set gui:x to -250.
 set gui:y to 200.
@@ -33,6 +33,11 @@ if (runway = "Kerbin")
 {
     set landing_lat to -0.1025.
     set landing_lng to -74.57528.
+}
+else if (runway = "Woomerang")
+{
+    set landing_lat to 45.29.
+    set landing_lng to 136.11.
 }
 else if (runway = "Island")
 {

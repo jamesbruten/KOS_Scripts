@@ -17,29 +17,26 @@ for t in tlist {
         if check {
             if t:hassuffix("type") {
                 local vtype is t:type.
-                if (validTypes:index(vtype) >= 0 ) {
-                    if (t:apoapsis > 0 and t:periapsis > 0) validTypes:add(t).
+                if (validTypes:find(vtype) >= 0 ) {
+                    if (t:status = "orbiting") validTargets:add(t).
                 }
             }
         }
     }
 }
-for t in validTargets {
-    print t:name.
-}
-wait until false.
 
-local gui is gui().
+local gui is gui(200).
 set gui:x to -250.
 set gui:y to 200.
 local label is gui:addlabel("Selet Target Vessel").
 set label:style:align to "center".
 set label:style:hstretch to true.
 local bpressed is false.
+local tname is 0.
 for t in validTargets {
     local b is gui:addbutton(t:name).
     set b:onclick to {
-        set target to t.
+        set tname to b:text.
         set bpressed to true.
     }.
 }
@@ -48,6 +45,8 @@ set cButton:onclick to {if hastarget set bpressed to true.}.
 gui:show().
 wait until bpressed.
 clearguis().
+local tind is validTargets:find(tname).
+set target to tname.
 
 lock inp to terminal:input:getchar().
 if hastarget lock inp to "l".
