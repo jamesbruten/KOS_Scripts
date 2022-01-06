@@ -2,20 +2,25 @@
 core:part:getmodule("KOSProcessor"):doevent("Open Terminal").
 runpath("0:/boot/load_scripts.ks").
 
+local validTypes is list("station", "ship", "plane", "lander", "rover").
+
 local tlist is list().
 list targets in tlist.
 local validTargets is list().
 for t in tlist {
-    local check is false.
-    if (t:body = ship:body) set check to true.
-    if (t:body:hasbody) {
-        if (t:body:body = ship:body) set check to true.
-    }
-    if bodyexists(t:name) set check to false.
-    if check {
-        local dlist is t:dockingports.
-        if (dlist:length > 0) {
-            if (t:apoapsis > 0 and t:periapsis > 0) validTargets:add(t).
+    if not bodyexists(t:name) {
+        local check is false.
+        if (t:body = ship:body) set check to true.
+        if (t:body:hasbody) {
+            if (t:body:body = ship:body) set check to true.
+        }
+        if check {
+            if t:hassuffix("type") {
+                local vtype is t:type.
+                if (validTypes:index(vtype) >= 0 ) {
+                    if (t:apoapsis > 0 and t:periapsis > 0) validTypes:add(t).
+                }
+            }
         }
     }
 }
