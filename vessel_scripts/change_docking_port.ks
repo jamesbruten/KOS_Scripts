@@ -13,7 +13,7 @@ until (ind < 0)
 {
     local t is target_list[ind].
     local dist is ship:position - t:position.
-    if (dist:mag > 2500) target_list:remove(ind).
+    if (dist:mag > 1000) target_list:remove(ind).
     set ind to ind - 1.
 }
 
@@ -37,7 +37,25 @@ else
     }
 }
 
-print "Setting Target Vessel to " + target_list[inp]:name.
-set target to target_list[inp].
+local gui is gui(200).
+set gui:x to -250.
+set gui:y to 200.
+local label is gui:addlabel("Select " + command).
+set label:style:align to "center".
+set label:style:hstretch to true.
+local bpressed is false.
+for t in target_list {
+    local b is gui:addbutton(t:name).
+    set b:onclick to {
+        print "Setting Target Vessel to " + b:text.
+        set target to b:text.
+        set bpressed to true.
+    }.
+}
+set closeButton to gui:addbutton("Close").
+set closeButton:onclick to {clearguis().}.
+gui:show().
+wait until bpressed.
+clearguis().
 
 dock_vessels(target_port_name).
