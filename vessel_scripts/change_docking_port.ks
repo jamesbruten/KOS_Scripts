@@ -1,8 +1,8 @@
 @lazyglobal off.
 runpath("0:/boot/load_scripts.ks").
 
-local target_port_name is "target_dp".
-local leave_port is "undocker".
+local target_port_name is "undocker".
+local leave_port is "docker".
 
 undock_leave(3, 5, leave_port).
 
@@ -13,7 +13,7 @@ until (ind < 0)
 {
     local t is target_list[ind].
     local dist is ship:position - t:position.
-    if (dist:mag > 1000) target_list:remove(ind).
+    if (dist:mag > 2000) target_list:remove(ind).
     set ind to ind - 1.
 }
 
@@ -67,5 +67,7 @@ set closeButton:onclick to {clearguis().}.
 gui:show().
 wait until bpressed.
 clearguis().
+
+// set target_port_name to "target_dp".
 
 dock_vessels(target_port_name).
