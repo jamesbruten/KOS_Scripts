@@ -17,26 +17,6 @@ until (ind < 0)
     set ind to ind - 1.
 }
 
-local inp is 10000.
-if (target_list:length = 1) set inp to 0.
-else
-{
-    until false
-    {
-        local index is 0.
-        for t in target_list
-        {
-            print index + "   " + t:name.
-            set index to index + 1.
-        }
-        print "Choose Target".
-        terminal:input:clear().
-        set inp to terminal:input:getchar().
-        set inp to inp:tonumber().
-        if (inp < target_list:length) break.
-    }
-}
-
 local gui is gui(200).
 set gui:x to -250.
 set gui:y to 200.
