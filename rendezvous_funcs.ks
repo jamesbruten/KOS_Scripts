@@ -281,6 +281,11 @@ function final_rendezvous
             wait 0.8.
         }
         clearguis().
+
+        set wantedAccel to vel_diff:mag / 4.
+        set_engine_limit(wantedAccel).
+        set killdv_time to calc_burn_time(vel_diff:mag).
+        set max_time to min_time + 1.25*killdv_time.
         
         RCS off.
         kill_rel_dv(halfVel, targVel, max_time).
@@ -312,8 +317,7 @@ function kill_rel_dv {
     }
 
     lock throttle to 1.
-    until false
-    {
+    until false {
         set vel_diff to ship:velocity:orbit - target:velocity:orbit.
         if (vel_diff:mag < halfVel) lock throttle to 0.5.
         if (vel_diff:mag < targVel) break.
@@ -322,8 +326,7 @@ function kill_rel_dv {
     lock throttle to 0.
 }
 
-function burn_at_target 
-{
+function burn_at_target {
     local dist is ship:position - target:position.
     local app_vel is 5.
     if (dist:mag < 900) set app_vel to 3.
