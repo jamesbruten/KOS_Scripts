@@ -224,8 +224,7 @@ function get_phase_angle
 
 function final_rendezvous
 {
-    // Get Ship to within 400m and kill velocity
-    print "Performing Final Rendezvous to within 400m".
+    print "Performing Final Rendezvous to within 500m".
 
     local wanted_min is 350.
     
@@ -245,8 +244,6 @@ function final_rendezvous
         // ################################################################################################################
         // Kill Relative Velocity Section
         local vel_diff is velocityat(ship, min_time):orbit - velocityat(target, min_time):orbit.
-        local killdv_time is calc_burn_time(vel_diff:mag).
-        local max_time is min_time + 1.25*killdv_time.
         local targVel is 0.2.
         local halfVel is 2.
         if (vel_diff:mag > 20) {
@@ -254,19 +251,22 @@ function final_rendezvous
             set halfVel to 3.
         }
 
+        clearscreen.
         print "Burn in: " + round(time_until_burn, 2).
         print "Burn DV: " + round(vel_diff:mag, 2).
-        print "Burn Time: " + round(killdv_time, 2).
         print "Min Sep: " + round(min_dist, 2).
-        print "    ".
+        print " ".
 
         local wantedAccel is vel_diff:mag / 4.
         set_engine_limit(wantedAccel).
+        local killdv_time is calc_burn_time(vel_diff:mag).
+        local max_time is min_time + 1.25*killdv_time.
 
         lock steering to lookdirup(-1*vel_diff, north:vector).
 
         do_warp(time_until_burn-60-killdv_time/2).
         RCS on.
+
         until (time:seconds >= min_time - killdv_time / 2)
         {
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
@@ -281,45 +281,69 @@ function final_rendezvous
             wait 0.8.
         }
         clearguis().
-        RCS off.
         
-        lock throttle to 1.
-        until false
-        {
-            set vel_diff to ship:velocity:orbit - target:velocity:orbit.
-            if (vel_diff:mag < halfVel) lock throttle to 0.5.
-            if (vel_diff:mag < targVel) break.
-            if (time:seconds > max_time) break.
-        }
-        lock throttle to 0.
+        RCS off.
+        kill_rel_dv(halfVel, targVel, max_time).
         
         set dist to ship:position - target:position.
         if (dist:mag < 500) break.
 
-        // ################################################################################################################
-        // Burn at Target Section
+        burn_at_target().
 
-        local app_vel is 5.
-        if (dist:mag < 900) set app_vel to 3.
-        if (dist:mag > 1500) set app_vel to 8.
-        set wantedAccel to app_vel / 4.             // set acceleration to reach app_vel in 4 secs
-        set_engine_limit(wantedAccel).
-
-        lock np to lookdirup(target:position, ship:facing:topvector).
-        lock steering to np.    
-        RCS on.
-        wait until abs(np:pitch - facing:pitch) < 1 and abs(np:yaw - facing:yaw) < 1.
-        RCS off.
-
-        lock throttle to 1.
-        until false
-        {
-            set current_vel to ship:velocity:orbit - target:velocity:orbit.
-            if (current_vel:mag >= app_vel) break.
-        }
-        lock throttle to 0.
+        
     }
     print "Rendezvous Complete".
+}
+
+function kill_rel_dv {
+    parameter halfVel, targVel, max_time, wait_for_aim is false.
+
+    local vel_diff is ship:velocity:orbit - target:velocity:orbit.
+    lock steering to lookdirup(-1*vel_diff, north:vector).
+
+    if wait_for_aim {
+        RCS on.
+        until false {
+            set vel_diff to ship:velocity:orbit - target:velocity:orbit.
+            local np is lookdirup(-1*vel_diff, north:vector).
+            if (vang(ship:facing:forevector, np:vector) < 2) break.
+        }
+        RCS off.
+    }
+
+    lock throttle to 1.
+    until false
+    {
+        set vel_diff to ship:velocity:orbit - target:velocity:orbit.
+        if (vel_diff:mag < halfVel) lock throttle to 0.5.
+        if (vel_diff:mag < targVel) break.
+        if (time:seconds > max_time) break.
+    }
+    lock throttle to 0.
+}
+
+function burn_at_target 
+{
+    local dist is ship:position - target:position.
+    local app_vel is 5.
+    if (dist:mag < 900) set app_vel to 3.
+    if (dist:mag > 1500) set app_vel to 8.
+    set wantedAccel to app_vel / 4.             // set acceleration to reach app_vel in 4 secs
+    set_engine_limit(wantedAccel).
+
+    lock np to lookdirup(target:position, ship:facing:topvector).
+    lock steering to np.    
+    RCS on.
+    wait until abs(np:pitch - facing:pitch) < 1 and abs(np:yaw - facing:yaw) < 1.
+    RCS off.
+
+    lock throttle to 1.
+    until false
+    {
+        set current_vel to ship:velocity:orbit - target:velocity:orbit.
+        if (current_vel:mag >= app_vel) break.
+    }
+    lock throttle to 0.
 }
 
 function closest_approach
