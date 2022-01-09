@@ -65,13 +65,13 @@ else if (runway = "Custom")
     set landing_lng to 0.
 }
 
-kerbin_landing_window(landing_lat, landing_lng, runway).
+// kerbin_landing_window(landing_lat, landing_lng, runway).
 
-kuniverse:quicksave().
+// kuniverse:quicksave().
 
-undock_leave().
+// undock_leave().
 
-deploy_dp_shield().
+// deploy_dp_shield().
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng, runway).
 
