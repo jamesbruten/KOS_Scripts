@@ -30,11 +30,11 @@ function dock_vessels
     set target to targetport.
 
     retract_solar_panels().
-    approach_port(targetport, shipport, 100, 2, 7, steering_vector).
-    approach_port(targetport, shipport, 20, 2, 0.5, steering_vector).
-    approach_port(targetport, shipport, 10, 0.5, 0.1, steering_vector).
-    approach_port(targetport, shipport, 1, 0.4, 0.1, steering_vector).
-    approach_port(targetport, shipport, 0, 0.25, 0.1, steering_vector).
+    approach_port(targetport, shipport, 100, 2, 10, 90, steering_vector).
+    approach_port(targetport, shipport, 20, 2, 0.5, 5, steering_vector).
+    approach_port(targetport, shipport, 10, 0.5, 0.1, 2, steering_vector).
+    approach_port(targetport, shipport, 1, 0.4, 0.1, 2, steering_vector).
+    approach_port(targetport, shipport, 0, 0.25, 0.1, 2, steering_vector).
 
     if (shipport:state <> "Ready") print "Successfully Docked".
     RCS off.
@@ -57,7 +57,7 @@ function kill_relative_velocity
     print "Killing Relative Velocity".
 
     set relative_vel to ship:velocity:orbit - target:velocity:orbit.
-    until relative_vel:mag < 0.1
+    until relative_vel:mag < 0.2
     {
         set relative_vel to ship:velocity:orbit - target:velocity:orbit.
         translate(-relative_vel).
@@ -227,7 +227,7 @@ function move_to_radius
 
 function approach_port
 {
-    parameter targetport, shipport, distance, init_speed, dist_error, steering_vector.
+    parameter targetport, shipport, distance, init_speed, dist_error, ang_error, steering_vector.
 
     local speed is init_speed.
     lock steering to steering_vector.
@@ -244,7 +244,7 @@ function approach_port
         print "Approaching Target Port + " + distance + " at Speed: " + init_speed.
         print round(move_vector:mag, 2).
         print round(vang(shipport:portfacing:vector, dvect), 2).
-        if (move_vector:mag < dist_error and vang(shipport:portfacing:vector, dvect) < 2) break.
+        if (move_vector:mag < dist_error and vang(shipport:portfacing:vector, dvect) < ang_error) break.
         if (shipport:state <> "Ready" and shipport:state <> "Preattached") break.
         wait 0.01.
     }
