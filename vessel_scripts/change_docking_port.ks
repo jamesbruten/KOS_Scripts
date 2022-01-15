@@ -1,7 +1,7 @@
 @lazyglobal off.
 runpath("0:/boot/load_scripts.ks").
 
-local leave_port is "docker".
+local leave_port is "undocker".
 
 undock_leave(3, 5, leave_port).
 
