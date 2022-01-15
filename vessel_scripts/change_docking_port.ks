@@ -1,7 +1,7 @@
 @lazyglobal off.
 runpath("0:/boot/load_scripts.ks").
 
-local leave_port is "undocker".
+local leave_port is "docker".
 
 undock_leave(3, 5, leave_port).
 
@@ -67,5 +67,7 @@ set closeButton:onclick to {clearguis().}.
 gui:show().
 wait until bpressed.
 clearguis().
+
+SAS off.
 
 dock_vessels(target_port_name).

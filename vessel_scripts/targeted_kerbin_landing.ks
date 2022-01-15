@@ -96,7 +96,7 @@ function kerbin_landing_window
         local diff_lat is abs(ship:geoposition:lat - burn_lat).
         local diff_lng is abs(ship:geoposition:lng - burn_lng).
 
-        if (diff_lat < 10 and diff_lng > 5) set diff_lat to 12.
+        if (diff_lat < 10 and diff_lng > 4) set diff_lat to 12.
 
         set warp_level to warp_at_level(1, 2, 10, diff_lat).
 
