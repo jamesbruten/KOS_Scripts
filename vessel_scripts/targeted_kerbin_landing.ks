@@ -99,7 +99,7 @@ function kerbin_landing_window {
 
         clearscreen.
         print "Landing at " + runway.
-        print "Warping Until Within Max Dist of opposite burn point".
+        print "Warping until within max dist of opposite burn point".
         print "Max Dist: " + round(maxDist, 2) + "   Dist: " + round(dist, 2).
     }
     set warp to 0.
