@@ -95,7 +95,11 @@ function kerbin_landing_window {
     until false {
         set warp to 5.
         local dist is greatCircle_dist(opp_lat, opp_lng, ship:geoposition:lat, ship:geoposition:lng).
-        if (dist < maxDist) break.
+        if (dist < maxDist) {
+            set warp to 0.
+            wait until ship:unpacked. 
+            break.
+        }
 
         clearscreen.
         print "Landing at " + runway.
@@ -109,15 +113,15 @@ function kerbin_landing_window {
 function greatCircle_dist {
     parameter lat1, lng1, lat2, lng2.
 
-    set lat1 to lat1 * PI / 180.
-    set lat2 to lat2 * PI / 180.
-    set lng1 to lng1 * PI / 180.
-    set lng2 to lng2 * PI / 180.
+    set lat1 to lat1 * constant:pi / 180.
+    set lat2 to lat2 * constant:pi / 180.
+    set lng1 to lng1 * constant:pi / 180.
+    set lng2 to lng2 * constant:pi / 180.
 
     local deltaLat is abs(lat1 - lat2).
     local deltaLng is abs(lng1 - lng2).
     local a is sin(0.5*deltaLat)*sin(0.5*deltaLat) + cos(lat1)*cos(lat2) * sin(0.5*deltaLng)*sin(0.5*deltaLng).
-    local c is 2 * arctan2(sqrt(a) * sqrt(1-a)).
+    local c is 2 * arctan2(sqrt(a), sqrt(1-a)).
     local d is ship:body:radius * c.
 
     return d.
