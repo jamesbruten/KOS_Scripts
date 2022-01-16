@@ -82,6 +82,8 @@ function kerbin_landing_window {
 
     parameter target_lat, target_lng, runway.
 
+    local landingPos is latlng(target_lat, target_lng).
+
     local opp_lat is -1 * target_lat.
     local opp_lng is target_lng + 180.
     if (opp_lng > 180) set opp_lng to opp_lng - 360.
@@ -93,11 +95,21 @@ function kerbin_landing_window {
     local maxDist is greatCircle_dist(0, 0, 0, 4).
 
     until false {
-        set warp to 5.
+        local warpLevel is 5.
+
+        local orbit_normal is vcrs(ship:velocity:orbit, ship:body:position-ship:position):normalized.
+        local body_normal is ship:body:position - landingPos:position.
+        local ang is vang(orbit_normal, body_normal).
+
         local dist is greatCircle_dist(opp_lat, opp_lng, ship:geoposition:lat, ship:geoposition:lng).
+
+        if (dist < 5 * maxDist and abs(90-ang) < 2) set warpLevel to 4.
+        set warp to warpLevel.
+
         if (dist < maxDist) {
             set warp to 0.
-            wait until ship:unpacked. 
+            wait until ship:unpacked.
+            wait 2. 
             break.
         }
 
@@ -106,8 +118,6 @@ function kerbin_landing_window {
         print "Warping until within max dist of opposite burn point".
         print "Max Dist: " + round(maxDist, 2) + "   Dist: " + round(dist, 2).
     }
-    set warp to 0.
-    wait 1.
 }
 
 function greatCircle_dist {
@@ -149,23 +159,16 @@ function intercept_landing_site_atmosphere
         local impact_lat is impact_params:lat.
         local impact_lng is impact_params:lng.
 
-        local diff_lat is abs(impact_lat - target_lat).
-        local diff_lng is abs(impact_lng - target_lng).
-        if (diff_lng > 180) set diff_lng to 360 - diff_lng.
-
-        local tot_diff is diff_lat + diff_lng.
-
         local targetPos is latlng(target_lat, target_lng):position:mag.
         local impactPos is latlng(impact_lat, impact_lng):position:mag.
 
-        if (tot_diff < 12 and impactPos < targetPos) break.
+        if (impactPos < targetPos) break.
 
         clearscreen.
         print "Landing at " + runway.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
         print "Tlat: " + round(target_lat, 2) + " Tlng: " + round(target_lng, 2).
-        print "Dlat: " + round(diff_lat, 2) + " Dlng: " + round(diff_lng, 2).
-        print "Total Diff: " + round(tot_diff, 2).
+        print "Impact Dist: " + round(impactPos, 2) + "   Target Dist: " + round(targetPos, 2).
     }
     lock throttle to 0.
     wait 3.
@@ -181,7 +184,7 @@ function spaceplane_reeentry
     local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
     print "Aerodynamic Control Surfaces Unlocked".
-    print "Holding Pitch until 25000". 
+    print "Holding Pitch until 21000". 
 
     local pitch is 60.
     lock steering to heading(prograde_heading, pitch, 0).
@@ -200,10 +203,11 @@ function spaceplane_reeentry
 
     until AG7 {
         set prograde_heading to compass_for_vec().
-        if (ship:altitude < 25000) AG7 on.
+        if (ship:altitude < 21000) AG7 on.
     }
 
-    when (alt:radar < 20000) then core:part:getmodule("kosprocessor"):doevent("open terminal").
+    wait 5.
+    core:part:getmodule("kosprocessor"):doevent("close terminal").
     when (alt:radar < 125) then gear on.
     when (alt:radar < 10) then {
         brakes on.
@@ -211,36 +215,3 @@ function spaceplane_reeentry
     }
     wait until ship:groundspeed < 10.
 }
-
-
-// function kerbin_landing_window
-// {
-//     parameter target_lat, target_lng, runway.
-
-//     local burn_lat is -1 * target_lat.
-//     local burn_lng is target_lng + 180.
-//     if (burn_lng > 180) set burn_lng to burn_lng - 360.         // opposite longitude to landing
-//     local body_rot is 180 * ship:orbit:period / ship:body:rotationperiod. // degrees of body rotation in half orbit
-//     set burn_lng to burn_lng + body_rot.                        // now opposite of where site will be with half orbit rotation
-//     if (burn_lng > 180) set burn_lng to burn_lng - 360.   
-
-
-//     local warp_level is 0.
-//     until false
-//     {
-//         local diff_lat is abs(ship:geoposition:lat - burn_lat).
-//         local diff_lng is abs(ship:geoposition:lng - burn_lng).
-
-//         if (diff_lat < 10 and diff_lng > 4) set diff_lat to 12.
-
-//         set warp_level to warp_at_level(1, 2, 10, diff_lat).
-
-//         if (warp_level = 0) break.
-        
-//         clearscreen.
-//         print "Landing at " + runway.
-//         print "Warping to " + 90 + " Deg Normal Angle".
-//         print round(diff_lat, 2) + "      " + round(diff_lng, 2) + "      " + warp_level.
-//     }
-//     wait 1.
-// }
