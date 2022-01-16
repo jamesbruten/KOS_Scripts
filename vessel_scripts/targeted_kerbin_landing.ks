@@ -97,13 +97,9 @@ function kerbin_landing_window {
     until false {
         local warpLevel is 5.
 
-        local orbit_normal is vcrs(ship:velocity:orbit, ship:body:position-ship:position):normalized.
-        local body_normal is ship:body:position - landingPos:position.
-        local ang is vang(orbit_normal, body_normal).
-
         local dist is greatCircle_dist(opp_lat, opp_lng, ship:geoposition:lat, ship:geoposition:lng).
 
-        if (dist < 5 * maxDist and abs(90-ang) < 2) set warpLevel to 4.
+        if (dist < 3.5 * maxDist) set warpLevel to 4.
         set warp to warpLevel.
 
         if (dist < maxDist) {
@@ -115,8 +111,8 @@ function kerbin_landing_window {
 
         clearscreen.
         print "Landing at " + runway.
-        print "Warping until within max dist of opposite burn point".
-        print "Max Dist: " + round(maxDist, 2) + "   Dist: " + round(dist, 2).
+        print "Warping until landing window".
+        print "Max Dist: " + round(maxDist, 2) + " Dist: " + round(dist, 2) + "Warp: " + warpLevel.
     }
 }
 
@@ -148,7 +144,7 @@ function intercept_landing_site_atmosphere
     lock steering to retrograde.
     RCS on.
     wait until vang(ship:facing:forevector, retrograde:vector) < 2.
-    wait 3.
+    wait 8.
     RCS off.
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
@@ -158,11 +154,12 @@ function intercept_landing_site_atmosphere
         local impact_params is addons:tr:impactpos.
         local impact_lat is impact_params:lat.
         local impact_lng is impact_params:lng.
+        local totDiff is abs(impact_lat-target_lat) + abs(impact_lng-target_lng).
 
         local targetPos is latlng(target_lat, target_lng):position:mag.
         local impactPos is latlng(impact_lat, impact_lng):position:mag.
 
-        if (impactPos < targetPos) break.
+        if (impactPos < targetPos and totDiff < 12) break.
 
         clearscreen.
         print "Landing at " + runway.
@@ -179,6 +176,7 @@ function spaceplane_reeentry
     set warp to 4.
     when (ship:altitude < 100000) then set warp to 2.
     when (ship:altitude < 85000) then set warp to 0.
+    clearscreen.
     wait until ship:altitude < 85000.
 
     local prograde_heading is compass_for_vec().
@@ -193,6 +191,7 @@ function spaceplane_reeentry
     when (ship:altitude < 45000) then set pitch to 50.
     when (ship:altitude < 40000) then {RCS off. set pitch to 40.}
     when (ship:altitude < 30000) then set pitch to 30.
+    when (ship:altitude < 25000) then set pitch to 20.
 
     on AG7 {
         print "Unlocking Steering and Setting SAS to Prograde".
