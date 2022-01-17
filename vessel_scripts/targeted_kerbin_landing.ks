@@ -82,8 +82,6 @@ function kerbin_landing_window {
 
     parameter target_lat, target_lng, runway.
 
-    local landingPos is latlng(target_lat, target_lng).
-
     local opp_lat is -1 * target_lat.
     local opp_lng is target_lng + 180.
     if (opp_lng > 180) set opp_lng to opp_lng - 360.
