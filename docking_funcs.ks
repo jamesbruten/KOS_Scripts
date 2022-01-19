@@ -336,9 +336,9 @@ function undock_leave
     set label to gui:addlabel("Select Port to Undock").
     set label:style:align to "center".
     set label:style:hstretch to true.
-    for dp in ship:dockingports {
-        if (dp:tag:length > 0 and dp:state <> "ready") {
-            local b is gui:addbutton(dp:tag).
+    for port in ship:dockingports {
+        if (port:tag:length > 0 and port:state <> "ready") {
+            local b is gui:addbutton(port:tag).
             set b:onclick to {
                 set leave_port to b:text.
                 set bpressed to true.
