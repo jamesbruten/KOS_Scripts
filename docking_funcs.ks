@@ -337,7 +337,7 @@ function undock_leave
     set label:style:align to "center".
     set label:style:hstretch to true.
     for dp in ship:dockingports {
-        if (dp:tag:length > 0 and dp:haspartner = true) {
+        if (dp:tag:length > 0 and dp:state <> "ready") {
             local b is gui:addbutton(dp:tag).
             set b:onclick to {
                 set leave_port to b:text.
