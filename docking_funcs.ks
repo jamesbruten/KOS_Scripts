@@ -313,30 +313,43 @@ function kss_tug_move
 
 function undock_leave
 {
-    parameter leave_time is 10, wait_time is 10, leave_port is "undocker".
+    parameter leave_time is 10, wait_time is 10.
 
-    local inp1 is "x".
-    local inp is "x".
+    local gui is gui(200).
+    local bpressed is false.
+    local label is gui:addlabel("Choose Option: ").
+    set label:style:align to "center".
+    set label:style:hstretch to true.
+    local b1 is gui:addbutton("Undock").
+    set b1:onclick to {set bpressed to true.}.
+    local b2 is gui:addbutton("Continue Without Undocking").
+    set b2:onclick to {clearguis().return.}.
+    gui:show().
+    wait until bpressed.
+    clearguis().
 
-    until false
-    {
-        print "Hit 'u' to undock or 'c' to continue without undocking".
-        terminal:input:clear().
-        set inp1 to terminal:input:getchar().
-        if (inp1 = "c" or inp1 = "u") break.
+    local leave_port is "".
+    set bpressed to false.
+    set gui to gui(200).
+    set gui:x to -250.
+    set gui:y to 200.
+    set label to gui:addlabel("Select Port to Undock").
+    set label:style:align to "center".
+    set label:style:hstretch to true.
+    for dp in ship:dockingports {
+        if (dp:tag:length > 0 and dp:haspartner = true) {
+            local b is gui:addbutton(dp:tag).
+            set b:onclick to {
+                set leave_port to b:text.
+                set bpressed to true.
+            }.
+        }
     }
+    gui:show().
+    wait until bpressed.
+    clearguis().
 
-    if (inp1 = "c") return.
-
-    until false
-    {
-        print "Hit 'l' to Undock".
-        terminal:input:clear().
-        set inp to terminal:input:getchar().
-        if (inp = "l") break.
-    }
-
-    local dp is assign_ports("undocker").
+    local dp is assign_ports(leave_port).
 
     if (dp:state = "ready") return.
 
