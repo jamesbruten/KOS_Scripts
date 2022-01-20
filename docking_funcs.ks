@@ -329,25 +329,29 @@ function undock_leave
     clearguis().
 
     local leave_port is "".
-    set bpressed to false.
-    set gui to gui(200).
-    set gui:x to -250.
-    set gui:y to 200.
-    set label to gui:addlabel("Select Port to Undock").
-    set label:style:align to "center".
-    set label:style:hstretch to true.
-    for port in ship:dockingports {
-        if (port:tag:length > 0 and port:state <> "ready") {
-            local b is gui:addbutton(port:tag).
-            set b:onclick to {
-                set leave_port to b:text.
-                set bpressed to true.
-            }.
+    until leave_port <> "" {
+        set bpressed to false.
+        set gui to gui(200).
+        set gui:x to -250.
+        set gui:y to 200.
+        set label to gui:addlabel("Select Port to Undock").
+        set label:style:align to "center".
+        set label:style:hstretch to true.
+        for port in ship:dockingports {
+            if (port:tag:length > 0 and port:state <> "ready") {
+                local b is gui:addbutton(port:tag).
+                set b:onclick to {
+                    set leave_port to b:text.
+                    set bpressed to true.
+                }.
+            }
         }
+        local reset is gui:addbutton("Reset").
+        set reset:onclick to {set bpressed to true.}.
+        gui:show().
+        wait until bpressed.
+        clearguis().
     }
-    gui:show().
-    wait until bpressed.
-    clearguis().
 
     local dp is assign_ports(leave_port).
 
