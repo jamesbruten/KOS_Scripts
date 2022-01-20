@@ -3,7 +3,7 @@ runpath("0:/boot/load_scripts.ks").
 
 local leave_port is "undocker".
 
-undock_leave(3, 5, leave_port).
+undock_leave(3, 5).
 
 local target_list is list().
 list targets in target_list.
@@ -37,8 +37,9 @@ gui:show().
 wait until bpressed.
 clearguis().
 
-local target_port_name is choose_docking_ports(target, "docking").
+local ship_port_name is choose_docking_port(ship, "docking", "ship").
+local target_port_name is choose_docking_port(target, "docking", "target").
 
 SAS off.
 
-dock_vessels(target_port_name).
+dock_vessels(target_port_name, ship_port_name).

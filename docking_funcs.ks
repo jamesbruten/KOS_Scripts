@@ -83,22 +83,16 @@ function assign_ports
     parameter port_name.
 
     local tp is "x".
-    until false
-    {
-        for dp in ship:dockingports
-        {
-            if (dp:tag = port_name)
-            {
+    until false {
+        for dp in ship:dockingports {
+            if (dp:tag = port_name) {
                 set tp to dp.
                 break.
             }
         }
-        if (tp = "x")
-        {
-            print "Change Ship DP tag to " + port_name.
-            print "Hit 'l' when done".
-            lock inp to terminal:input:getchar().
-            wait until inp = "l".
+        if (tp = "x") {
+            print "Choose the ship docking port".
+            set port_name to choose_docking_port(ship, "docking", "ship").
         }
         else break.
     }
@@ -113,13 +107,8 @@ function check_ports_match
         if (target_port:nodetype = ship_port:nodetype) return target_port.
         print "Target Port Doesn't Match Ship Docking Port".
         print "Choose A New Port".
-        local tp is choose_docking_port(target, "docking").
-        for port in target:dockingports {
-            if (port:tag = tp) {
-                set target_port to port.
-                break.
-            }
-        }
+        local tp is choose_docking_port(target, "docking", "target").
+        set target_port to assign_ports(tp).
     }
 }
 
@@ -256,14 +245,15 @@ function set_speed
 
 function choose_docking_port {
 
-    parameter orbitable, mode.
+    parameter orbitable, mode, message.
 
+    local val is "".
     until false {
         local bpressed is false.
         local gui is gui(200).
         set gui:x to -250.
         set gui:y to 200.
-        local label is gui:addlabel("Select Port").
+        local label is gui:addlabel("Select " + message + " " + mode + " port").
         set label:style:align to "center".
         set label:style:hstretch to true.
         for port in orbitable:dockingports {
@@ -273,8 +263,8 @@ function choose_docking_port {
             if (check and port:tag:length > 0) {
                 local b is gui:addbutton(port:tag).
                 set b:onclick to {
-                    clearguis().
-                    return b:text.
+                    set bpressed to true.
+                    set val to b:text.
                 }.
             }
         }
@@ -283,6 +273,7 @@ function choose_docking_port {
         gui:show().
         wait until bpressed.
         clearguis().
+        if (val:length > 0) return val.
     }
 }
 
@@ -290,20 +281,27 @@ function undock_leave
 {
     parameter leave_time is 10, wait_time is 10.
 
-    local gui is gui(200).
     local bpressed is false.
+    local cancelUndock is false.
+    local gui is gui(200).
+    set gui:x to -250.
+    set gui:y to 200.
     local label is gui:addlabel("Choose Option: ").
     set label:style:align to "center".
     set label:style:hstretch to true.
     local b1 is gui:addbutton("Undock").
     set b1:onclick to {set bpressed to true.}.
     local b2 is gui:addbutton("Continue Without Undocking").
-    set b2:onclick to {clearguis().return.}.
+    set b2:onclick to {
+        set cancelUndock to true.
+        set bpressed to true.
+        }.
     gui:show().
     wait until bpressed.
     clearguis().
+    if cancelUndock return.
 
-    local leave_port is choose_docking_port(ship, "undocking").
+    local leave_port is choose_docking_port(ship, "undocking", "ship").
 
     local dp is assign_ports(leave_port).
 
