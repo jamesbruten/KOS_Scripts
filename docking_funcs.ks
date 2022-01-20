@@ -33,7 +33,8 @@ function dock_vessels
     approach_port(targetport, shipport, 100, 2, 10, 90, steering_vector).
     approach_port(targetport, shipport, 20, 2, 0.5, 5, steering_vector).
     approach_port(targetport, shipport, 10, 0.5, 0.1, 2, steering_vector).
-    approach_port(targetport, shipport, 1, 0.4, 0.1, 2, steering_vector).
+    approach_port(targetport, shipport, 5, 0.4, 0.1, 2, steering_vector).
+    approach_port(targetport, shipport, 1, 0.25, 0.1, 2, steering_vector).
     approach_port(targetport, shipport, 0, 0.25, 0.1, 2, steering_vector).
 
     if (shipport:state <> "Ready") print "Successfully Docked".
