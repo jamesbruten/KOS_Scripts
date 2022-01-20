@@ -37,36 +37,7 @@ gui:show().
 wait until bpressed.
 clearguis().
 
-local dlist is list().
-local dlist1 is target:dockingports.
-for d in target:dockingports {
-    local check is true.
-    if (d:state <> "ready") set check to false.
-    if (d:tag:length = 0) set check to false.
-    if check dlist:add(d).
-}
-
-local target_port_name is "".
-set gui to gui(200).
-set gui:x to -250.
-set gui:y to 200.
-set label to gui:addlabel("Select Target Docking Port").
-set label:style:align to "center".
-set label:style:hstretch to true.
-set bpressed to false.
-for d in dlist {
-    local b is gui:addbutton(d:tag).
-    set b:onclick to {
-        print "Setting Target Port to " + b:text.
-        set target_port_name to b:text.
-        set bpressed to true.
-    }.
-}
-set closeButton to gui:addbutton("Close").
-set closeButton:onclick to {clearguis().}.
-gui:show().
-wait until bpressed.
-clearguis().
+local target_port_name is choose_docking_ports(target, "docking").
 
 SAS off.
 

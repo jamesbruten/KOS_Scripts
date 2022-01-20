@@ -109,29 +109,18 @@ function check_ports_match
 {
     parameter target_port, ship_port.
 
-    if (target_port:nodetype = ship_port:nodetype) return target_port.
-    
-    local open_ports is list().
-    for dp in target:dockingports
-    {
-        if (dp:nodetype = ship_port:nodetype and dp:state = "ready") open_ports:add(dp).
-    }
-
-    until false
-    {
-        local ind is 0.
-        until (ind >= open_ports:length)
-        {
-            print ind + "     " + dp:tag.
+    until false {
+        if (target_port:nodetype = ship_port:nodetype) return target_port.
+        print "Target Port Doesn't Match Ship Docking Port".
+        print "Choose A New Port".
+        local tp is choose_docking_port(target, "docking").
+        for port in target:dockingports {
+            if (port:tag = tp) {
+                set target_port to port.
+                break.
+            }
         }
-        local inp is open_ports:length+1.
-        print "Choose Port".
-        terminal:input:clear().
-        set inp to terminal:input:getchar().
-        if (inp < open_ports:length) break.
     }
-    
-    return open_ports[inp].
 }
 
 function leave_keepout
@@ -264,52 +253,37 @@ function set_speed
     return speed.
 }
 
-function kss_tug_move
-{
-    parameter time_depart, dir_depart.
-    set steeringmanager:maxstoppingtime to 0.5.
 
-    lock inp to terminal:input:getchar().
-    print "Change DP on tug to 'tug_dp1' and DP on Station to 'tug_dp2'".
-    print "Press 'l' to continue".
-    wait until inp = "l".
+function choose_docking_port {
 
-    local shipport is assign_ports("tug_dp1").
-    local targetport is assign_ports("tug_dp2").
+    parameter orbitable, mode.
 
-    lock inp to 0.
-    lock inp to terminal:input:getchar().
-    print "Undock and then press 'l' to begin".
-    wait until inp = "l".
-
-    SAS off.
-    RCS on.
-    set ship:control:fore to dir_depart.
-    wait time_depart.
-    // translate(V(0,0,0)).
-    set ship:control:fore to 0.
-    wait 5.
-
-    shipport:controlfrom().
-
-    kill_relative_velocity(targetport).
-
-    print "Aligning Steering".
-    local steering_vector is lookdirup(-1*targetport:portfacing:vector, targetport:portfacing:topvector).
-    lock steering to steering_vector.
-
-    move_to_corner(targetport, shipport, steering_vector).
-
-    approach_port(targetport, shipport, 100, 2, 2, steering_vector).
-    approach_port(targetport, shipport, 20, 2, 0.5, steering_vector).
-    approach_port(targetport, shipport, 10, 0.5, 0.1, steering_vector).
-    approach_port(targetport, shipport, 1, 0.4, 0.1, steering_vector).
-    approach_port(targetport, shipport, 0, 0.25, 0.1, steering_vector).
-
-    if (shipport:state <> "Ready") print "Successfully Docked".
-    RCS off.
-    unlock steering.
-    SAS on.
+    until false {
+        local bpressed is false.
+        local gui is gui(200).
+        set gui:x to -250.
+        set gui:y to 200.
+        local label is gui:addlabel("Select Port").
+        set label:style:align to "center".
+        set label:style:hstretch to true.
+        for port in orbitable:dockingports {
+            local check is false.
+            if (mode = "docking" and port:state = "ready") set check to true.
+            if (mode = "undocking" and port:state <> "ready") set check to true.
+            if (check and port:tag:length > 0) {
+                local b is gui:addbutton(port:tag).
+                set b:onclick to {
+                    clearguis().
+                    return b:text.
+                }.
+            }
+        }
+        local reset is gui:addbutton("Reset").
+        set reset:onclick to {set bpressed to true.}.
+        gui:show().
+        wait until bpressed.
+        clearguis().
+    }
 }
 
 function undock_leave
@@ -329,30 +303,7 @@ function undock_leave
     wait until bpressed.
     clearguis().
 
-    local leave_port is "".
-    until leave_port <> "" {
-        set bpressed to false.
-        set gui to gui(200).
-        set gui:x to -250.
-        set gui:y to 200.
-        set label to gui:addlabel("Select Port to Undock").
-        set label:style:align to "center".
-        set label:style:hstretch to true.
-        for port in ship:dockingports {
-            if (port:tag:length > 0 and port:state <> "ready") {
-                local b is gui:addbutton(port:tag).
-                set b:onclick to {
-                    set leave_port to b:text.
-                    set bpressed to true.
-                }.
-            }
-        }
-        local reset is gui:addbutton("Reset").
-        set reset:onclick to {set bpressed to true.}.
-        gui:show().
-        wait until bpressed.
-        clearguis().
-    }
+    local leave_port is choose_docking_port(ship, "undocking").
 
     local dp is assign_ports(leave_port).
 
