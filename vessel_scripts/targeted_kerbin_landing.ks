@@ -67,8 +67,6 @@ else if (runway = "Custom")
 
 kerbin_landing_window(landing_lat, landing_lng, runway).
 
-kuniverse:quicksave().
-
 undock_leave().
 
 deploy_dp_shield().
@@ -105,7 +103,9 @@ function kerbin_landing_window {
             wait until ship:unpacked.
             wait 1.
             local warpTime is 20 * ship:orbit:period / 360.
+            local endTime is warpTime + time:seconds.
             do_warp(warpTime).
+            wait until time:seconds > endTime + 1.
             break.
         }
 
@@ -146,32 +146,47 @@ function intercept_landing_site_atmosphere
     lock steering to retrograde.
     RCS on.
     wait until vang(ship:facing:forevector, retrograde:vector) < 2.
-    wait 8.
+    wait 1.
     RCS off.
+    wait 6.
 
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
-    wait 0.5.
+    wait until addons:tr:timetillimpact < 0.65 * ship:orbit:period.
+    local distList is list(1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64).
+    local minAv is 2E64.
+    wait 0.1.
     until false
     {
         local impact_params is addons:tr:impactpos.
         local impact_lat is impact_params:lat.
         local impact_lng is impact_params:lng.
-        local totDiff is abs(impact_lat-target_lat) + abs(impact_lng-target_lng).
 
-        local impactDist is greatCircle_dist(impact_lat, impact_lng, ship:geoposition:lat, ship:geoposition:lng).
-        local targetDist is greatCircle_dist(target_lat, target_lng, ship:geoposition:lat, ship:geoposition:lng).
-
-        if (impactDist < targetDist and totDiff < 12) break.
+        local impactDist is greatCircle_dist(impact_lat, impact_lng, target_lat, target_lng).
+        distList:remove(0).
+        distList:add(impactDist).
+        local av is average(distList).
+        if (av > minAv) break.
+        if (av < minAv) set minAv to av.
 
         clearscreen.
         print "Landing at " + runway.
         print "Ilat: " + round(impact_lat, 2) + " Ilng: " + round(impact_lng, 2).
         print "Tlat: " + round(target_lat, 2) + " Tlng: " + round(target_lng, 2).
-        print "Impact Dist: " + round(impactPos, 2) + "   Target Dist: " + round(targetPos, 2).
     }
     lock throttle to 0.
     wait 3.
+}
+
+function average {
+    parameter avList.
+
+    local sum is 0.
+    for item in avList {
+        set sum to sum + item.
+    }
+
+    return sum / avList:length.
 }
 
 function spaceplane_reeentry

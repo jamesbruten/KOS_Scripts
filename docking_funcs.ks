@@ -11,13 +11,15 @@ function dock_vessels
     }
     RCS on.
 
+    lock steering to lookdirup(ship:facing:forevector, ship:facing:topvector).
+
     set steeringmanager:maxstoppingtime to 0.5.
 
     // // leave_keepout().
     kill_relative_velocity().
     
-    local targetport is get_target_port(target_port_name).
-    local shipport is assign_ports(ship_port_name).
+    local targetport is assign_ports(target_port_name, target).
+    local shipport is assign_ports(ship_port_name, ship).
     set targetport to check_ports_match(targetport, shipport).
     shipport:controlfrom().
 
@@ -66,33 +68,21 @@ function kill_relative_velocity
     translate(V(0,0,0)).
 }
 
-function get_target_port
-{
-    parameter port_name.
-    if (target:dockingports:length <> 0)
-    {
-        for dp in target:dockingports
-        {
-            if (dp:tag = port_name) return dp.
-        }
-    }
-}
-
 function assign_ports
 {
-    parameter port_name.
+    parameter port_name, orbitable.
 
     local tp is "x".
     until false {
-        for dp in ship:dockingports {
+        for dp in orbitable:dockingports {
             if (dp:tag = port_name) {
                 set tp to dp.
                 break.
             }
         }
         if (tp = "x") {
-            print "Choose the ship docking port".
-            set port_name to choose_docking_port(ship, "docking", "ship").
+            print "Choose the docking port for " + orbitable:name.
+            set port_name to choose_docking_port(orbitable, "docking", orbitable:name).
         }
         else break.
     }
@@ -108,7 +98,7 @@ function check_ports_match
         print "Target Port Doesn't Match Ship Docking Port".
         print "Choose A New Port".
         local tp is choose_docking_port(target, "docking", "target").
-        set target_port to assign_ports(tp).
+        set target_port to assign_ports(tp, target).
     }
 }
 
@@ -303,7 +293,7 @@ function undock_leave
 
     local leave_port is choose_docking_port(ship, "undocking", "ship").
 
-    local dp is assign_ports(leave_port).
+    local dp is assign_ports(leave_port, ship).
 
     if (dp:state = "ready") return.
 
