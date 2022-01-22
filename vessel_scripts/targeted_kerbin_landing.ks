@@ -156,6 +156,7 @@ function intercept_landing_site_atmosphere
     local distList is list(1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64).
     local minAv is 2E64.
     wait 0.1.
+    set_engine_limit(2).
     until false
     {
         local impact_params is addons:tr:impactpos.
