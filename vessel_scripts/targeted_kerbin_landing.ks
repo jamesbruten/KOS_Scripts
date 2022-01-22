@@ -103,14 +103,16 @@ function kerbin_landing_window {
         if (dist < maxDist) {
             set warp to 0.
             wait until ship:unpacked.
-            wait 2. 
+            wait 1.
+            local warpTime is 20 * ship:orbit:period / 360.
+            do_warp(warpTime).
             break.
         }
 
         clearscreen.
         print "Landing at " + runway.
         print "Warping until landing window".
-        print "Max Dist: " + round(maxDist, 2) + " Dist: " + round(dist, 2) + "Warp: " + warpLevel.
+        print "Max Dist: " + round(maxDist, 2) + "  Dist: " + round(dist, 2) + "  Warp: " + warpLevel.
     }
 }
 
@@ -137,6 +139,8 @@ function intercept_landing_site_atmosphere
 
     print("Impacting Landing Site").
 
+    set steeringmanager:maxstoppingtime to 0.5.
+
     set addons:tr:descentangles to list(60, 45, 30, 5).
 
     lock steering to retrograde.
@@ -144,6 +148,7 @@ function intercept_landing_site_atmosphere
     wait until vang(ship:facing:forevector, retrograde:vector) < 2.
     wait 8.
     RCS off.
+
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
     wait 0.5.
@@ -154,10 +159,10 @@ function intercept_landing_site_atmosphere
         local impact_lng is impact_params:lng.
         local totDiff is abs(impact_lat-target_lat) + abs(impact_lng-target_lng).
 
-        local targetPos is latlng(target_lat, target_lng):position:mag.
-        local impactPos is latlng(impact_lat, impact_lng):position:mag.
+        local impactDist is greatCircle_dist(impact_lat, impact_lng, ship:geoposition:lat, ship:geoposition:lng).
+        local targetDist is greatCircle_dist(target_lat, target_lng, ship:geoposition:lat, ship:geoposition:lng).
 
-        if (impactPos < targetPos and totDiff < 12) break.
+        if (impactDist < targetDist and totDiff < 12) break.
 
         clearscreen.
         print "Landing at " + runway.
