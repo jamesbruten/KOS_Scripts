@@ -7,7 +7,7 @@ if (target:body = ship:body)
     global target_ap_km is target_ap/1000.
     global target_pe_km is target_pe/1000.
     print "Target is: " + target:name.
-    local port_name is "target_dp".
+    local port_name is "jnr_aft".
     print "Target Port is: " + port_name.
     wait 3.
 
@@ -45,7 +45,7 @@ if (target:body = ship:body)
     wait 2.
     deploy_payload("payload").
 
-    // dock_vessels(port_name).
+    dock_vessels(port_name).
 }
 else if (target:body:body = ship:body)
 {
