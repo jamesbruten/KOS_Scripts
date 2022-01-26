@@ -65,20 +65,20 @@ else if (runway = "Custom")
     set landing_lng to 0.
 }
 
-kerbin_landing_window(landing_lat, landing_lng, runway).
+kerbin_landing_window(landing_lat, landing_lng).
 
 undock_leave().
 
 deploy_dp_shield().
 
-intercept_landing_site_atmosphere(landing_lat, landing_lng, runway).
+intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
 spaceplane_reeentry().
 
 
 function kerbin_landing_window {
 
-    parameter target_lat, target_lng, runway.
+    parameter target_lat, target_lng.
 
     local opp_lat is -1 * target_lat.
     local opp_lng is target_lng + 180.
@@ -135,7 +135,7 @@ function greatCircle_dist {
 
 function intercept_landing_site_atmosphere
 {
-    parameter target_lat, target_lng, runway.
+    parameter target_lat, target_lng.
 
     print("Impacting Landing Site").
 
