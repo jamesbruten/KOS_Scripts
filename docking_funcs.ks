@@ -291,7 +291,25 @@ function undock_leave
     clearguis().
     if cancelUndock return.
 
-    local leave_port is choose_docking_port(ship, "undocking", "ship").
+    local undock is false.
+    until undock {
+        local leave_port is choose_docking_port(ship, "undocking", "ship").
+
+        set bpressed to false.
+        set gui to gui(200).
+        set gui:x to -250.
+        set gui:y to 200.
+        set label to gui:addlabel("Undocking Port " + leave_port + ":").
+        set label:style:align to "center".
+        set label:style:hstretch to true.
+        set b1 to gui:addbutton("Undock").
+        set b1:onclick to {set bpressed to true. set undock to true.}.
+        set b2 to gui:addbutton("Reselect Docking Port").
+        set b2:onclick to {set bpressed to true.}.
+        gui:show().
+        wait until bpressed.
+        clearguis().
+    }
 
     local dp is assign_ports(leave_port, ship).
 
