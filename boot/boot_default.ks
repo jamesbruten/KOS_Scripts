@@ -3,7 +3,7 @@ runpath("0:/boot/load_scripts.ks").
 
 declare global target_ap_km to 170.
 declare global target_pe_km to 170.
-declare global target_inc to 90.
+declare global target_inc to 0.
 
 if (target_ap_km < target_pe_km)
 {

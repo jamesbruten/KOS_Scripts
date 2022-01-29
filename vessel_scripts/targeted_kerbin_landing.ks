@@ -205,20 +205,43 @@ function spaceplane_reeentry
 
     global manualControl is false.
     global pitch is 60.
+    global roll is 0.
     lock steering to heading(prograde_heading, pitch, 0).
 
     when (ship:altitude < 50000) then RCS on.
 
-    local gui is gui(200).
-    set gui:x to -250.
-    set gui:y to 200.
-    local label is gui:addlabel("Pitch Control").
-    set label:style:align to "center".
-    set label:style:hstretch to true.
+    local gui is gui(300).
+    set gui:x to -350.
+    set gui:y to -50.
+    local label1 is gui:addlabel("Reentry Control").
+    set label1:style:align to "center".
+    set label1:style:hstretch to true.
+
+    // Pitch Slider
+    local label2 is gui:addlabel("Pitch Slider (0 - 60):").
+    set label2:style:align to "center".
+    set label2:style:hstretch to true.
     local pitchSlider is gui:addhslider(pitch, 0, 60).
     set pitchSlider:onchange to pitch_delegate@.
-    local b1 is gui:addbutton("Activate AG7").
-    set b1:onclick to {AG7 on.}.
+
+    // Pitch Reset Button
+    local b_pitch_reset is gui:addbutton("Reset Auto Pitch").
+    set b_pitch_reset:onclick to {set manualControl to false.}.
+
+    // Roll Slider
+    local label3 is gui:addlabel("Roll Slider (-45 - +45)").
+    set label3:style:align to "center".
+    set label3:style:hstretch to true.
+    local rollSlider is gui:addhslider(0, -45, 45).
+    // set rollSlider:onchange to roll_delegate@.
+
+    // Roll Reset Button
+    local b_roll_reset is gui:addbutton("Set Roll to 0").
+    set b_roll_reset:onclick to {set roll to 0. set rollSlider:value to 0.}.
+
+    // AG7 button
+    local b_ag7 is gui:addbutton("Activate AG7").
+    set b_ag7:onclick to {AG7 on.}.
     gui:show().
 
     on AG7 {
@@ -234,9 +257,9 @@ function spaceplane_reeentry
         set prograde_heading to compass_for_vec().
         if not manualControl {
             if (ship:altitude < 25000) set pitch to 20.
-            if (ship:altitude < 30000) set pitch to 30.
-            if (ship:altitude < 40000) set pitch to 40.
-            if (ship:altitude < 45000) set pitch to 50.
+            else if (ship:altitude < 30000) set pitch to 30.
+            else if (ship:altitude < 40000) set pitch to 40.
+            else if (ship:altitude < 45000) set pitch to 50.
         }
         if (ship:groundspeed < 300) AG7 on.
         clearscreen.
@@ -261,7 +284,5 @@ function pitch_delegate {
     parameter newPitch.
 
     set pitch to newPitch.
-    if (pitch <> 60) {
-        set manualControl to true.
-    }
+    if (pitch <> 60) set manualControl to true.
 }
