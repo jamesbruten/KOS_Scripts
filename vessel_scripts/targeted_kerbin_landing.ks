@@ -203,25 +203,44 @@ function spaceplane_reeentry
     print "Aerodynamic Control Surfaces Unlocked".
     print "Holding Pitch until 21000". 
 
-    local pitch is 60.
+    global manualControl is false.
+    global pitch is 60.
     lock steering to heading(prograde_heading, pitch, 0).
 
     when (ship:altitude < 50000) then RCS on.
-    when (ship:altitude < 45000) then set pitch to 50.
-    when (ship:altitude < 40000) then {RCS off. set pitch to 40.}
-    when (ship:altitude < 30000) then set pitch to 30.
-    when (ship:altitude < 25000) then set pitch to 20.
 
     on AG7 {
         print "Unlocking Steering and Setting SAS to Prograde".
         unlock steering.
         unlock throttle.
         SAS on.
+        RCS off.
+        clearguis().
     }
+
+    local gui is gui(200).
+    set gui:x to -250.
+    set gui:y to 200.
+    local label is gui:addlabel("Pitch Control").
+    set label:style:align to "center".
+    set label:style:hstretch to true.
+    local pitchSlider is gui:addhslider(pitch, 0, 60).
+    local delegate is change_pitch@.
+    set pitchSlider:onchange to delegate(pitchSlider).
+    local b1 is gui:addbutton("Activate AG7").
+    set b1:onclick to {AG7 on.}.
+    gui:show().
+
 
     until AG7 {
         set prograde_heading to compass_for_vec().
-        if (ship:altitude < 21000) AG7 on.
+        if not manualControl {
+            if (ship:altitude < 25000) set pitch to 20.
+            if (ship:altitude < 30000) set pitch to 30.
+            if (ship:altitude < 40000) set pitch to 40.
+            if (ship:altitude < 45000) set pitch to 50.
+        }
+        if (ship:groundspeed < 300) AG7 on.
     }
 
     wait 5.
@@ -232,4 +251,12 @@ function spaceplane_reeentry
         chutes on.
     }
     wait until ship:groundspeed < 10.
+}
+
+function change_pitch {
+    parameter slider.
+
+    set pitch to slider:value.
+    if not manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
+    set manualControl to true.
 }
