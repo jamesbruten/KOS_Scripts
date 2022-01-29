@@ -65,13 +65,13 @@ else if (runway = "Custom")
     set landing_lng to 0.
 }
 
-kerbin_landing_window(landing_lat, landing_lng).
+// kerbin_landing_window(landing_lat, landing_lng).
 
-undock_leave().
+// undock_leave().
 
-deploy_dp_shield().
+// deploy_dp_shield().
 
-intercept_landing_site_atmosphere(landing_lat, landing_lng).
+// intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
 spaceplane_reeentry().
 
@@ -192,11 +192,11 @@ function average {
 
 function spaceplane_reeentry
 {
-    set warp to 4.
-    when (ship:altitude < 100000) then set warp to 2.
-    when (ship:altitude < 85000) then set warp to 0.
-    clearscreen.
-    wait until ship:altitude < 85000.
+    // set warp to 4.
+    // when (ship:altitude < 100000) then set warp to 2.
+    // when (ship:altitude < 85000) then set warp to 0.
+    // clearscreen.
+    // wait until ship:altitude < 85000.
 
     local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
@@ -212,7 +212,7 @@ function spaceplane_reeentry
 
     local gui is gui(300).
     set gui:x to -350.
-    set gui:y to -50.
+    set gui:y to -250.
     local label1 is gui:addlabel("Reentry Control").
     set label1:style:align to "center".
     set label1:style:hstretch to true.
@@ -260,13 +260,16 @@ function spaceplane_reeentry
             else if (ship:altitude < 30000) set pitch to 30.
             else if (ship:altitude < 40000) set pitch to 40.
             else if (ship:altitude < 45000) set pitch to 50.
+            else set pitch to 60.
+            set pitchSlider:value to pitch.
+            set manualControl to false.
         }
         if (ship:groundspeed < 300) AG7 on.
         clearscreen.
         print "Aerodynamic Control Surfaces Unlocked".
         print "Holding Pitch until AG7".
-        print "Current Pitch: " + round(pitch, 1).
-        if not manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
+        if manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
+        print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
         wait 0.2.
     }
 
