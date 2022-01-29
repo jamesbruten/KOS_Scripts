@@ -201,7 +201,7 @@ function spaceplane_reeentry
     local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
     print "Aerodynamic Control Surfaces Unlocked".
-    print "Holding Pitch until 21000". 
+    print "Holding Pitch until AG7". 
 
     global manualControl is false.
     global pitch is 60.
@@ -216,8 +216,7 @@ function spaceplane_reeentry
     set label:style:align to "center".
     set label:style:hstretch to true.
     local pitchSlider is gui:addhslider(pitch, 0, 60).
-    local delegate is change_pitch@.
-    set pitchSlider:onchange to delegate(pitchSlider).
+    set pitchSlider:onchange to pitch_delegate@.
     local b1 is gui:addbutton("Activate AG7").
     set b1:onclick to {AG7 on.}.
     gui:show().
@@ -240,6 +239,12 @@ function spaceplane_reeentry
             if (ship:altitude < 45000) set pitch to 50.
         }
         if (ship:groundspeed < 300) AG7 on.
+        clearscreen.
+        print "Aerodynamic Control Surfaces Unlocked".
+        print "Holding Pitch until AG7".
+        print "Current Pitch: " + round(pitch, 1).
+        if not manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
+        wait 0.2.
     }
 
     wait 5.
@@ -252,10 +257,11 @@ function spaceplane_reeentry
     wait until ship:groundspeed < 10.
 }
 
-function change_pitch {
-    parameter slider.
+function pitch_delegate {
+    parameter newPitch.
 
-    set pitch to slider:value.
-    if not manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
-    set manualControl to true.
+    set pitch to newPitch.
+    if (pitch <> 60) {
+        set manualControl to true.
+    }
 }

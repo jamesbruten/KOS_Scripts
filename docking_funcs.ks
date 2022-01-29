@@ -292,8 +292,9 @@ function undock_leave
     if cancelUndock return.
 
     local undock is false.
+    local leave_port is "x".
     until undock {
-        local leave_port is choose_docking_port(ship, "undocking", "ship").
+        set leave_port to choose_docking_port(ship, "undocking", "ship").
 
         set bpressed to false.
         set gui to gui(200).
