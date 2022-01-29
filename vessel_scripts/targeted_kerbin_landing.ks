@@ -209,15 +209,6 @@ function spaceplane_reeentry
 
     when (ship:altitude < 50000) then RCS on.
 
-    on AG7 {
-        print "Unlocking Steering and Setting SAS to Prograde".
-        unlock steering.
-        unlock throttle.
-        SAS on.
-        RCS off.
-        clearguis().
-    }
-
     local gui is gui(200).
     set gui:x to -250.
     set gui:y to 200.
@@ -231,6 +222,14 @@ function spaceplane_reeentry
     set b1:onclick to {AG7 on.}.
     gui:show().
 
+    on AG7 {
+        print "Unlocking Steering and Setting SAS to Prograde".
+        unlock steering.
+        unlock throttle.
+        SAS on.
+        RCS off.
+        clearguis().
+    }
 
     until AG7 {
         set prograde_heading to compass_for_vec().
