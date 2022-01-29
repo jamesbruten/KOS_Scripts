@@ -192,21 +192,24 @@ function average {
 
 function spaceplane_reeentry
 {
-    // set warp to 4.
-    // when (ship:altitude < 100000) then set warp to 2.
-    // when (ship:altitude < 85000) then set warp to 0.
-    // clearscreen.
-    // wait until ship:altitude < 85000.
+    set warp to 4.
+    when (ship:altitude < 100000) then set warp to 2.
+    when (ship:altitude < 85000) then set warp to 0.
+    clearscreen.
+    wait until ship:altitude < 85000.
 
-    local prograde_heading is compass_for_vec().
     AG6 on.    // unlock aero
     print "Aerodynamic Control Surfaces Unlocked".
     print "Holding Pitch until AG7". 
 
     global manualControl is false.
+
+    local prograde_heading is compass_for_vec().
     global pitch is 60.
-    global roll is 0.
-    lock steering to heading(prograde_heading, pitch, 0).
+    global yaw is 0.
+    global steering_heading is prograde_heading.
+    global steering_pitch is pitch.
+    lock steering to heading(steering_heading, steering_pitch, 0).
 
     when (ship:altitude < 50000) then RCS on.
 
@@ -228,16 +231,16 @@ function spaceplane_reeentry
     local b_pitch_reset is gui:addbutton("Reset Auto Pitch").
     set b_pitch_reset:onclick to {set manualControl to false.}.
 
-    // Roll Slider
-    local label3 is gui:addlabel("Roll Slider (-45 - +45)").
+    // Yaw Slider
+    local label3 is gui:addlabel("Yaw Slider (-45 - +45)").
     set label3:style:align to "center".
     set label3:style:hstretch to true.
-    local rollSlider is gui:addhslider(0, -45, 45).
-    // set rollSlider:onchange to roll_delegate@.
+    local yawSlider is gui:addhslider(0, -45, 45).
+    set yawSlider:onchange to yaw_delegate@.
 
-    // Roll Reset Button
-    local b_roll_reset is gui:addbutton("Set Roll to 0").
-    set b_roll_reset:onclick to {set roll to 0. set rollSlider:value to 0.}.
+    // Yaw Reset Button
+    local b_yaw_reset is gui:addbutton("Set Yaw to 0").
+    set b_yaw_reset:onclick to {set yaw to 0. set yawSlider:value to 0.}.
 
     // AG7 button
     local b_ag7 is gui:addbutton("Activate AG7").
@@ -254,7 +257,7 @@ function spaceplane_reeentry
     }
 
     until AG7 {
-        set prograde_heading to compass_for_vec().
+        calculate_steering().
         if not manualControl {
             if (ship:altitude < 25000) set pitch to 20.
             else if (ship:altitude < 30000) set pitch to 30.
@@ -269,7 +272,7 @@ function spaceplane_reeentry
         print "Aerodynamic Control Surfaces Unlocked".
         print "Holding Pitch until AG7".
         if manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
-        print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
+        print "Current Pitch: " + round(pitch, 1) + "     Current Yaw: " + round(yaw, 1).
         wait 0.2.
     }
 
@@ -285,7 +288,16 @@ function spaceplane_reeentry
 
 function pitch_delegate {
     parameter newPitch.
-
     set pitch to newPitch.
     if (pitch <> 60) set manualControl to true.
+}
+
+function yaw_delegate {
+    parameter newYaw.
+    set yaw to newYaw.
+}
+
+function calculate_steering {
+    local prograde_heading is compass_for_vec().
+    set steering_heading to prograde_heading + yaw.
 }
