@@ -65,13 +65,13 @@ else if (runway = "Custom")
     set landing_lng to 0.
 }
 
-// kerbin_landing_window(landing_lat, landing_lng).
+kerbin_landing_window(landing_lat, landing_lng).
 
-// undock_leave().
+undock_leave().
 
-// deploy_dp_shield().
+deploy_dp_shield().
 
-// intercept_landing_site_atmosphere(landing_lat, landing_lng).
+intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
 spaceplane_reeentry().
 
@@ -209,7 +209,7 @@ function spaceplane_reeentry
     global roll is 0.
     global steering_heading is prograde_heading.
     global steering_pitch is pitch.
-    lock steering to heading(steering_heading, steering_pitch, roll).
+    lock steering to heading(steering_heading, steering_pitch, -1 * roll).
 
     when (ship:altitude < 50000) then RCS on.
 
