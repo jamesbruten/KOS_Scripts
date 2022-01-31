@@ -206,10 +206,10 @@ function spaceplane_reeentry
 
     local prograde_heading is compass_for_vec().
     global pitch is 60.
-    global yaw is 0.
+    global roll is 0.
     global steering_heading is prograde_heading.
     global steering_pitch is pitch.
-    lock steering to heading(steering_heading, steering_pitch, 0).
+    lock steering to heading(steering_heading, steering_pitch, roll).
 
     when (ship:altitude < 50000) then RCS on.
 
@@ -231,16 +231,16 @@ function spaceplane_reeentry
     local b_pitch_reset is gui:addbutton("Reset Auto Pitch").
     set b_pitch_reset:onclick to {set manualControl to false.}.
 
-    // Yaw Slider
-    local label3 is gui:addlabel("Yaw Slider (-45 - +45)").
+    // Roll Slider
+    local label3 is gui:addlabel("Roll Slider (-45 - +45)").
     set label3:style:align to "center".
     set label3:style:hstretch to true.
-    local yawSlider is gui:addhslider(0, -45, 45).
-    set yawSlider:onchange to yaw_delegate@.
+    local rollSlider is gui:addhslider(0, -45, 45).
+    set rollSlider:onchange to roll_delegate@.
 
-    // Yaw Reset Button
-    local b_yaw_reset is gui:addbutton("Set Yaw to 0").
-    set b_yaw_reset:onclick to {set yaw to 0. set yawSlider:value to 0.}.
+    // Roll Reset Button
+    local b_roll_reset is gui:addbutton("Set Roll to 0").
+    set b_roll_reset:onclick to {set roll to 0. set rollSlider:value to 0.}.
 
     // AG7 button
     local b_ag7 is gui:addbutton("Activate AG7").
@@ -272,7 +272,7 @@ function spaceplane_reeentry
         print "Aerodynamic Control Surfaces Unlocked".
         print "Holding Pitch until AG7".
         if manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
-        print "Current Pitch: " + round(pitch, 1) + "     Current Yaw: " + round(yaw, 1).
+        print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
         wait 0.2.
     }
 
@@ -292,12 +292,15 @@ function pitch_delegate {
     if (pitch <> 60) set manualControl to true.
 }
 
-function yaw_delegate {
-    parameter newYaw.
-    set yaw to newYaw.
+function roll_delegate {
+    parameter newRoll.
+    set roll to newRoll.
 }
 
 function calculate_steering {
+    set steering_pitch to cos(roll) * pitch.
     local prograde_heading is compass_for_vec().
+    local yaw is sin(abs(roll)) * pitch.
+    if (roll < 0) set yaw to -1 * yaw.
     set steering_heading to prograde_heading + yaw.
 }
