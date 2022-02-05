@@ -143,7 +143,8 @@ function intercept_landing_site_atmosphere
 
     // 70000, 35000, 17500, 3500
     // set addons:tr:descentangles to list(60, 45, 30, 5).
-    set addons:tr:descentangles to list(40, 35, 20, 5).
+    // set addons:tr:descentangles to list(40, 35, 20, 5).
+    set addons:tr:descentangles to list(40, 40, 40, 40).
 
     lock steering to retrograde.
     RCS on.
