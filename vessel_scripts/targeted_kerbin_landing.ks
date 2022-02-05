@@ -141,6 +141,7 @@ function intercept_landing_site_atmosphere
 
     set steeringmanager:maxstoppingtime to 0.5.
 
+    // 70000, 35000, 17500, 3500
     // set addons:tr:descentangles to list(60, 45, 30, 5).
     set addons:tr:descentangles to list(40, 35, 20, 5).
 
