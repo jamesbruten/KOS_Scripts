@@ -65,9 +65,9 @@ else if (runway = "Custom")
     set landing_lng to 0.
 }
 
-kerbin_landing_window(landing_lat, landing_lng).
+// kerbin_landing_window(landing_lat, landing_lng).
 
-undock_leave().
+// undock_leave().
 
 deploy_dp_shield().
 
@@ -141,7 +141,8 @@ function intercept_landing_site_atmosphere
 
     set steeringmanager:maxstoppingtime to 0.5.
 
-    set addons:tr:descentangles to list(60, 45, 30, 5).
+    // set addons:tr:descentangles to list(60, 45, 30, 5).
+    set addons:tr:descentangles to list(40, 35, 20, 5).
 
     lock steering to retrograde.
     RCS on.
@@ -205,7 +206,7 @@ function spaceplane_reeentry
     global manualControl is false.
 
     local prograde_heading is compass_for_vec().
-    global pitch is 60.
+    global pitch is 40.
     global roll is 0.
     global steering_heading is prograde_heading.
     global steering_pitch is pitch.
@@ -256,14 +257,18 @@ function spaceplane_reeentry
         clearguis().
     }
 
+    local gval is kerbin:mu / kerbin:radius^2.
     until AG7 {
+        local accVal is ship:sensors:acc - ship:sensors:grav.
+        local gforce is accVal / gval.
+        log gforce + " " + ship:altitude to gforce_data.txt.
         calculate_steering().
         if not manualControl {
-            if (ship:altitude < 25000) set pitch to 20.
-            else if (ship:altitude < 30000) set pitch to 30.
-            else if (ship:altitude < 40000) set pitch to 40.
-            else if (ship:altitude < 45000) set pitch to 50.
-            else set pitch to 60.
+            // if (ship:altitude < 25000) set pitch to 20.
+            // else if (ship:altitude < 30000) set pitch to 30.
+            // else if (ship:altitude < 40000) set pitch to 40.
+            // else if (ship:altitude < 45000) set pitch to 50.
+            // else set pitch to 40.
             set pitchSlider:value to pitch.
             set manualControl to false.
         }
