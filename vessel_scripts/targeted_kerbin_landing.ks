@@ -69,7 +69,7 @@ else if (runway = "Custom")
 
 // undock_leave().
 
-deploy_dp_shield().
+// deploy_dp_shield().
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
@@ -142,6 +142,7 @@ function intercept_landing_site_atmosphere
     set steeringmanager:maxstoppingtime to 0.5.
 
     // 70000, 35000, 17500, 3500
+    set addons:tr:prograde to true.
     // set addons:tr:descentangles to list(60, 45, 30, 5).
     // set addons:tr:descentangles to list(40, 35, 20, 5).
     set addons:tr:descentangles to list(40, 40, 40, 40).
@@ -261,9 +262,6 @@ function spaceplane_reeentry
 
     local gval is kerbin:mu / kerbin:radius^2.
     until AG7 {
-        local accVal is ship:sensors:acc - ship:sensors:grav.
-        local gforce is accVal / gval.
-        log gforce + " " + ship:altitude to gforce_data.txt.
         calculate_steering().
         if not manualControl {
             // if (ship:altitude < 25000) set pitch to 20.
