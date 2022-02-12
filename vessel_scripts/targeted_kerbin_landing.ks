@@ -145,7 +145,6 @@ function intercept_landing_site_atmosphere
 
     // 70000, 35000, 17500, 3500
     set addons:tr:prograde to true.
-    // set addons:tr:descentangles to list(60, 45, 30, 5).
     set addons:tr:descentangles to list(60, 40, 10, 5).
 
     lock steering to retrograde.
@@ -209,51 +208,16 @@ function spaceplane_reeentry
     print "Aerodynamic Control Surfaces Unlocked".
     print "Holding Pitch until AG7". 
 
-    global manualControl is false.
+    local pitchModulation is false.
 
-    local prograde_heading is compass_for_vec().
     global pitch is 40.
     global roll is 0.
-    global steering_heading is prograde_heading.
+    global steering_heading is compass_for_vec().
     global steering_pitch is pitch.
     lock steering to heading(steering_heading, steering_pitch, -1 * roll).
 
     when (ship:altitude < 50000) then RCS on.
     when (ship:altitude < 20000) then RCS off.
-
-    local gui is gui(300).
-    set gui:x to -350.
-    set gui:y to -250.
-    local label1 is gui:addlabel("Reentry Control").
-    set label1:style:align to "center".
-    set label1:style:hstretch to true.
-
-    // Pitch Slider
-    local label2 is gui:addlabel("Pitch Slider (0 - 60):").
-    set label2:style:align to "center".
-    set label2:style:hstretch to true.
-    local pitchSlider is gui:addhslider(pitch, 0, 60).
-    set pitchSlider:onchange to pitch_delegate@.
-
-    // Pitch Reset Button
-    local b_pitch_reset is gui:addbutton("Reset Auto Pitch").
-    set b_pitch_reset:onclick to {set manualControl to false.}.
-
-    // Roll Slider
-    local label3 is gui:addlabel("Roll Slider (-45 - +45)").
-    set label3:style:align to "center".
-    set label3:style:hstretch to true.
-    local rollSlider is gui:addhslider(0, -45, 45).
-    set rollSlider:onchange to roll_delegate@.
-
-    // Roll Reset Button
-    local b_roll_reset is gui:addbutton("Set Roll to 0").
-    set b_roll_reset:onclick to {set roll to 0. set rollSlider:value to 0.}.
-
-    // AG7 button
-    local b_ag7 is gui:addbutton("Activate AG7").
-    set b_ag7:onclick to {AG7 on.}.
-    gui:show().
 
     on AG7 {
         print "Unlocking Steering and Setting SAS to Prograde".
@@ -263,24 +227,36 @@ function spaceplane_reeentry
         clearguis().
     }
 
-    local gval is kerbin:mu / kerbin:radius^2.
     until AG7 {
+        calculate_steering().
+
+        local normal is vcrs(ship:velocity:surface, -body:position).
         local vel_vect is vxcl(up:vector, ship:velocity:surface).
         local target_vect is vxcl(up:vector, target_pos:position).
         local relative_bearing is vang(vel_vect, target_vect).
-        calculate_steering().
-        if not manualControl {
-            if (ship:altitude < 25000) set pitch to 20.
-            else if (ship:altitude < 35000) set pitch to 30.
-            else set pitch to 40.
-            set pitchSlider:value to pitch.
-            set manualControl to false.
+        if (vang(target_vect, normal) < vang(target_vect, -1*normal)) set relative_bearing to -1 * relative_bearing.
+
+        if not pitchModulation {
+            if (ship:altitude < 25000) set pitch to 10.
+            else set pitch to 30.
+            set pitchModulation to calculate_roll(relative_bearing).
         }
+        else {
+            local ind is 0.
+            if (ship:altitude < 21000) set pitch to 0.
+            else if (ship:altitude < 25000) set pitch to 20.
+            else {
+                if (ship:altitude < 35000) set ind to 1.
+                set pitch to addons:tr:descentangles[ind].
+            }
+        }
+        
         if (ship:groundspeed < 300) AG7 on.
+
         clearscreen.
         print "Aerodynamic Control Surfaces Unlocked".
         print "Holding Pitch until AG7".
-        if manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
+        if pitchModulation print "Roll of 0 - Modulating Pitch for Targeted Landing".
         print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
         print "Relative Bearing to Landing Site: " + round(relative_bearing, 1).
         wait 0.2.
@@ -292,19 +268,28 @@ function spaceplane_reeentry
     when (alt:radar < 10) then {
         brakes on.
         chutes on.
+        AG20 on.   // Chutes Bound to AG20
     }
     wait until ship:groundspeed < 10.
 }
 
-function pitch_delegate {
-    parameter newPitch.
-    set pitch to newPitch.
-    if (pitch <> 60) set manualControl to true.
-}
+function calculate_roll {
+    parameter relative_bearing.
 
-function roll_delegate {
-    parameter newRoll.
-    set roll to newRoll.
+    local roll_val is 0.
+    local return_val is false.
+
+    if (abs(relative_bearing) < 0.5 and ship:altitude < 35000) {
+        set roll_val to 0.
+        set return_val to true.
+    }
+    else if (abs(relative_bearing) < 1) set roll_val to 22.
+    else set roll_val to 45.
+
+    if (relative_bearing < 0) set roll_val to -1 * roll_val.
+    set roll to roll_val.
+    
+    return return_val.
 }
 
 function calculate_steering {
