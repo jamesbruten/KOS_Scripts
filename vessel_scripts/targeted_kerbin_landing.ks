@@ -65,15 +65,17 @@ else if (runway = "Custom")
     set landing_lng to 0.
 }
 
-// kerbin_landing_window(landing_lat, landing_lng).
+local landing_pos is latlng(landing_lat, landing_lng).
 
-// undock_leave().
+kerbin_landing_window(landing_lat, landing_lng).
 
-// deploy_dp_shield().
+undock_leave().
+
+deploy_dp_shield().
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
-spaceplane_reeentry().
+spaceplane_reeentry(landing_pos).
 
 
 function kerbin_landing_window {
@@ -144,7 +146,7 @@ function intercept_landing_site_atmosphere
     // 70000, 35000, 17500, 3500
     set addons:tr:prograde to true.
     // set addons:tr:descentangles to list(60, 45, 30, 5).
-    set addons:tr:descentangles to list(40, 30, 10, 5).
+    set addons:tr:descentangles to list(60, 40, 10, 5).
 
     lock steering to retrograde.
     RCS on.
@@ -195,11 +197,13 @@ function average {
 
 function spaceplane_reeentry
 {
+    parameter target_pos.
+
     set warp to 4.
-    when (ship:altitude < 100000) then set warp to 2.
-    when (ship:altitude < 85000) then set warp to 0.
+    when (ship:altitude < 95000) then set warp to 2.
+    when (ship:altitude < 80000) then set warp to 0.
     clearscreen.
-    wait until ship:altitude < 85000.
+    wait until ship:altitude < 80000.
 
     AG6 on.    // unlock aero
     print "Aerodynamic Control Surfaces Unlocked".
@@ -261,6 +265,9 @@ function spaceplane_reeentry
 
     local gval is kerbin:mu / kerbin:radius^2.
     until AG7 {
+        local vel_vect is vxcl(up:vector, ship:velocity:surface).
+        local target_vect is vxcl(up:vector, target_pos:position).
+        local relative_bearing is vang(vel_vect, target_vect).
         calculate_steering().
         if not manualControl {
             if (ship:altitude < 25000) set pitch to 20.
@@ -275,6 +282,7 @@ function spaceplane_reeentry
         print "Holding Pitch until AG7".
         if manualControl print "Taking Over Manual Control - Pitch Will Not Change Automatically".
         print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
+        print "Relative Bearing to Landing Site: " + round(relative_bearing, 1).
         wait 0.2.
     }
 
