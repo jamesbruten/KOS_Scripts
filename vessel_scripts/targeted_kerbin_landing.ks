@@ -144,8 +144,7 @@ function intercept_landing_site_atmosphere
     // 70000, 35000, 17500, 3500
     set addons:tr:prograde to true.
     // set addons:tr:descentangles to list(60, 45, 30, 5).
-    // set addons:tr:descentangles to list(40, 35, 20, 5).
-    set addons:tr:descentangles to list(40, 40, 40, 40).
+    set addons:tr:descentangles to list(40, 30, 10, 5).
 
     lock steering to retrograde.
     RCS on.
@@ -264,11 +263,9 @@ function spaceplane_reeentry
     until AG7 {
         calculate_steering().
         if not manualControl {
-            // if (ship:altitude < 25000) set pitch to 20.
-            // else if (ship:altitude < 30000) set pitch to 30.
-            // else if (ship:altitude < 40000) set pitch to 40.
-            // else if (ship:altitude < 45000) set pitch to 50.
-            // else set pitch to 40.
+            if (ship:altitude < 25000) set pitch to 20.
+            else if (ship:altitude < 35000) set pitch to 30.
+            else set pitch to 40.
             set pitchSlider:value to pitch.
             set manualControl to false.
         }
