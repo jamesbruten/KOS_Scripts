@@ -219,6 +219,7 @@ function spaceplane_reeentry
     lock steering to heading(steering_heading, steering_pitch, -1 * roll).
 
     when (ship:altitude < 50000) then RCS on.
+    when (ship:altitude < 20000) then RCS off.
 
     local gui is gui(300).
     set gui:x to -350.
@@ -259,7 +260,6 @@ function spaceplane_reeentry
         unlock steering.
         unlock throttle.
         SAS on.
-        RCS off.
         clearguis().
     }
 
