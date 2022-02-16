@@ -286,6 +286,12 @@ function calculate_roll {
     else if (abs(relative_bearing) < 1) set roll_val to 22.
     else set roll_val to 45.
 
+    if (relative_bearing > 10)
+    {
+        set pitch to 20.
+        set roll_val to 45.
+    }
+
     if (relative_bearing < 0) set roll_val to -1 * roll_val.
     set roll to roll_val.
     
