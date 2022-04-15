@@ -49,19 +49,34 @@ until (false)
     local next_soi is "None".
     if (ship:orbit:hasnextpatch) set next_soi to ship:orbit:nextpatch:body.
 
+    local options is list("Execute Next Maneuver Node (must manually create node first)",
+                          "Warp to next SOI - " + next_soi,
+                          "Circularise at next Apside",
+                          "Finish Script").
+
     clearscreen.
-    print "Choose an option from the list:".
-    print "1: Execute Next Maneuver Node (must manually create node first)".
-    print "2: Warp to next SOI - " + next_soi.
-    print "3: Circularise at next Apside".
-    print "4: Finish Script".
-    until false
-    {
-        terminal:input:clear().
-        set inp to terminal:input:getchar().
-        set inp to inp:tonumber(-9999).
-        if (inp > 0 and inp < 4) break.
+    local gui is gui(200, 7).
+    set gui:x to -250.
+    set gui:y to 200.
+    local label is gui:addlabel("Select Next Option").
+    set label:style:align to "center".
+    set label:style:hstretch to true.
+    local bpressed is false.
+    local inp is 0.
+    local onum is 1.
+    for o in options {
+        local b is gui:addbutton(o).
+        set o:onclick to {
+            set inp to onum.
+            set bpressed to true.
+        }.
+        set onum to onum + 1.
     }
+    local closeButton is gui:addbutton("Close").
+    set closeButton:onclick to {clearguis().}.
+    gui:show().
+    wait until bpressed.
+    clearguis().
 
     if (inp = 1)
     {
