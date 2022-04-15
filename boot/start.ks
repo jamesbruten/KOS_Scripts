@@ -1,3 +1,4 @@
+runpath("0:/boot/load_scripts.ks").
 local closeButton is 0.
 local goback is 0.
 local level is 0.

@@ -1,13 +1,13 @@
 if (target:body = ship:body)
 {
-    global target_ap is max(0.75*target:apoapsis, 70000).
+    global target_ap is max(0.75*target:apoapsis, 73000).
     global target_pe is target_ap.
     global target_inc is target:orbit:inclination.
     if (abs(ship:latitude) > target_inc) set target_inc to 1.01 * abs(ship:latitude).
     global target_ap_km is target_ap/1000.
     global target_pe_km is target_pe/1000.
     print "Target is: " + target:name.
-    local port_name is "dome_fore".
+    local port_name is "lower".
     print "Target Port is: " + port_name.
     wait 3.
 

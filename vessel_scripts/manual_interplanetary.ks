@@ -5,7 +5,7 @@ global target_inc is 0.
 global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
-local target_body is Moho.
+local target_body is Jool.
 if (target_body:body = Sun) set target to target_body.
 else set target to target_body:body.
 
@@ -31,10 +31,10 @@ wait until time:seconds > wait_end.
 transfer_orbit_interplanetary().
 wait 5.
 
-// deploy_payload("final").
-// lock throttle to 0.
-// wait 1.
-// activate_engines().
+deploy_payload("final").
+lock throttle to 0.
+wait 1.
+activate_engines().
 
 print "Warping Until Outside Kerbin SOI".
 local time_kerbol is ship:orbit:nextpatcheta.
@@ -66,8 +66,8 @@ until (false)
     local onum is 1.
     for o in options {
         local b is gui:addbutton(o).
-        set o:onclick to {
-            set inp to onum.
+        set b:onclick to {
+            set inp to b:text.
             set bpressed to true.
         }.
         set onum to onum + 1.
@@ -78,13 +78,15 @@ until (false)
     wait until bpressed.
     clearguis().
 
-    if (inp = 1)
+    if (inp = options[0])
     {
-        if (ship:hasnode = false) print "No Maneuver Node Planned".
+        print "Maneuver Node Chosen".
+        if (hasnode = false) print "No Maneuver Node Planned".
         else execute_mnv().
     }
-    else if (inp = 2)
+    else if (inp = options[1])
     {
+        print "Next SOI Chosen".
         if (ship:orbit:hasnextpatch = true)
         {
             set wait_time to ship:orbit:nextpatcheta.
@@ -93,12 +95,17 @@ until (false)
             wait until time:seconds > wait_end.
         }
     }
-    else if (inp = 3)
+    else if (inp = options[2])
     {
+        print "Circularise Chosen".
         if (eta:apoapsis < eta:periapsis) adjust_apsides("a", ship:apoapsis).
         else adjust_apsides("p", ship:periapsis).
     }
-    else if (inp = 4) break.
+    else if(inp = options[3])
+    {
+        print "Ending Program".
+        break.
+    }
     else print "Invalid Option".
 
     wait 5.

@@ -1,6 +1,5 @@
 @lazyglobal off.
 core:part:getmodule("KOSProcessor"):doevent("Open Terminal").
-runpath("0:/boot/load_scripts.ks").
 
 local validTypes is list("station", "ship", "plane", "lander", "rover").
 
