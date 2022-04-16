@@ -4,9 +4,11 @@ function deploy_fairing
     {
         if p:hasmodule("moduleproceduralfairing")
         {
+            until (alt:radar > 55000) wait 0.1.
             print "Fairing Jettison".
             local decoupler is p:getmodule("moduleproceduralfairing").
             if decoupler:hasevent("deploy") decoupler:doevent("deploy").
+            break.
         }
     }
 }

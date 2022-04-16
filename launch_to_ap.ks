@@ -174,11 +174,7 @@ function prograde_climb
     lock steering to prograde.
     print "Engine Shutdown".
 
-    if (fairings_deployed = false)
-    {
-        until (alt:radar > 55000) wait 0.1.
-        deploy_fairing().
-    }
+    if (fairings_deployed = false) deploy_fairing().
 
     for p in ship:parts
     {
