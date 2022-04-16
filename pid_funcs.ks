@@ -57,3 +57,13 @@ function pid_translate_pitch
 
     global pitch_set is 0.
 }
+
+
+function pid_reentry_pitch {
+    global Kp_rpitch is 0.4.
+    global Ki_rpitch is 0.05.
+    global Kd_rpitch is 0.05.
+
+    global pid_rpitch is pidloop(Kp_rpitch, Ki_rpitch, Kd_rpitch, -5, 60).
+    set pid_rpitch:setpoint to 0.
+}

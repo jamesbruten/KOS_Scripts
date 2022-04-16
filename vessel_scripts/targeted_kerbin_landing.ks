@@ -29,38 +29,31 @@ clearguis().
 local landing_lat is 0.
 local landing_lng is 0.
 
-if (runway = "Kerbin")
-{
+if (runway = "Kerbin") {
     set landing_lat to -0.1025.
     set landing_lng to -74.57528.
 }
-else if (runway = "Woomerang")
-{
+else if (runway = "Woomerang") {
     set landing_lat to 45.29.
     set landing_lng to 136.11.
 }
-else if (runway = "Island")
-{
+else if (runway = "Island") {
     set landing_lat to -1.540833.
     set landing_lng to -71.90972.
 }
-else if (runway = "Desert")
-{
+else if (runway = "Desert") {
     set landing_lat to -6.599444.
     set landing_lng to -144.0406.
 }
-else if (runway = "Glacier")
-{
+else if (runway = "Glacier") {
     set landing_lat to 73.56.
     set landing_lng to 84.27.
 }
-else if (runway = "Mahi Mahi")
-{
+else if (runway = "Mahi Mahi") {
     set landing_lat to -49.8.
     set landing_lng to -120.77.
 }
-else if (runway = "Custom")
-{
+else if (runway = "Custom") {
     set landing_lat to 0.
     set landing_lng to 0.
 }
@@ -206,15 +199,15 @@ function spaceplane_reeentry
 
     AG6 on.    // unlock aero
     print "Aerodynamic Control Surfaces Unlocked".
-    print "Holding Pitch until AG7". 
+    print "Controlling Pitch and Steering Until AG7 at GroundSpeed = 300". 
 
-    local pitchModulation is false.
-
+    pid_reentry_pitch().
     global pitch is 30.
     global roll is 0.
     global steering_heading is compass_for_vec().
     global steering_pitch is pitch.
     lock steering to heading(steering_heading, steering_pitch, -1 * roll).
+    calculate_steering().
 
     when (ship:altitude < 50000) then RCS on.
     when (ship:altitude < 20000) then RCS off.
@@ -228,35 +221,16 @@ function spaceplane_reeentry
     }
 
     until AG7 {
+        local relative_bearing is calc_relative_bearing(target_pos).
+        calculate_roll(relative_bearing).
+        calculate_pitch().
         calculate_steering().
-
-        local normal is vcrs(ship:velocity:surface, -body:position).
-        local vel_vect is vxcl(up:vector, ship:velocity:surface).
-        local target_vect is vxcl(up:vector, target_pos:position).
-        local relative_bearing is vang(vel_vect, target_vect).
-        if (vang(target_vect, normal) < vang(target_vect, -1*normal)) set relative_bearing to -1 * relative_bearing.
-
-        if not pitchModulation {
-            if (ship:altitude < 25000) set pitch to 10.
-            else set pitch to 30.
-            set pitchModulation to calculate_roll(relative_bearing).
-        }
-        else {
-            local ind is 0.
-            if (ship:altitude < 21000) set pitch to 0.
-            else if (ship:altitude < 25000) set pitch to 20.
-            else {
-                if (ship:altitude < 35000) set ind to 1.
-                set pitch to addons:tr:descentangles[ind].
-            }
-        }
         
         if (ship:groundspeed < 300) AG7 on.
 
         clearscreen.
         print "Aerodynamic Control Surfaces Unlocked".
-        print "Holding Pitch until AG7".
-        if pitchModulation print "Roll of 0 - Modulating Pitch for Targeted Landing".
+        print "Controlling Pitch and Steering Until AG7 at GroundSpeed = 300". 
         print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
         print "Relative Bearing to Landing Site: " + round(relative_bearing, 2).
         wait 0.2.
@@ -279,9 +253,8 @@ function calculate_roll {
     local roll_val is 0.
     local return_val is false.
 
-
     if (abs(relative_bearing) < 0.5) {
-            if (ship:altitude < 35000 or abs(relative_bearing < 0.1)) {
+        if (ship:altitude < 35000 or abs(relative_bearing) < 0.25) {
             set roll_val to 0.
             set return_val to true.
         }
@@ -289,11 +262,7 @@ function calculate_roll {
     else if (abs(relative_bearing) < 1) set roll_val to 22.
     else set roll_val to 45.
 
-    if (relative_bearing > 10)
-    {
-        set pitch to 20.
-        set roll_val to 45.
-    }
+    if (relative_bearing > 10) set roll_val to 45.
 
     if (relative_bearing < 0) set roll_val to -1 * roll_val.
     set roll to roll_val.
@@ -307,4 +276,31 @@ function calculate_steering {
     local yaw is sin(abs(roll)) * pitch.
     if (roll < 0) set yaw to -1 * yaw.
     set steering_heading to prograde_heading + yaw.
+}
+
+function calc_relative_bearing {
+    parameter target_pos.
+
+    local normal is vcrs(ship:velocity:surface, -body:position).
+    local vel_vect is vxcl(up:vector, ship:velocity:surface).
+    local target_vect is vxcl(up:vector, target_pos:position).
+    local relative_bearing is vang(vel_vect, target_vect).
+    if (vang(target_vect, normal) < vang(target_vect, -1*normal)) set relative_bearing to -1 * relative_bearing.
+    return relative_bearing.
+}
+
+function calculate_pitch {
+    parameter target_pos.
+
+    local target_lat is target_pos:latitude.
+    local target_lng is target_pos:longitude.
+    local impact_params is addons:tr:impactpos.
+
+    local impactDist is greatCircle_dist(impact_params:lat, impact_params:lng, ship:geoposition:lat, ship:geoposition:lng).
+    local targetDist is greatCircle_dist(target_lat, target_lng, ship:geoposition:lat, ship:geoposition:lng).
+    local offset is -5000.
+
+    local diff is targetDist - impactDist + offset.
+
+    set pitch to pid_rpitch:update(time:seconds, diff).
 }
