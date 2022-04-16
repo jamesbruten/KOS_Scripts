@@ -182,7 +182,7 @@ function prograde_climb
         {
             local init_mass is ship:mass.
             print "Dropping 1st Stage".
-            wait 2.
+            wait 3.5.
             stage.
             wait 1.
             if (ship:mass < 0.99 * init_mass) stage.

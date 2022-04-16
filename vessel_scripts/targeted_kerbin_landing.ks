@@ -221,9 +221,9 @@ function spaceplane_reeentry
     }
 
     until AG7 {
+        calculate_pitch(target_pos).
         local relative_bearing is calc_relative_bearing(target_pos).
         calculate_roll(relative_bearing).
-        calculate_pitch().
         calculate_steering().
         
         if (ship:groundspeed < 300) AG7 on.
@@ -292,8 +292,8 @@ function calc_relative_bearing {
 function calculate_pitch {
     parameter target_pos.
 
-    local target_lat is target_pos:latitude.
-    local target_lng is target_pos:longitude.
+    local target_lat is target_pos:lat.
+    local target_lng is target_pos:lng.
     local impact_params is addons:tr:impactpos.
 
     local impactDist is greatCircle_dist(impact_params:lat, impact_params:lng, ship:geoposition:lat, ship:geoposition:lng).
