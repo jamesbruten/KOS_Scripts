@@ -145,7 +145,7 @@ function intercept_landing_site_atmosphere
 
     // 70000, 35000, 17500, 3500
     set addons:tr:prograde to true.
-    set addons:tr:descentangles to list(60, 40, 10, 5).
+    set addons:tr:descentangles to list(30, 30, 10, 0).
 
     lock steering to retrograde.
     RCS on.
@@ -210,7 +210,7 @@ function spaceplane_reeentry
 
     local pitchModulation is false.
 
-    global pitch is 40.
+    global pitch is 30.
     global roll is 0.
     global steering_heading is compass_for_vec().
     global steering_pitch is pitch.
@@ -258,7 +258,7 @@ function spaceplane_reeentry
         print "Holding Pitch until AG7".
         if pitchModulation print "Roll of 0 - Modulating Pitch for Targeted Landing".
         print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
-        print "Relative Bearing to Landing Site: " + round(relative_bearing, 1).
+        print "Relative Bearing to Landing Site: " + round(relative_bearing, 2).
         wait 0.2.
     }
 
@@ -279,9 +279,12 @@ function calculate_roll {
     local roll_val is 0.
     local return_val is false.
 
-    if (abs(relative_bearing) < 0.5 and ship:altitude < 35000) {
-        set roll_val to 0.
-        set return_val to true.
+
+    if (abs(relative_bearing) < 0.5) {
+            if (ship:altitude < 35000 or abs(relative_bearing < 0.1)) {
+            set roll_val to 0.
+            set return_val to true.
+        }
     }
     else if (abs(relative_bearing) < 1) set roll_val to 22.
     else set roll_val to 45.
