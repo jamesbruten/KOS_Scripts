@@ -201,13 +201,13 @@ function spaceplane_reeentry
     print "Aerodynamic Control Surfaces Unlocked".
     print "Controlling Pitch and Steering Until AG7 at GroundSpeed = 300". 
 
-    pid_reentry_pitch().
     global pitch is 30.
     global roll is 0.
     global steering_heading is compass_for_vec().
     global steering_pitch is pitch.
-    lock steering to heading(steering_heading, steering_pitch, -1 * roll).
     calculate_steering().
+    lock steering to heading(steering_heading, steering_pitch, -1 * roll).
+    pid_reentry_pitch().
 
     when (ship:altitude < 50000) then RCS on.
     when (ship:altitude < 20000) then RCS off.
@@ -219,6 +219,8 @@ function spaceplane_reeentry
         SAS on.
         clearguis().
     }
+
+    wait until ship:altitude < 70000.
 
     until AG7 {
         calculate_pitch(target_pos).
@@ -251,13 +253,9 @@ function calculate_roll {
     parameter relative_bearing.
 
     local roll_val is 0.
-    local return_val is false.
 
     if (abs(relative_bearing) < 0.5) {
-        if (ship:altitude < 35000 or abs(relative_bearing) < 0.25) {
-            set roll_val to 0.
-            set return_val to true.
-        }
+        if (ship:altitude < 35000 or abs(relative_bearing) < 0.25) set roll_val to 0.
     }
     else if (abs(relative_bearing) < 1) set roll_val to 22.
     else set roll_val to 45.
@@ -266,8 +264,6 @@ function calculate_roll {
 
     if (relative_bearing < 0) set roll_val to -1 * roll_val.
     set roll to roll_val.
-    
-    return return_val.
 }
 
 function calculate_steering {
@@ -298,7 +294,9 @@ function calculate_pitch {
 
     local impactDist is greatCircle_dist(impact_params:lat, impact_params:lng, ship:geoposition:lat, ship:geoposition:lng).
     local targetDist is greatCircle_dist(target_lat, target_lng, ship:geoposition:lat, ship:geoposition:lng).
-    local offset is -5000.
+    local offset is 0.
+    if (ship:altitude < 65000) set offset to -5000.     // negative value is closer to vessel
+    if (ship:altitude < 35000) set offset to -7500.
 
     local diff is targetDist - impactDist + offset.
 
