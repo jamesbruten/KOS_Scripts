@@ -259,23 +259,6 @@ function calculate_roll {
     set roll to pid_rroll:update(time:seconds, -1*relative_bearing).
 }
 
-// function calculate_roll {
-//     parameter relative_bearing.
-
-//     local roll_val is 0.
-
-//     if (abs(relative_bearing) < 0.5) {
-//         if (ship:altitude < 35000 or abs(relative_bearing) < 0.25) set roll_val to 0.
-//     }
-//     else if (abs(relative_bearing) < 1) set roll_val to 22.
-//     else set roll_val to 45.
-
-//     if (relative_bearing > 10) set roll_val to 45.
-
-//     if (relative_bearing < 0) set roll_val to -1 * roll_val.
-//     set roll to roll_val.
-// }
-
 function calculate_steering {
     set steering_pitch to cos(roll) * pitch.
     local prograde_heading is compass_for_vec().
@@ -304,8 +287,7 @@ function calculate_pitch {
 
     local impactDist is greatCircle_dist(impact_params:lat, impact_params:lng, ship:geoposition:lat, ship:geoposition:lng).
     local targetDist is greatCircle_dist(target_lat, target_lng, ship:geoposition:lat, ship:geoposition:lng).
-    local offset is 0.
-    if (ship:altitude < 65000) set offset to -5000.     // negative value is closer to vessel
+    local offset is -5000.
 
     local diff is targetDist - impactDist + offset.
 
