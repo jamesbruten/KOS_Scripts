@@ -69,9 +69,9 @@ function pid_reentry_pitch {
 }
 
 function pid_reentry_roll {
-    global Kp_rroll is 0.005.
+    global Kp_rroll is 10.
     global Ki_rroll is 0.
-    global Kd_rroll is 0.001.
+    global Kd_rroll is 0.05.
 
     global pid_rroll is pidloop(Kp_rroll, Ki_rroll, Kd_rroll, -45, 45).
     set pid_rroll:setpoint to 0.

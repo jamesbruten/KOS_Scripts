@@ -271,6 +271,15 @@ function undock_leave
 {
     parameter leave_time is 10, wait_time is 10.
 
+    local check is false.
+    for dp in ship:dockingports {
+        if (dp:haspartner) {
+            set check to true.
+            break.
+        }
+    }
+    if (not check) return.
+
     local bpressed is false.
     local cancelUndock is false.
     local gui is gui(200).

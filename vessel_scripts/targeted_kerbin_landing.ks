@@ -82,8 +82,8 @@ function kerbin_landing_window {
     set opp_lng to opp_lng + body_rot.
     if (opp_lng > 180) set opp_lng to opp_lng - 360.
 
-    // max distance based on 4 deg at equator
-    local maxDist is greatCircle_dist(0, 0, 0, 4).
+    // max distance based on 3.5 deg at equator
+    local maxDist is greatCircle_dist(0, 0, 0, 3.5).
 
     until false {
         local warpLevel is 5.
@@ -216,6 +216,7 @@ function spaceplane_reeentry
     when (ship:altitude < 20000) then RCS off.
 
     on AG7 {
+        clearscreen.
         print "Unlocking Steering and Setting SAS to Prograde".
         unlock steering.
         unlock throttle.
@@ -236,7 +237,7 @@ function spaceplane_reeentry
         clearscreen.
         print "Aerodynamic Control Surfaces Unlocked".
         print "Controlling Pitch and Steering Until AG7 at GroundSpeed = " + exitSpeed. 
-        print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
+        print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 2).
         print "Relative Bearing to Landing Site: " + round(relative_bearing, 2).
         wait 0.2.
     }
@@ -255,7 +256,7 @@ function spaceplane_reeentry
 function calculate_roll {
     parameter relative_bearing.
 
-    set roll to pid_rroll:update(time:seconds, relative_bearing).
+    set roll to pid_rroll:update(time:seconds, -1*relative_bearing).
 }
 
 // function calculate_roll {
