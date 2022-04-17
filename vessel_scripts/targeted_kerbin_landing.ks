@@ -210,6 +210,7 @@ function spaceplane_reeentry
     calculate_steering().
     lock steering to heading(steering_heading, steering_pitch, -1 * roll).
     pid_reentry_pitch().
+    pid_reentry_roll().
 
     when (ship:altitude < 50000) then RCS on.
     when (ship:altitude < 20000) then RCS off.
@@ -254,19 +255,25 @@ function spaceplane_reeentry
 function calculate_roll {
     parameter relative_bearing.
 
-    local roll_val is 0.
-
-    if (abs(relative_bearing) < 0.5) {
-        if (ship:altitude < 35000 or abs(relative_bearing) < 0.25) set roll_val to 0.
-    }
-    else if (abs(relative_bearing) < 1) set roll_val to 22.
-    else set roll_val to 45.
-
-    if (relative_bearing > 10) set roll_val to 45.
-
-    if (relative_bearing < 0) set roll_val to -1 * roll_val.
-    set roll to roll_val.
+    set roll to pid_rroll:update(time:seconds, relative_bearing).
 }
+
+// function calculate_roll {
+//     parameter relative_bearing.
+
+//     local roll_val is 0.
+
+//     if (abs(relative_bearing) < 0.5) {
+//         if (ship:altitude < 35000 or abs(relative_bearing) < 0.25) set roll_val to 0.
+//     }
+//     else if (abs(relative_bearing) < 1) set roll_val to 22.
+//     else set roll_val to 45.
+
+//     if (relative_bearing > 10) set roll_val to 45.
+
+//     if (relative_bearing < 0) set roll_val to -1 * roll_val.
+//     set roll to roll_val.
+// }
 
 function calculate_steering {
     set steering_pitch to cos(roll) * pitch.
