@@ -11,9 +11,18 @@ function launch_to_ap
 
     if (auto = false)
     {
-        lock inp to terminal:input:getchar().
-        print "Hit 'l' to launch".
-        wait until inp = "l".
+        local gui is gui(150,30).
+        set gui:x to -250.
+        set gui:y to 200.
+        local label is gui:addlabel("Press to Launch").
+        set label:style:align to "center".
+        set label:style:hstretch to true.
+        local bpressed is false.
+        local b is gui:addbutton("Launch").
+        set b:onclick to {set bpressed to true.}.
+        gui:show().
+        wait until bpressed.
+        clearguis().
     }
 
     pid_throttle_gforce().

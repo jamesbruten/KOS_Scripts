@@ -34,7 +34,7 @@ if (target:body = ship:body)
     // activate_engines().
 
     // deploy_solar_panels().
-    deploy_dp_shield().
+    deploy_dp_shield("open").
     deploy_antenna().
 
     match_inclination().

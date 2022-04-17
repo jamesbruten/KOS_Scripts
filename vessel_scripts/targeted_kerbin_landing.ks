@@ -64,7 +64,7 @@ kerbin_landing_window(landing_lat, landing_lng).
 
 undock_leave().
 
-deploy_dp_shield().
+deploy_dp_shield("close").
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
@@ -192,14 +192,16 @@ function spaceplane_reeentry
     parameter target_pos.
 
     set warp to 4.
-    when (ship:altitude < 95000) then set warp to 2.
+    when (ship:altitude < 90000) then set warp to 2.
     when (ship:altitude < 80000) then set warp to 0.
     clearscreen.
     wait until ship:altitude < 80000.
 
+    local exitSpeed is 550.
+
     AG6 on.    // unlock aero
     print "Aerodynamic Control Surfaces Unlocked".
-    print "Controlling Pitch and Steering Until AG7 at GroundSpeed = 300". 
+    print "Controlling Pitch and Steering Until AG7 at GroundSpeed = " + exitSpeed. 
 
     global pitch is 30.
     global roll is 0.
@@ -228,11 +230,11 @@ function spaceplane_reeentry
         calculate_roll(relative_bearing).
         calculate_steering().
         
-        if (ship:groundspeed < 300) AG7 on.
+        if (ship:groundspeed < exitSpeed) AG7 on.
 
         clearscreen.
         print "Aerodynamic Control Surfaces Unlocked".
-        print "Controlling Pitch and Steering Until AG7 at GroundSpeed = 300". 
+        print "Controlling Pitch and Steering Until AG7 at GroundSpeed = " + exitSpeed. 
         print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 1).
         print "Relative Bearing to Landing Site: " + round(relative_bearing, 2).
         wait 0.2.
@@ -296,7 +298,6 @@ function calculate_pitch {
     local targetDist is greatCircle_dist(target_lat, target_lng, ship:geoposition:lat, ship:geoposition:lng).
     local offset is 0.
     if (ship:altitude < 65000) set offset to -5000.     // negative value is closer to vessel
-    if (ship:altitude < 35000) set offset to -7500.
 
     local diff is targetDist - impactDist + offset.
 

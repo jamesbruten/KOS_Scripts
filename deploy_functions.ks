@@ -76,20 +76,37 @@ function deploy_antenna
 
 function deploy_dp_shield
 {
+    parameter mode is "toggle".
     for p in ship:parts
     {
         if (p:tag = "docker" or p:tag = "undocker")
         {
             if p:hasmodule("moduleanimategeneric")
             {
-                print "Toggling Docking Port Shield".
-                local dp is p:getmodule("moduleanimategeneric").
-                if dp:hasevent("open shield") dp:doevent("open shield").
-                else if dp:hasevent("close shield") dp:doevent("close shield").
-                else if dp:hasevent("open docking shield") dp:doevent("open docking shield").
-                else if dp:hasevent("close docking shield") dp:doevent("close docking shield").
-                else if dp:hasevent("open") dp:doevent("open").
-                else if dp:hasevent("close") dp:doevent("close").
+                if (mode = "toggle") {
+                    print "Toggling Docking Port Shield".
+                    local dp is p:getmodule("moduleanimategeneric").
+                    if dp:hasevent("open shield") dp:doevent("open shield").
+                    else if dp:hasevent("close shield") dp:doevent("close shield").
+                    else if dp:hasevent("open docking shield") dp:doevent("open docking shield").
+                    else if dp:hasevent("close docking shield") dp:doevent("close docking shield").
+                    else if dp:hasevent("open") dp:doevent("open").
+                    else if dp:hasevent("close") dp:doevent("close").
+                }
+                else if (mode = "open") {
+                    print "Opening Docking Port Shield".
+                    local dp is p:getmodule("moduleanimategeneric").
+                    if dp:hasevent("open shield") dp:doevent("open shield").
+                    else if dp:hasevent("open docking shield") dp:doevent("open docking shield").
+                    else if dp:hasevent("open") dp:doevent("open"). 
+                }
+                else if (mode = "close") {
+                    print "Closing Docking Port Shield".
+                    local dp is p:getmodule("moduleanimategeneric").
+                    if dp:hasevent("close shield") dp:doevent("close shield").
+                    else if dp:hasevent("close docking shield") dp:doevent("close docking shield").
+                    else if dp:hasevent("close") dp:doevent("close").
+                }
                 wait 5.
             }
         }
