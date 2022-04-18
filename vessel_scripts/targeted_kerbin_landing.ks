@@ -24,14 +24,16 @@ gui:show().
 wait until bpressed.
 clearguis().
 
-
-
 local landing_lat is 0.
 local landing_lng is 0.
+
+global rhead1 is 0.
+global rhead2 is 0.
 
 if (runway = "Kerbin") {
     set landing_lat to -0.1025.
     set landing_lng to -74.57528.
+    set rhead1 to 90.
 }
 else if (runway = "Woomerang") {
     set landing_lat to 45.29.
@@ -40,10 +42,12 @@ else if (runway = "Woomerang") {
 else if (runway = "Island") {
     set landing_lat to -1.540833.
     set landing_lng to -71.90972.
+    set rhead1 to 90.
 }
 else if (runway = "Desert") {
     set landing_lat to -6.599444.
     set landing_lng to -144.0406.
+    set rhead1 to 0.
 }
 else if (runway = "Glacier") {
     set landing_lat to 73.56.
@@ -57,6 +61,9 @@ else if (runway = "Custom") {
     set landing_lat to 0.
     set landing_lng to 0.
 }
+
+set rhead2 to rhead1 + 180.
+if (rhead2 >= 360) set rhead2 to rhead2 - 360.
 
 local landing_pos is latlng(landing_lat, landing_lng).
 
@@ -82,8 +89,8 @@ function kerbin_landing_window {
     set opp_lng to opp_lng + body_rot.
     if (opp_lng > 180) set opp_lng to opp_lng - 360.
 
-    // max distance based on 3.5 deg at equator
-    local maxDist is greatCircle_dist(0, 0, 0, 3.5).
+    // max distance based on 4 deg at equator
+    local maxDist is greatCircle_dist(0, 0, 0, 4).
 
     until false {
         local warpLevel is 5.
@@ -150,7 +157,11 @@ function intercept_landing_site_atmosphere
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
     wait until addons:tr:timetillimpact < 0.65 * ship:orbit:period.
-    local distList is list(1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64, 1E64).
+    local i is 0.
+    until (i = 50) {
+        distList:add(1E64).
+        set i to i+1.
+    }
     local minAv is 2E64.
     wait 0.1.
     set_engine_limit(2).
@@ -217,28 +228,39 @@ function spaceplane_reeentry
 
     on AG7 {
         clearscreen.
-        print "Unlocking Steering and Setting SAS to Prograde".
+        print "Unlocking Steering and Setting SAS".
         unlock steering.
         unlock throttle.
         SAS on.
         clearguis().
     }
 
+    local headingDiff is min(abs(compass_for_vec()-rhead1), abs(compass_for_vec()-rhead2)).
+    local offset is -5000.
+    if (headingDiff > 45) set offset to 0.
+
     wait until ship:altitude < 70000.
 
+    local count is 0.
     until AG7 {
-        calculate_pitch(target_pos).
+        local distError is calculate_pitch(target_pos, offset).
         local relative_bearing is calc_relative_bearing(target_pos).
         calculate_roll(relative_bearing).
         calculate_steering().
         
         if (ship:groundspeed < exitSpeed) AG7 on.
 
-        clearscreen.
-        print "Aerodynamic Control Surfaces Unlocked".
-        print "Controlling Pitch and Steering Until AG7 at GroundSpeed = " + exitSpeed. 
-        print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 2).
-        print "Relative Bearing to Landing Site: " + round(relative_bearing, 2).
+        if (count = 0) {
+            clearscreen.
+            print "Aerodynamic Control Surfaces Unlocked".
+            print "Controlling Pitch and Steering Until AG7 at GroundSpeed = " + exitSpeed. 
+            print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 2).
+            print "Current Distance Error: " + round(distError, 1).
+            print "Relative Bearing to Landing Site: " + round(relative_bearing, 2).
+        }
+        set count to count + 1.
+        if (count > 2) set count to 0.
+
         wait 0.2.
     }
 
@@ -279,7 +301,7 @@ function calc_relative_bearing {
 }
 
 function calculate_pitch {
-    parameter target_pos.
+    parameter target_pos, offset.
 
     local target_lat is target_pos:lat.
     local target_lng is target_pos:lng.
@@ -287,9 +309,10 @@ function calculate_pitch {
 
     local impactDist is greatCircle_dist(impact_params:lat, impact_params:lng, ship:geoposition:lat, ship:geoposition:lng).
     local targetDist is greatCircle_dist(target_lat, target_lng, ship:geoposition:lat, ship:geoposition:lng).
-    local offset is -5000.
 
     local diff is targetDist - impactDist + offset.
 
     set pitch to pid_rpitch:update(time:seconds, diff).
+
+    return diff.
 }
