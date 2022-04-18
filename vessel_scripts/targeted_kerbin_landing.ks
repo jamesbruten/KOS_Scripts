@@ -38,6 +38,7 @@ if (runway = "Kerbin") {
 else if (runway = "Woomerang") {
     set landing_lat to 45.29.
     set landing_lng to 136.11.
+    set rhead1 to 290.
 }
 else if (runway = "Island") {
     set landing_lat to -1.540833.
@@ -52,10 +53,12 @@ else if (runway = "Desert") {
 else if (runway = "Glacier") {
     set landing_lat to 73.56.
     set landing_lng to 84.27.
+    set rhead1 to 140.
 }
 else if (runway = "Mahi Mahi") {
     set landing_lat to -49.8.
     set landing_lng to -120.77.
+    set rhead1 to 220.
 }
 else if (runway = "Custom") {
     set landing_lat to 0.
@@ -157,8 +160,9 @@ function intercept_landing_site_atmosphere
     lock throttle to 1.
     wait until addons:tr:hasimpact = true.
     wait until addons:tr:timetillimpact < 0.65 * ship:orbit:period.
+    local distList is list().
     local i is 0.
-    until (i = 50) {
+    until (i = 20) {
         distList:add(1E64).
         set i to i+1.
     }
@@ -255,11 +259,11 @@ function spaceplane_reeentry
             print "Aerodynamic Control Surfaces Unlocked".
             print "Controlling Pitch and Steering Until AG7 at GroundSpeed = " + exitSpeed. 
             print "Current Pitch: " + round(pitch, 1) + "     Current Roll: " + round(roll, 2).
-            print "Current Distance Error: " + round(distError, 1).
+            print "Current Distance Error: " + round(distError, 1) + "      Offset: " + offset.
             print "Relative Bearing to Landing Site: " + round(relative_bearing, 2).
         }
         set count to count + 1.
-        if (count > 2) set count to 0.
+        if (count > 1) set count to 0.
 
         wait 0.2.
     }

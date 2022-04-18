@@ -3,7 +3,7 @@ runpath("0:/boot/load_scripts.ks").
 
 declare global target_ap_km to 120.
 declare global target_pe_km to 120.
-declare global target_inc to -65.
+declare global target_inc to 90.
 
 if (target_ap_km < target_pe_km)
 {
@@ -18,6 +18,10 @@ declare global target_pe to target_pe_km * 1000.
 launch_to_ap(false).
 
 adjust_apsides("a", ship:apoapsis).
+
+clearscreen.
+print "Boot Default Finished".
+runpath("0:/boot/start.ks").
 
 // wait 10.
 // deploy_payload("payload1").
