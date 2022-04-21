@@ -92,8 +92,8 @@ function kerbin_landing_window {
     set opp_lng to opp_lng + body_rot.
     if (opp_lng > 180) set opp_lng to opp_lng - 360.
 
-    // max distance based on 4 deg at equator
-    local maxDist is greatCircle_dist(0, 0, 0, 4).
+    // max distance based on 5 deg at equator
+    local maxDist is greatCircle_dist(0, 0, 0, 5).
 
     until false {
         local warpLevel is 5.
@@ -162,7 +162,7 @@ function intercept_landing_site_atmosphere
     wait until addons:tr:timetillimpact < 0.65 * ship:orbit:period.
     local distList is list().
     local i is 0.
-    until (i = 20) {
+    until (i = 10) {
         distList:add(1E64).
         set i to i+1.
     }
