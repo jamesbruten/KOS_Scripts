@@ -70,13 +70,15 @@ if (rhead2 >= 360) set rhead2 to rhead2 - 360.
 
 local landing_pos is latlng(landing_lat, landing_lng).
 
-kerbin_landing_window(landing_lat, landing_lng).
+// kerbin_landing_window(landing_lat, landing_lng).
 
-undock_leave().
+// undock_leave().
 
-deploy_dp_shield("close").
+// lock steering to retrograde.
 
-intercept_landing_site_atmosphere(landing_lat, landing_lng).
+// deploy_dp_shield("close").
+
+// intercept_landing_site_atmosphere(landing_lat, landing_lng).
 
 spaceplane_reeentry(landing_pos).
 
@@ -226,6 +228,7 @@ function spaceplane_reeentry
     lock steering to heading(steering_heading, steering_pitch, -1 * roll).
     pid_reentry_pitch().
     pid_reentry_roll().
+    print Kp_rpitch + " " + Ki_rpitch + " " + Kd_rpitch.
 
     when (ship:altitude < 50000) then RCS on.
     when (ship:altitude < 20000) then RCS off.

@@ -60,9 +60,15 @@ function pid_translate_pitch
 
 
 function pid_reentry_pitch {
-    global Kp_rpitch is 0.001.
-    global Ki_rpitch is 0.
-    global Kd_rpitch is 0.0005.
+    global Kp_rpitch is 0.02.
+    global Ki_rpitch is 0..
+    global Kd_rpitch is 0.01.
+
+    if (ship:name = "Lark") {
+        set Kp_rpitch to 0.01.
+        set Ki_rpitch to 0.
+        set Kd_rpitch to 0.
+    }
 
     global pid_rpitch is pidloop(Kp_rpitch, Ki_rpitch, Kd_rpitch, -5, 60).
     set pid_rpitch:setpoint to 0.
