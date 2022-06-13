@@ -80,10 +80,12 @@ function reentry
         wait until time:seconds > wait_end.
     }
 
-    lock steering to retrograde.
-    wait 3.
+    lock steering to vcrs(ship:velocity:orbit, -body:position).
+    wait 1.
 
-    deploy_dp_shield().
+    deploy_dp_shield("close").
+    retract_solar_panels().
+
 
     local check is false.
     for p in ship:parts
@@ -105,7 +107,10 @@ function reentry
         wait until inp = "l".
         AG9 on. 
     }
-    wait 10.
+    wait 5.
+
+    lock steering to retrograde.
+    wait 5.
 
     set warp to 4.
     wait until ship:altitude < 70000.

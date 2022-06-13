@@ -2,7 +2,7 @@
 
 function launch_to_ap
 {
-    parameter auto.
+    parameter auto, isShuttle is false.
     set steeringmanager:maxstoppingtime to 0.1.
 
     print "Target Apoapsis:    " + target_ap_km.
@@ -27,6 +27,8 @@ function launch_to_ap
 
     pid_throttle_gforce().
     
+    if (isShuttle = true) set pid_gforce:minoutput to 0.4.
+    
     // Do Countdown
     countdown().
 
@@ -39,7 +41,7 @@ function launch_to_ap
     // fly prograde until apoapsis height reached.
     prograde_climb().
 
-    if (alt:radar >= 69800) wait 10.
+    if (alt:radar >= 69800) wait 5.
     else wait until alt:radar >= 70000.
     set steeringmanager:maxstoppingtime to 0.5.
 }
@@ -120,14 +122,15 @@ function pitch_over
     set current_pitch to pitch1*alt:radar*alt:radar + pitch2*alt:radar + pitch3.
     set needed_az to inst_az(target_inc).
     lock steering to heading(needed_az, current_pitch).
-    local ref_time is 0.
     until (alt:radar > final_alt)
     {
-        set accvec to ship:sensors:acc - ship:sensors:grav.
-        set gforce to accvec:mag / g_pid.
         set current_pitch to pitch1*alt:radar*alt:radar + pitch2*alt:radar + pitch3.
         set needed_az to inst_az(target_inc).
+
+        set accvec to ship:sensors:acc - ship:sensors:grav.
+        set gforce to accvec:mag / g_pid.
         set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
+
         if (check_stage_thrust() = false) autostage().
     }
 }
@@ -159,12 +162,13 @@ function prograde_climb
 
     until (ship:apoapsis > target_ap)
     {
-        set accvec to ship:sensors:acc - ship:sensors:grav.
-        set gforce to accvec:mag / g_pid.
         if (ship:velocity:orbit:mag < 1650) set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
         else set prograde_pitch to 90 - vang(ship:prograde:vector, up:vector).
         set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
         set needed_az to inst_az(target_inc).
+
+        set accvec to ship:sensors:acc - ship:sensors:grav.
+        set gforce to accvec:mag / g_pid.
         set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
 
         if (fairings_deployed = false and alt:radar > 55000)
