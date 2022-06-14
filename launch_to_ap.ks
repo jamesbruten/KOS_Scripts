@@ -2,7 +2,7 @@
 
 function launch_to_ap
 {
-    parameter auto, isShuttle is false.
+    parameter auto.
     set steeringmanager:maxstoppingtime to 0.1.
 
     print "Target Apoapsis:    " + target_ap_km.
@@ -26,9 +26,7 @@ function launch_to_ap
     }
 
     pid_throttle_gforce().
-    
-    if (isShuttle = true) set pid_gforce:minoutput to 0.4.
-    
+        
     // Do Countdown
     countdown().
 
@@ -87,19 +85,21 @@ function countdown
 
 function initial_launch
 {
-    set accvec to ship:sensors:acc - ship:sensors:grav.
-    set gforce to accvec:mag / g_pid.
+    parameter initial_height is 500.
+
     lock steering to lookdirup(ship:up:vector, ship:facing:topvector).
-    print "Liftoff".
-    print "Climbing to 500m".
+
     stage.
-    until (alt:radar > 500)
+    print "Liftoff".
+    print "Climbing to " + initial_height + "m".
+
+    until (alt:radar > initial_height)
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
         set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
+
         if (check_stage_thrust() = false) autostage().
-        wait 0.01.
     }
 }
 
@@ -117,11 +117,11 @@ function pitch_over
     local final_alt is pitch_params[3].
 
     print "Initiating Pitch and Roll Maneuver".
-    set accvec to ship:sensors:acc - ship:sensors:grav.
-    set gforce to accvec:mag / g_pid.
     set current_pitch to pitch1*alt:radar*alt:radar + pitch2*alt:radar + pitch3.
     set needed_az to inst_az(target_inc).
+    
     lock steering to heading(needed_az, current_pitch).
+
     until (alt:radar > final_alt)
     {
         set current_pitch to pitch1*alt:radar*alt:radar + pitch2*alt:radar + pitch3.
@@ -144,12 +144,12 @@ function prograde_climb
 
     print "Climbing on Prograde Pitch".
 
-    set accvec to ship:sensors:acc - ship:sensors:grav.
-    set gforce to accvec:mag / g_pid.
     set pid_gforce:setpoint to 2.5.
     local fairings_deployed is false.
+    
     local max_pitch is 45.
     local min_pitch is 10.
+    
     set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
     set needed_az to inst_az(target_inc).
@@ -164,6 +164,7 @@ function prograde_climb
     {
         if (ship:velocity:orbit:mag < 1650) set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
         else set prograde_pitch to 90 - vang(ship:prograde:vector, up:vector).
+
         set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
         set needed_az to inst_az(target_inc).
 
@@ -180,7 +181,7 @@ function prograde_climb
         if (check_stage_thrust() = false) autostage().
     }
     
-    if (alt:radar < 60000) wait 0.2.            // these two lines boost apoapsis slightly to negate for atmospheric drag
+    if (alt:radar < 60000) wait 0.2.
     else if (alt:radar < 65000) wait 0.1.
 
     lock throttle to 0.

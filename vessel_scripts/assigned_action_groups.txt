@@ -1,0 +1,3 @@
+AG6         Unlock Aero Surfaces            targeted_kerbin_landing
+AG7         Unlock Throttle + Steering      targeted_kerbin_landing
+AG17        Switch Shuttle Engines          shuttle_launch
