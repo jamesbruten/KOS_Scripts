@@ -12,8 +12,6 @@ retract_solar_panels().
 
 launch_to_vac(target_ap, target_inc).
 
-adjust_apsides("a", ship:apoapsis).
-
 deploy_solar_panels().
 deploy_dp_shield().
 deploy_antenna().

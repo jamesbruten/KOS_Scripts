@@ -15,6 +15,9 @@ copypath("0:/transfer_funcs.ks", "1:transfer_funcs.ks").
 copypath("0:/kerbin_landing.ks", "1:kerbin_landing.ks").
 copypath("0:/ground_intercept.ks", "1:ground_intercept.ks").
 copypath("0:/throttle_balance.ks", "1:throttle_balance.ks").
+copypath("0:/shuttle_launch.ks", "1:shuttle_launch.ks").
+copypath("0:/offset_steering.ks", "1:offset_steering.ks").
+copypath("0:/lib_navball.ks", "1:lib_navball.ks").
 
 runpath("1:launch_to_ap.ks").
 runpath("1:maneuver_funcs.ks").
@@ -31,7 +34,9 @@ runpath("1:transfer_funcs.ks").
 runpath("1:kerbin_landing.ks").
 runpath("1:ground_intercept.ks").
 runpath("1:throttle_balance.ks").
-
+runpath("1:shuttle_launch.ks").
+runpath("1:offset_steering.ks").
+runpath("1:lib_navball.ks").
 
 function do_warp
 {

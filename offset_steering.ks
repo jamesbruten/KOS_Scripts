@@ -38,6 +38,7 @@ function offsetSteering
     { 
         // Accumulate the thrust offset error to be averaged by the section above  
         // exclude the left/right vector to leave only forwards and up/down
+        set trueacc to ship:sensors:acc - ship:sensors:grav.
         local pitch_error_vec is vxcl(facing:starvector, trueacc).
         local pitch_error_ang is vang(facing:vector, pitch_error_vec).
         // exclude the up/down vector to leave only forwards and left/right
@@ -71,4 +72,12 @@ function initoss
     oss:add("Ship_Name",ship:name:tostring).
     
     return oss.
+}
+
+function resetOSS
+{
+    if exists("oss.json")
+    {
+        deletepath("oss.json").
+    }
 }

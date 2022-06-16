@@ -16,16 +16,24 @@ set cont to true.
 
 until false {
     cd(pth).
-    list files in fileslist.
+    local fileslist is list().
+    list files in flist.
     local command is "File".
     if (level = 0) {
         local dirs is list().
-        for f in fileslist {
+        for f in flist {
             if (not f:isfile and f:name[0] <> ".") dirs:add(f).
         }
         set fileslist to dirs.
         set command to "Directory".
     }
+    else
+    {
+        for f in flist {
+            if (f:name:endswith("ks")) fileslist:add(f).
+        }
+    }
+
 
     local val is "".
     local bpressed is false.

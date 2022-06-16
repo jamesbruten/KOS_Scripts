@@ -3,6 +3,16 @@
 function launch_to_ap
 {
     parameter auto.
+
+    for p in ship:parts
+    {
+        if (p:tag = "shuttle") 
+        {
+            print "Shuttle Launch".
+            shuttle_launch_to_ap(auto).
+        }
+    }
+    
     set steeringmanager:maxstoppingtime to 0.1.
 
     print "Target Apoapsis:    " + target_ap_km.
@@ -42,6 +52,8 @@ function launch_to_ap
     if (alt:radar >= 69800) wait 5.
     else wait until alt:radar >= 70000.
     set steeringmanager:maxstoppingtime to 0.5.
+
+    adjust_apsides("a", ship:apoapsis).
 }
 
 function countdown
@@ -258,6 +270,8 @@ function launch_to_vac
     lock steering to prograde.
     set steeringmanager:maxstoppingtime to 0.75.
     wait 5.
+
+    adjust_apsides("a", ship:apoapsis).
 }
 
 function pitch_over_params

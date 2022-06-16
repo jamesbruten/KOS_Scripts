@@ -3,11 +3,11 @@
 function adjust_apsides
 {
     // raise/lower opposite of burn_node
-    parameter burn_node, ap_height.
+    parameter burn_node, ap_height, do_burn is true.
 
     create_apside_mnv(burn_node, ap_height).
 
-    execute_mnv().
+    if (do_burn = true) execute_mnv().
 
     wait 5.
 }
@@ -75,6 +75,8 @@ function create_apside_mnv
 
 function execute_mnv
 {
+    parameter do_offset_steering is false.
+
     clearscreen.
 
     local stage1_check is false.
@@ -86,6 +88,7 @@ function execute_mnv
     set mnv to nextnode.
     lock np to lookdirup(mnv:deltav, ship:facing:topvector). //points to node, keeping roll the same.
     lock steering to np.
+    if (do_offset_steering = true) lock steering to offsetSteering(np).
 
     //print out node's basic parameters - ETA and deltaV
     print "Node in: " + round(mnv:eta) + ", DeltaV: " + round(mnv:deltav:mag).
@@ -99,7 +102,6 @@ function execute_mnv
 
     wait 5.
     do_warp(mnv:eta-60-burn_duration/2).
-    wait until mnv:eta <= (burn_duration/2 + 57).
 
     RCS on.
 
@@ -109,7 +111,7 @@ function execute_mnv
     RCS off.
 
     //the ship is facing the right direction, let's wait for our burn time
-    wait until mnv:eta <= (burn_duration/2).
+    if (mnv:eta > burn_duration/2) wait until mnv:eta <= (burn_duration/2).
 
     //we only need to lock throttle once to a certain variable in the beginning of the loop, and adjust only the variable itself inside it
     set tset to 0.

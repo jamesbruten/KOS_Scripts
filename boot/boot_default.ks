@@ -3,7 +3,7 @@ runpath("0:/boot/load_scripts.ks").
 
 declare global target_ap_km to 170.
 declare global target_pe_km to 170.
-declare global target_inc to 25.
+declare global target_inc to 0.
 
 if (target_ap_km < target_pe_km)
 {
@@ -12,12 +12,10 @@ if (target_ap_km < target_pe_km)
     set target_pe_km to temp.
 }
 
-declare global target_ap to target_ap_km * 1000.
-declare global target_pe to target_pe_km * 1000.
+global target_ap is target_ap_km * 1000.
+global target_pe is target_pe_km * 1000.
 
 launch_to_ap(false).
-
-adjust_apsides("a", ship:apoapsis).
 
 clearscreen.
 print "Boot Default Finished".

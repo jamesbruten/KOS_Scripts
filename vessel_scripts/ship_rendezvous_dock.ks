@@ -26,9 +26,6 @@ if (target:body = ship:body)
         launch_to_ap(true).
     }
 
-    // circularise parking orbit
-    adjust_apsides("a", ship:apoapsis).
-
     wait 5.
     // deploy_payload("payload").
     // activate_engines().

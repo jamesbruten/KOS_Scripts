@@ -1,7 +1,9 @@
-function shuttle_launch
+function shuttle_launch_to_ap
 {
     parameter auto.
     set steeringmanager:maxstoppingtime to 0.1.
+
+    resetoss().
 
     print "Target Apoapsis:    " + target_ap_km.
     print "Target Periapsis:   " + target_pe_km.
@@ -41,6 +43,9 @@ function shuttle_launch
     if (alt:radar >= 69800) wait 5.
     else wait until alt:radar >= 70000.
     set steeringmanager:maxstoppingtime to 0.5.
+
+    // circularise the shuttle
+    shuttle_circularise().
 }
 
 function shuttle_pitch_over
@@ -76,9 +81,10 @@ function shuttle_pitch_over
 
         if (check_stage_thrust() = false) autostage().
     }
+    AG18 on.
 }
 
-function prograde_climb
+function shuttle_prograde_climb
 {
     // Holds ship at 45 degrees or the pitch of prograde vector - whichever is lower
     // Prograde initially from surface velocity - changes to orbital when orbital speed > 1650
@@ -95,7 +101,9 @@ function prograde_climb
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
     set needed_az to inst_az(target_inc).
 
-    lock steering to offsetSteering(heading(needed_az, current_pitch, 180)).
+    // lock steering to offsetSteering(heading(needed_az, current_pitch, 180)).
+    lock steering to heading(needed_az, current_pitch, 180).
+    when (ship:altitude > 45000) then lock steering to offsetSteering(heading(needed_az, current_pitch)).
 
     when (alt:radar > 60000) then set min_pitch to 5.
     when (alt:radar > 70000) then set min_pitch to 0.
@@ -126,5 +134,45 @@ function prograde_climb
 
 function shuttle_circularise
 {
+    adjust_apsides("a", ship:apoapsis, false).
+    set mnv to nextnode.
+    set pid_gforce:setpoint to 3.
+    set burn_duration to mnv:deltav:mag/pid_gforce:setpoint.
+
+    RCS on.
+
+    wait 5.
+    do_warp(mnv:eta-90-burn_duration/2).
+    wait until mnv:eta <= (burn_duration/2 + 87).
     
+    wait until mnv:eta <= (burn_duration/2 + 30).
+    RCS off.
+    lock steering to offsetSteering(prograde).
+    lock throttle to thrott_pid.
+    until (ship:periapsis > 29750)
+    {
+        set accvec to ship:sensors:acc - ship:sensors:grav.
+        set gforce to accvec:mag / g_pid.
+        set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
+        
+        if (check_stage_thrust() = false) break. 
+    }
+
+    wait 1.
+    stage.
+    lock steering to prograde.
+    resetoss().
+    wait 1.
+    AG17 on.
+
+    if (eta:apoapsis > eta:periapsis)
+    {
+        lock steering to prograde.
+        wait 5.
+        lock throttle to 1.
+        wait until ship:periapsis > 70000.
+        lock throttle to 0.
+    }
+    adjust_apsides("a", ship:apoapsis, false).
+
 }
