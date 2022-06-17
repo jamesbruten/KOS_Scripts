@@ -24,7 +24,7 @@ function shuttle_launch_to_ap
     }
 
     pid_throttle_gforce().
-    // set pid_gforce:minoutput to 0.4.
+    set pid_gforce:minoutput to 0.4.
     
     // Do Countdown
     countdown().
@@ -91,8 +91,8 @@ function shuttle_prograde_climb
 
     set pid_gforce:setpoint to 2.5.
     
-    local max_pitch is 45.
-    local min_pitch is 10.
+    local max_pitch is 40.
+    local min_pitch is 5.
     
     set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
@@ -148,34 +148,33 @@ function shuttle_circularise
     print "Estimated burn duration: " + round(burn_duration) + "s".
 
     wait 5.
-    do_warp(mnv:eta-60-burn_duration/2).
+    do_warp(mnv:eta-60-burn_duration).
 
     RCS on.
 
     //now we need to wait until the burn vector and ship's facing are aligned
     wait until abs(np:pitch - facing:pitch) < 0.3 and abs(np:yaw - facing:yaw) < 0.3.
-    if (mnv:eta > burn_duration/2) wait until mnv:eta <= (burn_duration/2).
+    wait until mnv:eta <= burn_duration.
     lock throttle to 1.
-    wait 0.2.
     until (ship:periapsis > 29750)
     {
         for p in ship:parts {
             for r in p:resources {
-                if (r:enabled = true and r:name = "LIQUIDFUEL" and r:amount < 1) break.
+                if (r:enabled = true and r:name = "liquidfuel" and r:amount < 1) break.
             }
         } 
     }
     lock throttle to 0.
-    wait 1.
     lock steering to prograde.
     remove_maneuver(mnv).
+    wait 3.
     stage.
     for p in ship:parts {
         for r in p:resources {
             if (r:enabled = false) set r:enabled to true.
         }
     }
-    wait 1.
+    wait 3.
     RCS off.
 
     adjust_apsides("a", ship:apoapsis).
