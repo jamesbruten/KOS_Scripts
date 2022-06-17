@@ -75,8 +75,6 @@ function create_apside_mnv
 
 function execute_mnv
 {
-    parameter do_offset_steering is false.
-
     clearscreen.
 
     local stage1_check is false.
@@ -88,7 +86,6 @@ function execute_mnv
     set mnv to nextnode.
     lock np to lookdirup(mnv:deltav, ship:facing:topvector). //points to node, keeping roll the same.
     lock steering to np.
-    if (do_offset_steering = true) lock steering to offsetSteering(np).
 
     //print out node's basic parameters - ETA and deltaV
     print "Node in: " + round(mnv:eta) + ", DeltaV: " + round(mnv:deltav:mag).

@@ -113,3 +113,19 @@ function type_to_vector {
     print "type: " + thing:typename + " is not recognized by lib_navball".
   }
 }
+
+function heading_of_vector
+{
+  // heading_of_vector returns the heading of the vector (number range 0 to 360)
+	parameter vecT.
+
+	local east is vcrs(ship:up:vector, ship:north:vector).
+
+	local trig_x is vdot(ship:north:vector, vecT).
+	local trig_y is vdot(east, vecT).
+
+	local result is arctan2(trig_y, trig_x).
+
+	if result < 0 {return 360 + result.}
+  else {return result.}
+}

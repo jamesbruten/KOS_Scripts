@@ -21,6 +21,7 @@ function autostage
     // stages once for decoupler, then waits 0.5, then stages to ignite next stage
 
     print "Staging: Decoupler".
+    resetOSS().
     WAIT 1.
     stage.
     if (ship:availablethrust < 0.01)
