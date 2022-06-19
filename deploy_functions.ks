@@ -74,6 +74,34 @@ function deploy_antenna
     }
 }
 
+function deploy_bay_doors
+{  
+    parameter mode is "toggle".
+    for p in ship:parts
+    {
+        if p:hasmodule("moduleanimategeneric")
+        {
+            if (mode = "toggle") {
+                print "Toggling Cargo Bay Doors".
+                local dp is p:getmodule("moduleanimategeneric").
+                if dp:hasevent("open bay doors") dp:doevent("open bay doors").
+                else if dp:hasevent("retract bay doors") dp:doevent("retract bay doors").
+            }
+            else if (mode = "open") {
+                print "Opening Cargo Bay Doorsd".
+                local dp is p:getmodule("moduleanimategeneric").
+                if dp:hasevent("open bay doors") dp:doevent("open bay doors").
+            }
+            else if (mode = "close") {
+                print "Closing Cargo Bay Doors".
+                local dp is p:getmodule("moduleanimategeneric").
+                if dp:hasevent("retract bay doors") dp:doevent("retract bay doors").
+            }
+        }
+    }
+    wait 5.
+}
+
 function deploy_dp_shield
 {
     parameter mode is "toggle".
@@ -92,13 +120,16 @@ function deploy_dp_shield
                     else if dp:hasevent("close docking shield") dp:doevent("close docking shield").
                     else if dp:hasevent("open") dp:doevent("open").
                     else if dp:hasevent("close") dp:doevent("close").
+                    else if dp:hasevent("deploy docking port") dp:doevent("deploy docking port").
+                    else if dp:hasevent("retract docking port") dp:doevent("retract docking port").
                 }
                 else if (mode = "open") {
                     print "Opening Docking Port Shield".
                     local dp is p:getmodule("moduleanimategeneric").
                     if dp:hasevent("open shield") dp:doevent("open shield").
                     else if dp:hasevent("open docking shield") dp:doevent("open docking shield").
-                    else if dp:hasevent("open") dp:doevent("open"). 
+                    else if dp:hasevent("open") dp:doevent("open").
+                    else if dp:hasevent("deploy docking port") dp:doevent("deploy docking port").
                 }
                 else if (mode = "close") {
                     print "Closing Docking Port Shield".
@@ -106,6 +137,7 @@ function deploy_dp_shield
                     if dp:hasevent("close shield") dp:doevent("close shield").
                     else if dp:hasevent("close docking shield") dp:doevent("close docking shield").
                     else if dp:hasevent("close") dp:doevent("close").
+                    else if dp:hasevent("retract docking port") dp:doevent("retract docking port").
                 }
                 wait 5.
             }

@@ -70,15 +70,41 @@ if (rhead2 >= 360) set rhead2 to rhead2 - 360.
 
 local landing_pos is latlng(landing_lat, landing_lng).
 
-// kerbin_landing_window(landing_lat, landing_lng).
+kerbin_landing_window(landing_lat, landing_lng).
 
-// undock_leave().
+undock_leave().
 
-// lock steering to retrograde.
+lock steering to retrograde.
 
-// deploy_dp_shield("close").
+deploy_dp_shield("close").
+deploy_bay_doors("close").
 
-// intercept_landing_site_atmosphere(landing_lat, landing_lng).
+intercept_landing_site_atmosphere(landing_lat, landing_lng).
+
+local drain is false.
+local gui is gui(200, 7).
+set gui:x to -250.
+set gui:y to 200.
+local label is gui:addlabel("Drain Fuel?").
+set label:style:align to "center".
+set label:style:hstretch to true.
+set bpressed to false.
+local y is gui:addbutton("Yes").
+local n is gui:addbutton("No").
+set y:onclick to {
+    set drain to true.
+    set bpressed to true.
+}.
+set n:onclick to {set bpressed to true.}.
+gui:show().
+wait until bpressed.
+clearguis().
+if (drain = true) {
+    AG9 on.
+    wait 10.
+}
+AG10 on.
+wait 1.
 
 spaceplane_reeentry(landing_pos).
 

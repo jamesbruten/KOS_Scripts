@@ -70,6 +70,14 @@ function pid_reentry_pitch {
         set Kd_rpitch to 0.
     }
 
+    for p in ship:parts {
+        if (p:tag = "shuttle") {
+            set Kp_rpitch to 0.01.
+            set Ki_rpitch to 0.
+            set Kd_rpitch to 0.005.
+        }
+    }
+
     global pid_rpitch is pidloop(Kp_rpitch, Ki_rpitch, Kd_rpitch, -5, 60).
     set pid_rpitch:setpoint to 0.
 }

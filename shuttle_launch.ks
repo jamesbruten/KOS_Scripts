@@ -43,6 +43,9 @@ function shuttle_launch_to_ap
 
     // circularise the shuttle
     shuttle_circularise().
+
+    deploy_bay_doors().
+    deploy_dp_shield().
 }
 
 function shuttle_pitch_over
@@ -91,8 +94,8 @@ function shuttle_prograde_climb
 
     set pid_gforce:setpoint to 2.5.
     
-    local max_pitch is 40.
-    local min_pitch is 5.
+    local max_pitch is 50.
+    local min_pitch is 15.
     
     set prograde_pitch to 90 - vang(ship:srfprograde:vector, up:vector).
     set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).

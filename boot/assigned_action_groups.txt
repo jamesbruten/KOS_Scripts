@@ -1,4 +1,7 @@
 AG6         Unlock Aero Surfaces            targeted_kerbin_landing
 AG7         Unlock Throttle + Steering      targeted_kerbin_landing
+AG9         Start Fuel Drain                targeted_kerbin_landing
+AG10        Stop Fuel Drain                 targeted_kerbin_landing
 AG17        Switch Shuttle Engines          shuttle_launch
 AG18        Lock Shuttle Outer Aero         shuttle_launch
+AG20        Chutes Deploy                   targeted_kerbin_landing
