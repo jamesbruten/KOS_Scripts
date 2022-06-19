@@ -105,6 +105,7 @@ function shuttle_prograde_climb
 
     when (alt:radar > 60000) then set min_pitch to 5.
     when (alt:radar > 70000) then set min_pitch to 0.
+    when (ship:velocity:orbit:mag > 2150) lock steering to prograde.
 
     until (ship:apoapsis > target_ap)
     {
@@ -112,8 +113,7 @@ function shuttle_prograde_climb
         else set prograde_pitch to 90 - vang(ship:prograde:vector, up:vector).
 
         set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
-        if (ship:velocity:orbit:mag > 2150) set needed_az to heading_of_vector(prograde:forevector).
-        else set needed_az to inst_az(target_inc).
+        set needed_az to inst_az(target_inc).
 
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
@@ -168,9 +168,7 @@ function shuttle_circularise
         } 
     }
     lock throttle to 0.
-    lock steering to prograde.
-    remove_maneuver(mnv).
-    wait 3.
+    wait 5.
     stage.
     for p in ship:parts {
         for r in p:resources {
@@ -179,6 +177,7 @@ function shuttle_circularise
     }
     wait 3.
     RCS off.
+    remove_maneuver(mnv).
 
     adjust_apsides("a", ship:apoapsis).
 }
