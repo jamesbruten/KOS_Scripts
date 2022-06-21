@@ -70,41 +70,18 @@ if (rhead2 >= 360) set rhead2 to rhead2 - 360.
 
 local landing_pos is latlng(landing_lat, landing_lng).
 
-kerbin_landing_window(landing_lat, landing_lng).
+// kerbin_landing_window(landing_lat, landing_lng).
 
-undock_leave().
+// undock_leave().
 
-lock steering to retrograde.
+// lock steering to retrograde.
 
-deploy_dp_shield("close").
-deploy_bay_doors("close").
+// deploy_dp_shield("close").
+// deploy_bay_doors("close").
+
+drain_fuel().
 
 intercept_landing_site_atmosphere(landing_lat, landing_lng).
-
-local drain is false.
-local gui is gui(200, 7).
-set gui:x to -250.
-set gui:y to 200.
-local label is gui:addlabel("Drain Fuel?").
-set label:style:align to "center".
-set label:style:hstretch to true.
-set bpressed to false.
-local y is gui:addbutton("Yes").
-local n is gui:addbutton("No").
-set y:onclick to {
-    set drain to true.
-    set bpressed to true.
-}.
-set n:onclick to {set bpressed to true.}.
-gui:show().
-wait until bpressed.
-clearguis().
-if (drain = true) {
-    AG9 on.
-    wait 10.
-}
-AG10 on.
-wait 1.
 
 spaceplane_reeentry(landing_pos).
 
@@ -348,4 +325,40 @@ function calculate_pitch {
     set pitch to pid_rpitch:update(time:seconds, diff).
 
     return diff.
+}
+
+function drain_fuel
+{
+    local drain is false.
+    local gui is gui(200, 7).
+    set gui:x to -250.
+    set gui:y to 200.
+    local label is gui:addlabel("Drain Fuel?").
+    set label:style:align to "center".
+    set label:style:hstretch to true.
+    set bpressed to false.
+    local y is gui:addbutton("Yes").
+    local n is gui:addbutton("No").
+    set y:onclick to {
+        set drain to true.
+        set bpressed to true.
+    }.
+    set n:onclick to {set bpressed to true.}.
+    gui:show().
+    wait until bpressed.
+    clearguis().
+    if (drain = false) return.
+
+    local next_pe is 35000.
+    local next_vel is sqrt(ship:body:mu * (2/(body:radius + ship:altitude) - 1/(body:radius + next_pe))).
+    local dv is abs(ship:velocity:orbit:mag - next_vel).
+
+    until false
+    {
+        AG9 on.
+        if (stage:deltav < dv) break.
+    }
+    AG10 on.
+
+    return.
 }

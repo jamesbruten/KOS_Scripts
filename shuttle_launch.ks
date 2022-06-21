@@ -113,6 +113,7 @@ function shuttle_prograde_climb
 
         set current_pitch to max(min(prograde_pitch, max_pitch), min_pitch).
         if (ship:velocity:orbit:mag < 2150) set needed_az to inst_az(target_inc).
+        else set needed_az to compass_for().
 
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
