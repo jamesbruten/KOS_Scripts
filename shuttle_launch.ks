@@ -38,6 +38,8 @@ function shuttle_launch_to_ap
     // fly prograde until apoapsis height reached.
     shuttle_prograde_climb().
 
+    lock steering to prograde.
+
     if (alt:radar >= 69800) wait 5.
     else wait until alt:radar >= 70000.
 

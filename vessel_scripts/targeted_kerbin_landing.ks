@@ -70,14 +70,14 @@ if (rhead2 >= 360) set rhead2 to rhead2 - 360.
 
 local landing_pos is latlng(landing_lat, landing_lng).
 
-// kerbin_landing_window(landing_lat, landing_lng).
+kerbin_landing_window(landing_lat, landing_lng).
 
-// undock_leave().
+undock_leave().
 
-// lock steering to retrograde.
+lock steering to retrograde.
 
-// deploy_dp_shield("close").
-// deploy_bay_doors("close").
+deploy_dp_shield("close").
+deploy_bay_doors("close").
 
 drain_fuel().
 
@@ -356,7 +356,7 @@ function drain_fuel
     until false
     {
         AG9 on.
-        if (stage:deltav < dv) break.
+        if (stage:deltav:current < dv) break.
     }
     AG10 on.
 
