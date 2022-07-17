@@ -78,7 +78,14 @@ function pid_reentry_pitch {
         }
     }
 
-    global pid_rpitch is pidloop(Kp_rpitch, Ki_rpitch, Kd_rpitch, -5, 60).
+    local minPitch is -5.
+    local maxPitch is 60.
+
+    for p in ship:parts {
+        if (p:tag = "shuttle") set maxPitch to 35.
+    }
+
+    global pid_rpitch is pidloop(Kp_rpitch, Ki_rpitch, Kd_rpitch, minPitch, maxPitch).
     set pid_rpitch:setpoint to 0.
 }
 

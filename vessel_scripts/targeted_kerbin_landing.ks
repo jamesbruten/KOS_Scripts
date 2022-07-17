@@ -154,6 +154,9 @@ function intercept_landing_site_atmosphere
     // 70000, 35000, 17500, 3500
     set addons:tr:prograde to true.
     set addons:tr:descentangles to list(30, 30, 10, 0).
+    for p in ship:parts{
+        if (p:tag = "shuttle") set addons:tr:descentangles to list(20, 17, 8, 0).
+    }
 
     lock steering to retrograde.
     RCS on.

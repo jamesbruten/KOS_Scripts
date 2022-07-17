@@ -10,6 +10,7 @@ function launch_to_ap
         {
             print "Shuttle Launch".
             shuttle_launch_to_ap(auto).
+            return.
         }
     }
     
