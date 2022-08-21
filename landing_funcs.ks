@@ -365,6 +365,7 @@ function final_landing_burn
 
     lock steering to lookdirup(steer, ship:facing:topvector).
     pid_throttle_vspeed().
+    pid_translate_pitch().
     local pause is true.
     if (rover_lander = False) when (pause = false) then deploy_gear().
     else when (alt:radar < 250) then deploy_gear().
@@ -441,6 +442,41 @@ function wanted_vspeed
     return max(v1, v2).
 }
 
+function translate_with_pid
+{
+    parameter landing_spot.
+
+    // current horizontal velocity towards landing spot
+    local vh_spot is heading(landing_spot:heading, 0):vector * vdot(heading(landing_spot:heading,0):vector, ship:velocity:surface).
+    set vh_spot to vxcl(up:vector, vh_spot).
+
+    // current horizontal distance to landing spot
+    local dh_spot is landing_spot:position + (ship:altitude - landing_spot:terrainheight)*up:vector.
+    set dh_spot to dh_spot:mag.
+
+    // wanted velocity towards landing spot
+    local hspeed is 60.
+    if (dh_spot < 1100) set hspeed to 30.
+    if (dh_spot < 450) set hspeed to dh_spot / 15.
+    if (dh_spot < 100) set hspeed to min(hspeed, dh_spot/4).
+    local vel_targ is hspeed * heading(landing_spot:heading, 0):vector.
+
+    // velocity perpendicular to target
+    local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
+
+    // required acceleration vector towards target and cancelling sideways velocity
+    local vec_diff is vel_targ - vh_spot - vside.
+
+    // Remove any vertical component
+    local vec_diff is vxcl(up:vector, vec_diff).
+
+    // Required heading to fly
+    local target_heading is compass_for_vec(vec_diff).
+
+    // Required Pitch towarsds target
+    local target_pitch is pid_pitch:update(time:seconds, vec_diff:mag).
+}
+
 function align_landing_spot
 {
     parameter landing_spot.
@@ -454,10 +490,6 @@ function align_landing_spot
     local dh_spot is landing_spot:position + (ship:altitude - landing_spot:terrainheight)*up:vector.
     set dh_spot to dh_spot:mag.
 
-    // time to spot at current vel
-    local th_spot is dh_spot / sh_spot.
-    if (th_spot < 0) set th_spot to dh_spot / 0.5.      // if moving away from target set time to time assuming velocity of 0.5m/s
-
     // wanted velocity towards landing spot
     local hspeed is 60.
     if (dh_spot < 1100) set hspeed to 30.
@@ -465,13 +497,14 @@ function align_landing_spot
     if (dh_spot < 100) set hspeed to min(hspeed, dh_spot/4).
     local vel_targ is hspeed * heading(landing_spot:heading, 0):vector.
 
-    // acceleration to reach target velocity in 2 seconds
-    local acc_rec is (vel_targ - vh_spot) / 2.
-    // else local acc_rec is (vel_targ - vh_spot) / th_spot.
-
     // velocity perpendicular to target
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
-    local acc_side is -vside / 2.  // acceleration to cancel sideways velocity in 2 secs
+
+    // acceleration to reach target velocity in 2 seconds
+    local acc_rec is (vel_targ - vh_spot) / 2.
+    // acceleration to cancel sideways velocity in 2 seconds
+    local acc_side is -vside / 2.
+
     // Total Acceleration needed to cancel sideways velocity and gravity, and move towards target
     local acc_vec is acc_rec + acc_side - ship:sensors:grav.
     // set acceleration to be maximum of acc due to gravity - limits pitch to 45 deg

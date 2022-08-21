@@ -35,11 +35,11 @@ function launch_to_ap
         wait until bpressed.
         clearguis().
     }
-
-    pid_throttle_gforce().
         
     // Do Countdown
     countdown().
+
+    pid_throttle_gforce().
 
     // Do Launch to 700m - steering up, thrust max
     initial_launch().
@@ -71,6 +71,9 @@ function countdown
         print " ".
         print "Initiating Launch Program".
         print "t-minus: " + tminus.
+
+        local tval is 0.
+        lock throttle to tval.
         if (tminus < 3)
         {
             print "Engine Ignition".
@@ -78,7 +81,7 @@ function countdown
             local tstep is 0.
             until (tstep = 20)
             {
-                set thrott_pid to thrott_pid + 0.5 / 20.
+                set tval to tval + 0.5 / 20.
                 set tstep to tstep + 1.
                 wait 0.05.
             }
@@ -110,7 +113,10 @@ function initial_launch
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
-        set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
+        print "time: " + time:seconds + "   gforce: " + gforce.
+        local update is pid_gforce:update(time:seconds, gforce).
+        set thrott_pid to max(0, min(1, thrott_pid + update)).
+        print "Gforce: " + gforce + "   TForce: " + pid_gforce:setpoint + "   throttle: " + thrott_pid + "   update: " + update.
 
         if (check_stage_thrust() = false) autostage().
     }
@@ -145,6 +151,8 @@ function pitch_over
         set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
 
         if (check_stage_thrust() = false) autostage().
+
+        wait 0.01.
     }
 }
 
@@ -192,6 +200,8 @@ function prograde_climb
         }
 
         if (check_stage_thrust() = false) autostage().
+
+        wait 0.01.
     }
     
     if (alt:radar < 60000) wait 0.2.

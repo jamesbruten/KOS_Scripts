@@ -8,7 +8,7 @@ function pid_throttle_gforce
     global Ki_gforce is 0.
     global Kd_gforce is 0.006.
 
-    global pid_gforce is pidloop(Kp_gforce, Ki_gforce, Kd_gforce, 0, 1).
+    global pid_gforce is pidloop(Kp_gforce, Ki_gforce, Kd_gforce, 0.0, 1.0).
     set pid_gforce:setpoint to 1.4.
 
     global thrott_pid is 1.
