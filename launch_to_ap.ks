@@ -113,10 +113,8 @@ function initial_launch
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
-        print "time: " + time:seconds + "   gforce: " + gforce.
-        local update is pid_gforce:update(time:seconds, gforce).
-        set thrott_pid to max(0, min(1, thrott_pid + update)).
-        print "Gforce: " + gforce + "   TForce: " + pid_gforce:setpoint + "   throttle: " + thrott_pid + "   update: " + update.
+        set thrott_pid to pid_gforce:update(time:seconds, gforce).
+        // print "Gforce: " + gforce + "   TForce: " + pid_gforce:setpoint + "   throttle: " + thrott_pid.
 
         if (check_stage_thrust() = false) autostage().
     }
