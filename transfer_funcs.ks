@@ -249,9 +249,6 @@ function moon_transfer
     lights on.
     set steeringmanager:maxstoppingtime to 2.
 
-    // circularise parking orbit
-    adjust_apsides("a", ship:apoapsis).
-
     deploy_solar_panels().
     deploy_antenna().
     deploy_dp_shield().

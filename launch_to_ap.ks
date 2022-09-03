@@ -59,8 +59,11 @@ function launch_to_ap
 
 function countdown
 {
+    parameter throttle_up is true.
+
     // Countdown and ignition of engines
     local tminus is 5.
+    local tval is 0.
     set thrott_pid to 0.
     until (tminus < 1)
     {
@@ -71,10 +74,9 @@ function countdown
         print " ".
         print "Initiating Launch Program".
         print "t-minus: " + tminus.
-
-        local tval is 0.
+        
         lock throttle to tval.
-        if (tminus < 3)
+        if (tminus < 3 and throttle_up = true)
         {
             print "Engine Ignition".
             if (tminus = 2) stage.
@@ -113,10 +115,10 @@ function initial_launch
     {
         set accvec to ship:sensors:acc - ship:sensors:grav.
         set gforce to accvec:mag / g_pid.
-        set thrott_pid to pid_gforce:update(time:seconds, gforce).
-        // print "Gforce: " + gforce + "   TForce: " + pid_gforce:setpoint + "   throttle: " + thrott_pid.
+        set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
 
         if (check_stage_thrust() = false) autostage().
+        wait 0.01.
     }
 }
 
@@ -149,7 +151,6 @@ function pitch_over
         set thrott_pid to max(0, min(1, thrott_pid + pid_gforce:update(time:seconds, gforce))).
 
         if (check_stage_thrust() = false) autostage().
-
         wait 0.01.
     }
 }
@@ -256,7 +257,7 @@ function launch_to_vac
     local needed_az is inst_az(orb_inc).
     local last_heading is needed_az.
     
-    countdown().
+    countdown(false).
     
     lock steering to heading(needed_az, 45).
     when (alt:radar > 150) then gear off.

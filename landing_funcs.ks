@@ -175,6 +175,12 @@ function correct_landing_inc
     // vecdraw(v(0,0,0), target_vect:normalized, RGB(0,1,0), "Tgt", 2, True, 0.2, True, True).
 }
 
+function ship_thrust_to_weight {
+    local ship_acc is ship:availablethrust / ship:mass.
+    local ship_g is ship:body:mu / ship:body:radius^2.
+    return ship_acc / ship_g.
+}
+
 function intercept_landing_site
 {
     parameter landing_lat, landing_lng, eta_landing.
@@ -187,6 +193,9 @@ function intercept_landing_site
     wait until time:seconds > wait_end.
 
     print("Impacting Landing Site").
+
+    local diff_val is 5.
+    if (ship_thrust_to_weight() > 8) set diff_val to 2.5.
 
     lock steering to retrograde.
     wait 10.
@@ -206,9 +215,9 @@ function intercept_landing_site
 
         if (abs(landing_lat) <= 85)
         {
-            if (diff_lat < 5)
+            if (diff_lat < diff_val)
             {
-                if (diff_lng < 5) break.
+                if (diff_lng < diff_val) break.
                 else if (abs(landing_lat) > 80) break.
             }
         }
