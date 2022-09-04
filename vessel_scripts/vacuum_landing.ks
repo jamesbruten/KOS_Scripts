@@ -20,52 +20,52 @@ for p in ship:parts
     if (p:tag = "rover_lander") set rover_lander to true.
 }
 
-if (ship:body = tbody)
-{
-    undock_leave().
-    if (ship:apoapsis > 75000)
-    {
-        print "Lowering Orbit to 50km".
-        adjust_apsides("a", 50000).
-        wait 5.
-        adjust_apsides("p", ship:periapsis).
-    }
-    else if (ship:orbit:eccentricity > 0.002)
-    {
-        adjust_apsides("a", ship:apoapsis).
-    }
-}
+// if (ship:body = tbody)
+// {
+//     undock_leave().
+//     if (ship:apoapsis > 75000)
+//     {
+//         print "Lowering Orbit to 50km".
+//         adjust_apsides("a", 50000).
+//         wait 5.
+//         adjust_apsides("p", ship:periapsis).
+//     }
+//     else if (ship:orbit:eccentricity > 0.002)
+//     {
+//         adjust_apsides("a", ship:apoapsis).
+//     }
+// }
 
-wait_for_landing(target_lat,target_lng, ship).
+// wait_for_landing(target_lat,target_lng, ship).
 
-retract_solar_panels().
+// retract_solar_panels().
 
-lower_periapsis(target_lat, target_lng).
+// lower_periapsis(target_lat, target_lng).
 
-correct_landing_inc(target_lat, target_lng).
+// correct_landing_inc(target_lat, target_lng).
 
-local eta_landing is lspot_closest(target_lat, target_lng).
+// local eta_landing is lspot_closest(target_lat, target_lng).
 
-intercept_landing_site(target_lat, target_lng, eta_landing).
+// intercept_landing_site(target_lat, target_lng, eta_landing).
 
-for p in ship:parts
-{
-    if (p:tag = "payload")
-    {
-        deploy_payload("payload").
-        if (rover_lander = True) AG4 on.
-        wait 2.
-        if (kuniverse:activevessel <> core:vessel)
-        {
-            kuniverse:forcesetactivevessel(core:vessel).
-            unlock steering.
-            AG1 on.
-            wait 10.
-        }
-        activate_engines().
-        break.
-    }
-}
+// for p in ship:parts
+// {
+//     if (p:tag = "payload")
+//     {
+//         deploy_payload("payload").
+//         if (rover_lander = True) AG4 on.
+//         wait 2.
+//         if (kuniverse:activevessel <> core:vessel)
+//         {
+//             kuniverse:forcesetactivevessel(core:vessel).
+//             unlock steering.
+//             AG1 on.
+//             wait 10.
+//         }
+//         activate_engines().
+//         break.
+//     }
+// }
 
 set steeringmanager:maxstoppingtime to 0.75.
 

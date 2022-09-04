@@ -1,3 +1,4 @@
+AG5         Set landing pause to false      landing_funcs
 AG6         Unlock Aero Surfaces            targeted_kerbin_landing
 AG7         Unlock Throttle + Steering      targeted_kerbin_landing
 AG9         Start Fuel Drain                targeted_kerbin_landing

@@ -360,35 +360,43 @@ function final_landing_burn
         }
     }
 
+    pid_throttle_vspeed().
+    pid_translate_pitch().
+
     local landing_spot is latlng(landing_lat, landing_lng).
 
-    local dir_params is align_landing_spot(landing_spot).
-    local steer is dir_params[0].
-    local dh_spot is dir_params[1].
-    local vh_spot is dir_params[2].
-    local hspeed is dir_params[3].
+    local dir_params is translate_with_pid(landing_spot).
+    local target_heading is dir_params[0].
+    local target_pitch is dir_params[1].
+    local dh_spot is dir_params[2].
+    local vh_spot is dir_params[3].
+    local hspeed is dir_params[4].
+
+    local ship_roll is roll_for().
     local min_t_target is dh_spot / hspeed.
     local ship_alt is ship:altitude - landing_spot:terrainheight.
     local init_vspeed is ship:verticalspeed.
     local tgt_vspd is init_vspeed.
-
-    lock steering to lookdirup(steer, ship:facing:topvector).
-    pid_throttle_vspeed().
-    pid_translate_pitch().
     local pause is true.
     if (rover_lander = False) when (pause = false) then deploy_gear().
     else when (alt:radar < 250) then deploy_gear().
     local pause_alt is 70.
     local sit is "Final Landing Burn".
 
+    lock steering to heading(target_heading, target_pitch, ship_roll).
+    
+
     until false
     {
-        set dir_params to align_landing_spot(landing_spot).
-        set steer to dir_params[0].
-        set dh_spot to dir_params[1].
-        set vh_spot to dir_params[2].
-        set hspeed to dir_params[3].
-        set min_t_target to dh_spot / vh_spot:mag.
+        set dir_params to translate_with_pid(landing_spot).
+        set target_heading to dir_params[0].
+        set target_pitch to dir_params[1].
+        set dh_spot to dir_params[2].
+        set vh_spot to dir_params[3].
+        set hspeed to dir_params[4].
+
+        set ship_roll to roll_for().
+        set min_t_target to dh_spot / hspeed.
         if (dh_spot < 10 and vh_spot:mag < 1.5) set pause to false.
         if (AG5) set pause to false.
 
@@ -410,12 +418,13 @@ function final_landing_burn
 
         if (ship:status = "landed") break.
 
-        clearscreen.
-        print sit.
-        print "Skycrane: " + skycrane + "          Pause: " + pause.
-        print "Throttle: " + round(thrott_pid, 2).
-        print "VDist: " + round(ship_alt, 2) + "   Vsp: " + round(ship:verticalspeed, 2) + "   TVsp: " + round(pid_vspeed:setpoint, 2).
-        print "HDist: " + round(dh_spot, 2) + "   HSp: " + round(vh_spot:mag, 2) + "   THsp: " + round(hspeed, 2).
+        // clearscreen.
+        // print sit.
+        // print "Skycrane: " + skycrane + "          Pause: " + pause.
+        // print "Throttle: " + round(thrott_pid, 2).
+        // print "Target Heading: " + round(target_heading, 2) + "   Target Pitch: " + round(target_pitch, 2).
+        // print "VDist: " + round(ship_alt, 2) + "   Vsp: " + round(ship:verticalspeed, 2) + "   TVsp: " + round(pid_vspeed:setpoint, 2).
+        // print "HDist: " + round(dh_spot, 2) + "   HSp: " + round(vh_spot:mag, 2) + "   THsp: " + round(hspeed, 2).
     }
     if (skycrane = false)
     {
@@ -480,10 +489,15 @@ function translate_with_pid
     local vec_diff is vxcl(up:vector, vec_diff).
 
     // Required heading to fly
-    local target_heading is compass_for_vec(vec_diff).
+    local target_heading is heading_of_vector(vec_diff).
 
     // Required Pitch towarsds target
-    local target_pitch is pid_pitch:update(time:seconds, vec_diff:mag).
+    local target_pitch is pid_pitch:update(time:seconds, vec_diff:mag/1000).
+
+    clearscreen.
+    print "Vec Diff: " + round(vec_diff:mag, 2) + "   Target Pitch: " + round(target_pitch, 2).
+
+    return list(target_heading, target_pitch, dh_spot, vh_spot, hspeed).
 }
 
 function align_landing_spot
