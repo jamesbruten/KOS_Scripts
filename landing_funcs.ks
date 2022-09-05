@@ -337,11 +337,7 @@ function initial_burn_steering
 
     set vec_tot to vxcl(up:vector, vh_spot + vside).
 
-    local east_unit_vec is vcrs(up:vector, north:vector).
-    local east_vel is vdot(vec_tot, east_unit_vec).
-    local north_vel is vdot(vec_tot, north:vector).
-    local compass is arctan2(east_vel, north_vel).
-    if (compass < 0) set compass to compass + 360.
+    local compass is heading_of_vector(vec_tot).
 
     return compass.
 }
@@ -359,6 +355,8 @@ function final_landing_burn
             break.
         }
     }
+
+    global g_body is ship:body:mu / ship:body:radius^2.
 
     pid_throttle_vspeed().
     pid_translate_pitch().
@@ -385,12 +383,12 @@ function final_landing_burn
 
     lock steering to heading(target_heading, target_pitch, ship_roll).
     
-
     until false
     {
+        set loop_count to 0.
         set dir_params to translate_with_pid(landing_spot).
         set target_heading to dir_params[0].
-        set target_pitch to dir_params[1].
+        set spd_diff to dir_params[1].
         set dh_spot to dir_params[2].
         set vh_spot to dir_params[3].
         set hspeed to dir_params[4].
@@ -486,16 +484,16 @@ function translate_with_pid
     local vec_diff is vel_targ - vh_spot - vside.
 
     // Remove any vertical component
-    local vec_diff is vxcl(up:vector, vec_diff).
+    set vec_diff to vxcl(up:vector, vec_diff).
+
+    // Normalise to 1 where 1 is the acceleration due to gravity
+    local spd_diff is min(vec_diff:mag, g_body) / g_body.
 
     // Required heading to fly
     local target_heading is heading_of_vector(vec_diff).
 
     // Required Pitch towarsds target
-    local target_pitch is pid_pitch:update(time:seconds, vec_diff:mag/1000).
-
-    clearscreen.
-    print "Vec Diff: " + round(vec_diff:mag, 2) + "   Target Pitch: " + round(target_pitch, 2).
+    local target_pitch is pid_pitch:update(time:seconds, spd_diff).
 
     return list(target_heading, target_pitch, dh_spot, vh_spot, hspeed).
 }
