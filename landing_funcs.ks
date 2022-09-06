@@ -333,9 +333,8 @@ function initial_burn_steering
 
     // velocity perpendicular to target
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
-    set vside to -1 * vside.
 
-    set vec_tot to vxcl(up:vector, vh_spot + vside).
+    set vec_tot to vxcl(up:vector, vh_spot - vside).
 
     local compass is heading_of_vector(vec_tot).
 
@@ -385,10 +384,9 @@ function final_landing_burn
     
     until false
     {
-        set loop_count to 0.
         set dir_params to translate_with_pid(landing_spot).
         set target_heading to dir_params[0].
-        set spd_diff to dir_params[1].
+        set target_pitch to dir_params[1].
         set dh_spot to dir_params[2].
         set vh_spot to dir_params[3].
         set hspeed to dir_params[4].
@@ -481,19 +479,17 @@ function translate_with_pid
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
 
     // required acceleration vector towards target and cancelling sideways velocity
-    local vec_diff is vel_targ - vh_spot - vside.
+    // local vec_diff is vel_targ - vh_spot - vside - 10*ship:sensors:grav.
+    local vec_diff is -1 * ship:sensors:grav.
 
     // Remove any vertical component
-    set vec_diff to vxcl(up:vector, vec_diff).
-
-    // Normalise to 1 where 1 is the acceleration due to gravity
-    local spd_diff is min(vec_diff:mag, g_body) / g_body.
+    local horiz_vec_diff is vxcl(up:vector, vec_diff).
 
     // Required heading to fly
-    local target_heading is heading_of_vector(vec_diff).
+    local target_heading is heading_of_vector(horiz_vec_diff).
 
     // Required Pitch towarsds target
-    local target_pitch is pid_pitch:update(time:seconds, spd_diff).
+    local target_pitch is pid_pitch:update(time:seconds, vec_diff:mag).
 
     return list(target_heading, target_pitch, dh_spot, vh_spot, hspeed).
 }

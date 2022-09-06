@@ -49,7 +49,7 @@ function pid_translate_pitch
 {
     global Kp_pitch is 0.5.
     global Ki_pitch is 0.
-    global Kd_pitch is 1000.
+    global Kd_pitch is 0.1.
 
     global pid_pitch is pidloop(Kp_pitch, Ki_pitch, Kd_pitch, 0, 90).
     set pid_pitch:setpoint to 0.
