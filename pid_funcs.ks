@@ -37,7 +37,7 @@ function pid_throttle_vspeed
     global Ki_vspeed is 0.
     global Kd_vspeed is 0.05.
 
-    global pid_vspeed is pidloop(Kp_vspeed, Ki_vspeed, Kd_vspeed, 0.05, 1).
+    global pid_vspeed is pidloop(Kp_vspeed, Ki_vspeed, Kd_vspeed, 0.01, 1).
     set pid_vspeed:setpoint to ship:verticalspeed.
 
     global thrott_pid is 1.
@@ -47,9 +47,9 @@ function pid_throttle_vspeed
 
 function pid_translate_pitch
 {
-    global Kp_pitch is 0.5.
+    global Kp_pitch is 0.01.
     global Ki_pitch is 0.
-    global Kd_pitch is 0.1.
+    global Kd_pitch is 0.
 
     global pid_pitch is pidloop(Kp_pitch, Ki_pitch, Kd_pitch, 0, 90).
     set pid_pitch:setpoint to 0.

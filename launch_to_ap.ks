@@ -248,16 +248,13 @@ function launch_to_vac
     }
     lock steering to lookdirup(up:forevector, ship:facing:topvector).
 
-    pid_throttle_gforce().
-    set pid_gforce:setpoint to 3.0.
-    set accvec to ship:sensors:acc - ship:sensors:grav.
-    set gforce to accvec:mag / g_pid.
-    lock throttle to thrott_pid.
-
     local needed_az is inst_az(orb_inc).
     local last_heading is needed_az.
     
     countdown(false).
+
+    pid_throttle_gforce().
+    set pid_gforce:setpoint to 3.0.
     
     lock steering to heading(needed_az, 45).
     when (alt:radar > 150) then gear off.

@@ -5,20 +5,20 @@
 // Mun LC D     3.259722    -155.635
 
 
-// local target_lat is 3.383889.                    For Radio Tower:  3.383889 -155.5744
-// local target_lng is -155.5744.
+local target_lat is -5.009766.            
+local target_lng is 6.855469.
+local tbody is Minmus.
+
+// local pad is "Mun LC B".
+// local coords is mun_pads[pad].
+// local target_lat is coords[0].
+// local target_lng is coords[1].
 // local tbody is Mun.
 
-local pad is "Mun LC B".
-local coords is mun_pads[pad].
-local target_lat is coords[0].
-local target_lng is coords[1].
-local tbody is Mun.
-
-for p in ship:parts
-{
-    if (p:tag = "rover_lander") set rover_lander to true.
-}
+// for p in ship:parts
+// {
+//     if (p:tag = "rover_lander") set rover_lander to true.
+// }
 
 // if (ship:body = tbody)
 // {
@@ -67,9 +67,9 @@ for p in ship:parts
 //     }
 // }
 
-set steeringmanager:maxstoppingtime to 0.75.
+// set steeringmanager:maxstoppingtime to 0.75.
 
-initial_landing_burn(target_lat, target_lng).
+// initial_landing_burn(target_lat, target_lng).
 
 final_landing_burn(target_lat, target_lng).
 

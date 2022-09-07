@@ -235,9 +235,9 @@ function moon_transfer
     global target_pe is target_pe_km*1000.
 
     // Target Body Orbit Params
-    local tbody is Mun.
+    local tbody is Minmus.
     set target to tbody.
-    global next_inc is 135.
+    global next_inc is 30.
     global next_ap_km is 50.
     global next_pe_km is next_ap_km.
     global next_ap is next_ap_km * 1000.

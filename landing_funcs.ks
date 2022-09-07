@@ -362,12 +362,11 @@ function final_landing_burn
 
     local landing_spot is latlng(landing_lat, landing_lng).
 
-    local dir_params is translate_with_pid(landing_spot).
-    local target_heading is dir_params[0].
-    local target_pitch is dir_params[1].
-    local dh_spot is dir_params[2].
-    local vh_spot is dir_params[3].
-    local hspeed is dir_params[4].
+    local dir_params is align_landing_spot(landing_spot).
+    local steer is dir_params[0].
+    local dh_spot is dir_params[1].
+    local vh_spot is dir_params[2].
+    local hspeed is dir_params[3].
 
     local ship_roll is roll_for().
     local min_t_target is dh_spot / hspeed.
@@ -380,16 +379,16 @@ function final_landing_burn
     local pause_alt is 70.
     local sit is "Final Landing Burn".
 
-    lock steering to heading(target_heading, target_pitch, ship_roll).
+    // lock steering to heading(target_heading, target_pitch, ship_roll).
+    lock steering to lookdirup(steer, ship:facing:topvector).
     
     until false
     {
-        set dir_params to translate_with_pid(landing_spot).
-        set target_heading to dir_params[0].
-        set target_pitch to dir_params[1].
-        set dh_spot to dir_params[2].
-        set vh_spot to dir_params[3].
-        set hspeed to dir_params[4].
+        set dir_params to align_landing_spot(landing_spot).
+        set steer to dir_params[0].
+        set dh_spot to dir_params[1].
+        set vh_spot to dir_params[2].
+        set hspeed to dir_params[3].
 
         set ship_roll to roll_for().
         set min_t_target to dh_spot / hspeed.
@@ -414,13 +413,13 @@ function final_landing_burn
 
         if (ship:status = "landed") break.
 
-        // clearscreen.
-        // print sit.
-        // print "Skycrane: " + skycrane + "          Pause: " + pause.
-        // print "Throttle: " + round(thrott_pid, 2).
+        clearscreen.
+        print sit.
+        print "Skycrane: " + skycrane + "          Pause: " + pause.
+        print "Throttle: " + round(thrott_pid, 2).
         // print "Target Heading: " + round(target_heading, 2) + "   Target Pitch: " + round(target_pitch, 2).
-        // print "VDist: " + round(ship_alt, 2) + "   Vsp: " + round(ship:verticalspeed, 2) + "   TVsp: " + round(pid_vspeed:setpoint, 2).
-        // print "HDist: " + round(dh_spot, 2) + "   HSp: " + round(vh_spot:mag, 2) + "   THsp: " + round(hspeed, 2).
+        print "VDist: " + round(ship_alt, 2) + "   Vsp: " + round(ship:verticalspeed, 2) + "   TVsp: " + round(pid_vspeed:setpoint, 2).
+        print "HDist: " + round(dh_spot, 2) + "   HSp: " + round(vh_spot:mag, 2) + "   THsp: " + round(hspeed, 2).
     }
     if (skycrane = false)
     {
@@ -479,8 +478,8 @@ function translate_with_pid
     local vside is ship:velocity:surface - vh_spot - up:vector * vdot(up:vector, ship:velocity:surface).
 
     // required acceleration vector towards target and cancelling sideways velocity
-    // local vec_diff is vel_targ - vh_spot - vside - 10*ship:sensors:grav.
-    local vec_diff is -1 * ship:sensors:grav.
+    local vec_diff is vel_targ - vh_spot - vside - 10*ship:sensors:grav.
+    // local vec_diff is -1 * ship:sensors:grav.
 
     // Remove any vertical component
     local horiz_vec_diff is vxcl(up:vector, vec_diff).
@@ -490,6 +489,8 @@ function translate_with_pid
 
     // Required Pitch towarsds target
     local target_pitch is pid_pitch:update(time:seconds, vec_diff:mag).
+
+    print "Vec Mag: " + round(vec_diff:mag, 2) + "   Pitch: " + round(target_pitch, 2).
 
     return list(target_heading, target_pitch, dh_spot, vh_spot, hspeed).
 }
