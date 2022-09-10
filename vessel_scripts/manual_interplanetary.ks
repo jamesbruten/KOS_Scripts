@@ -9,21 +9,22 @@ local target_body is Jool.
 if (target_body:body = Sun) set target to target_body.
 else set target to target_body:body.
 
-// do launch until apoapsis in parking orbit
-launch_to_ap(true).
+if (ship:status = "prelaunch") {
 
-lights on.
+    // do launch until apoapsis in parking orbit
+    launch_to_ap(true).
+
+    lights on.
+    set steeringmanager:maxstoppingtime to 0.5.
+
+    wait 5.
+    deploy_solar_panels().
+    wait 5.
+    deploy_antenna().
+    wait 5.
+}
+
 set steeringmanager:maxstoppingtime to 0.5.
-
-wait 5.
-deploy_solar_panels().
-wait 5.
-deploy_antenna().
-wait 5.
-
-local wait_end is time:seconds + 180.
-do_warp(180).
-wait until time:seconds > wait_end.
 
 transfer_orbit_interplanetary().
 wait 5.

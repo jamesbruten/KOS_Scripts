@@ -7,7 +7,7 @@ if (target:body = ship:body)
     global target_ap_km is target_ap/1000.
     global target_pe_km is target_pe/1000.
     print "Target is: " + target:name.
-    local port_name is "star_end".
+    local port_name is "lower".
     print "Target Port is: " + port_name.
     wait 3.
 
