@@ -43,6 +43,9 @@ wait until time:seconds > wait_end.
 
 until (false)
 {
+    unlock steering.
+    SAS on.
+
     if (ship:body = target_body:body) set target to target_body.
     local next_soi is "None".
     if (ship:orbit:hasnextpatch) set next_soi to ship:orbit:nextpatch:body.
@@ -76,6 +79,7 @@ until (false)
     wait until bpressed.
     clearguis().
 
+    SAS off.
     if (inp = options[0])
     {
         print "Maneuver Node Chosen".
