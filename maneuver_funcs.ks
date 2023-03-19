@@ -107,6 +107,13 @@ function execute_mnv
 
     RCS off.
 
+    set warpmode to "physics".
+    until (mnv:eta < 10 + burn_duration/2) {
+        set warp to 2.
+    }
+    set warp to 0.
+    set warpmode to "rails".
+
     //the ship is facing the right direction, let's wait for our burn time
     if (mnv:eta > burn_duration/2) wait until mnv:eta <= (burn_duration/2).
 
