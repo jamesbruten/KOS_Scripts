@@ -37,21 +37,21 @@ until false {
 
     local val is "".
     local bpressed is false.
-    local gui is gui(200, fileslist:length+3).
-    set gui:x to -250.
-    set gui:y to 200.
-    local label is gui:addlabel("Select " + command).
+    local lgui is gui(200, fileslist:length+3).
+    set lgui:x to -250.
+    set lgui:y to 200.
+    local label is lgui:addlabel("Select " + command).
     set label:style:align to "center".
     set label:style:hstretch to true.
     for f in fileslist {
-        local b is gui:addbutton(f:name).
+        local b is lgui:addbutton(f:name).
         set b:onclick to {
             set val to b:text.
             set bpressed to true.
         }.
     }
     if (level = 1) {
-        set goback to gui:addbutton("go back").
+        set goback to lgui:addbutton("go back").
         set goback:onclick to {
             set pth to "0:/".
             set val to "".
@@ -59,9 +59,9 @@ until false {
             set bpressed to true.
         }.
     }
-    set closeButton to gui:addbutton("Close").
+    set closeButton to lgui:addbutton("Close").
     set closeButton:onclick to {clearguis(). set cont to false. break.}.
-    gui:show().
+    lgui:show().
     wait until bpressed.
     clearguis().
 

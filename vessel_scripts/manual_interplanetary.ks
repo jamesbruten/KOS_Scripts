@@ -5,7 +5,7 @@ global target_inc is 0.
 global target_ap is target_ap_km*1000.
 global target_pe is target_pe_km*1000.
 
-local target_body is Jool.
+local target_body is Dres.
 if (target_body:body = Sun) set target to target_body.
 else set target to target_body:body.
 
@@ -56,26 +56,26 @@ until (false)
                           "Finish Script").
 
     clearscreen.
-    local gui is gui(200, 7).
-    set gui:x to -250.
-    set gui:y to 200.
-    local label is gui:addlabel("Select Next Option").
+    local lgui is gui(200, 7).
+    set lgui:x to -250.
+    set lgui:y to 200.
+    local label is lgui:addlabel("Select Next Option").
     set label:style:align to "center".
     set label:style:hstretch to true.
     local bpressed is false.
     local inp is 0.
     local onum is 1.
     for o in options {
-        local b is gui:addbutton(o).
+        local b is lgui:addbutton(o).
         set b:onclick to {
             set inp to b:text.
             set bpressed to true.
         }.
         set onum to onum + 1.
     }
-    local closeButton is gui:addbutton("Close").
+    local closeButton is lgui:addbutton("Close").
     set closeButton:onclick to {clearguis().}.
-    gui:show().
+    lgui:show().
     wait until bpressed.
     clearguis().
 
