@@ -284,5 +284,5 @@ function launch_to_vac
 function pitch_over_params
 {
     if (target_ap_km > 145) return list(-1.48781044e-07, -3.09494190e-03, 9.10359649e+01, 10000).
-    return list(-3.91456583e-07, -2.65203081e-03, 9.11089286e+01, 8000).
+    return list(-3.91456583e-07, -2.65203081e-03, 9.11089286e+01, 6000).
 }

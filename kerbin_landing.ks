@@ -79,7 +79,8 @@ function reentry
         do_warp(wait_time-5).
         wait until time:seconds > wait_end.
     }
-
+    
+    wait 2.
     lock steering to vcrs(ship:velocity:orbit, -body:position).
     wait 1.
 
