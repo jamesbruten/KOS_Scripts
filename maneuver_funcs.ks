@@ -109,7 +109,7 @@ function execute_mnv
 
     set warpmode to "physics".
     until (mnv:eta < 10 + burn_duration/2) {
-        set warp to 2.
+        set warp to 3.
     }
     set warp to 0.
     set warpmode to "rails".
