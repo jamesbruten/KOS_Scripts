@@ -9,7 +9,7 @@ if (target:body = ship:body)
     print "Target is: " + target:name.
     local port_name is "forward".
     print "Target Port is: " + port_name.
-    wait 3.
+    wait 1.
 
     // wait for target orbit to be above ship
     wait_for_window(target, ship).
@@ -27,7 +27,7 @@ if (target:body = ship:body)
     }
 
     wait 5.
-    deploy_payload("payload").
+    deploy_payload("payload_start").
     activate_engines().
 
     // deploy_solar_panels().
@@ -39,8 +39,8 @@ if (target:body = ship:body)
     transfer_orbit().
 
     final_rendezvous().
-    // wait 2.
-    // deploy_payload("payload").
+    wait 2.
+    deploy_payload("payload_end").
 
     dock_vessels(port_name).
 }

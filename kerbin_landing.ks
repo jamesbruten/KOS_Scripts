@@ -70,6 +70,25 @@ function kerbin_deorbit
     reentry().
 }
 
+function deploy_chutes {
+    print "Deploy Drogues".
+    for p in ship:parts {
+        if p:title:tolower:contains("drogue") {
+            local dp is p:getmodule("realchutemodule").
+            if dp:hasevent("deploy chute") dp:doevent("deploy chute").
+        }
+    }
+    wait until alt:radar < 1500.
+    print "Deploy Mains".
+    for p in ship:parts {
+        if p:title:tolower:contains("parachute") {
+            local dp is p:getmodule("realchutemodule").
+            if dp:hasevent("deploy chute") dp:doevent("deploy chute").
+        }
+    }
+    when (alt:radar < 650) then print "Inflate Mains".
+}
+
 function reentry
 {
     if (eta:periapsis > 20*60)
@@ -119,7 +138,6 @@ function reentry
     wait until alt:radar < 60000.
     print "Steering Off".
     unlock steering.
-    wait until alt:radar < 6000.
-    print "Deploy Chutes".
-    chutes on.
+    wait until alt:radar < 4000.
+    deploy_chutes().
 }

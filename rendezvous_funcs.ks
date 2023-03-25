@@ -282,15 +282,17 @@ function final_rendezvous
             set label:style:hstretch to true.
             gui:show().
             wait 0.5.
-            if (abs(np:pitch - facing:pitch) < 0.3 and 
-                    abs(np:yaw - facing:yaw) < 0.3 and 
-                    burn_in_time > 10) {
-                set warp to 3.
+            if (burn_in_time > 10) {
+                if (abs(np:pitch - facing:pitch) < 0.3 and
+                        abs(np:yaw - facing:yaw) < 0.3 and
+                        warp = 0) {
+                    set warpmode to "physics".
+                    set warp to 3.
+                }
             }
-            else {
-                set warp to 0.
-            }
+            else set warp to 0.
         }
+        set warpmode to "rails".
         clearguis().
 
         set wantedAccel to vel_diff:mag / 4.

@@ -42,11 +42,14 @@ function do_warp
 {
     parameter warp_delta.
 
+    set warpmode to "rails".
+    local time_end is time:seconds + warp_delta.
     if (warp_delta > 30)
     {
         warpto(time:seconds + warp_delta).
         wait until ship:unpacked.
     }
+    wait until time:seconds > time_end + 1.
 }
 
 function warp_at_level
