@@ -263,10 +263,12 @@ function final_rendezvous
         local max_time is min_time + 1.25*killdv_time.
 
         lock steering to lookdirup(-1*vel_diff, north:vector).
+        lock np to lookdirup(-1*vel_diff, north:vector).
 
         do_warp(time_until_burn-60-killdv_time/2).
         RCS on.
 
+        set warpmode to "physics".
         until (time:seconds >= min_time - killdv_time / 2)
         {
             set vel_diff to ship:velocity:orbit - target:velocity:orbit.
@@ -274,11 +276,20 @@ function final_rendezvous
             local gui is gui(100).
             set gui:x to -250.
             set gui:y to 200.
-            local label is gui:addlabel("Burn in: " + floor(min_time-time:seconds-killdv_time/2)).
+            local burn_in_time is floor(min_time-time:seconds-killdv_time/2).
+            local label is gui:addlabel("Burn in: " + burn_in_time).
             set label:style:align to "center".
             set label:style:hstretch to true.
             gui:show().
-            wait 0.8.
+            wait 0.5.
+            if (abs(np:pitch - facing:pitch) < 0.3 and 
+                    abs(np:yaw - facing:yaw) < 0.3 and 
+                    burn_in_time > 10) {
+                set warp to 3.
+            }
+            else {
+                set warp to 0.
+            }
         }
         clearguis().
 
